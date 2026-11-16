@@ -26,10 +26,10 @@
 
 local NUM_CHAT_WINDOWS = NUM_CHAT_WINDOWS or Constants.ChatFrameConstants.MaxChatWindows
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("HoverTips", "AceHook-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("HoverTips", "AceHook-3.0")
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 		}

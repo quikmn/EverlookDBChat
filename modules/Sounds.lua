@@ -23,11 +23,11 @@
 --
 --
 -------------------------------------------------------------------------------
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("Sounds", "AceEvent-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("Sounds", "AceEvent-3.0")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = false,
 			["incoming"] = {
@@ -60,7 +60,7 @@ Prat:AddModuleToLoad(function()
 	------------------------------------------------]] --
 	-- things to do when the module is enabled
 	function module:OnModuleEnable()
-		media = Prat.Media
+		media = EverlookDBChat.Media
 		SOUND = media.MediaType.SOUND
 		self:BuildSoundList()
 		self:RegisterEvent("CHAT_MSG_CHANNEL_NOTICE", "RefreshOptions")
@@ -74,7 +74,7 @@ Prat:AddModuleToLoad(function()
 			end
 		end
 
-		Prat.RegisterChatEvent(self, Prat.Events.POST_ADDMESSAGE)
+		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.POST_ADDMESSAGE)
 
 		media.RegisterCallback(self, "LibSharedMedia_Registered", "SharedMedia_Registered")
 		media.RegisterCallback(self, "LibSharedMedia_SetGlobal", "SharedMedia_Registered")
@@ -87,7 +87,7 @@ Prat:AddModuleToLoad(function()
 	-- things to do when the module is disabled
 	function module:OnModuleDisable()
 		self:UnregisterAllEvents()
-		Prat.UnregisterAllChatEvents(self)
+		EverlookDBChat.UnregisterAllChatEvents(self)
 		media.UnregisterAllCallbacks(self)
 		_G.UnmuteSoundFile(567421)
 	end
@@ -140,7 +140,7 @@ Prat:AddModuleToLoad(function()
 
 		function module:RefreshOptions()
 			local o = customchans
-			local t = Prat.GetChannelTable()
+			local t = EverlookDBChat.GetChannelTable()
 			for _, n in pairs(t) do
 				if type(n) == "string" then
 					if not o[n] then
@@ -150,7 +150,7 @@ Prat:AddModuleToLoad(function()
 			end
 		end
 
-		Prat:SetModuleOptions(module.name, {
+		EverlookDBChat:SetModuleOptions(module.name, {
 			name = PL["Sounds"],
 			desc = PL["A module to play sounds on certain chat messages."],
 			type = "group",
@@ -202,7 +202,7 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:SetChanOptValue(info, val)
-		Prat:PlaySound(val)
+		EverlookDBChat:PlaySound(val)
 		self.db.profile[info[#info - 1]][info[#info]:upper()] = val
 	end
 
@@ -220,7 +220,7 @@ Prat:AddModuleToLoad(function()
 	--[[------------------------------------------------
 		Core Functions
 	------------------------------------------------]] --
-	function module:Prat_PostAddMessage(_, message, _, event)
+	function module:EverlookDBChat_PostAddMessage(_, message, _, event)
 		if message.LINE_ID and message.LINE_ID == self.lastevent and self.lasteventtype == event then
 			return
 		end
@@ -275,8 +275,8 @@ Prat:AddModuleToLoad(function()
 	function module:PlaySound(sound, event, eventId)
 		self.lasteventtype = event
 		self.lastevent = eventId
-		Prat:PlaySound(sound)
+		EverlookDBChat:PlaySound(sound)
 	end
 
 	return
-end) -- Prat:AddModuleToLoad
+end) -- EverlookDBChat:AddModuleToLoad

@@ -36,11 +36,11 @@ local ChatFrame_AddMessageGroup = _G.ChatFrame_AddMessageGroup or _G.ChatFrameMi
 local ChatFrame_RemoveAllChannels = _G.ChatFrame_RemoveAllChannels or _G.ChatFrameMixin.RemoveAllChannels
 local ChatFrame_ReceiveAllPrivateMessages = _G.ChatFrame_ReceiveAllPrivateMessages or _G.ChatFrameMixin.ReceiveAllPrivateMessages
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("Memory", "AceHook-3.0", "AceEvent-3.0", "AceTimer-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("Memory", "AceHook-3.0", "AceEvent-3.0", "AceTimer-3.0")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 			frames = { ["*"] = {} },
@@ -50,7 +50,7 @@ Prat:AddModuleToLoad(function()
 		}
 	})
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL.module_name,
 		desc = PL.module_desc,
 		type = "group",
@@ -99,7 +99,7 @@ Prat:AddModuleToLoad(function()
 		blockChannelInvites = "CVarBool"
 	}
 
-	Prat:SetModuleInit(module.name, function(self)
+	EverlookDBChat:SetModuleInit(module.name, function(self)
 		self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	end)
 
@@ -120,7 +120,7 @@ Prat:AddModuleToLoad(function()
 			end
 		end
 
-		Prat.RegisterChatEvent(self, Prat.Events.PRE_ADDMESSAGE)
+		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.PRE_ADDMESSAGE)
 	end
 
 	function module:SaveSettings()
@@ -333,7 +333,7 @@ Prat:AddModuleToLoad(function()
 				index = index + 1
 			end
 			if GetChannelName(index) == 0 then
-				local clubId, streamId = Prat.GetCommunityAndStreamFromChannel(name);
+				local clubId, streamId = EverlookDBChat.GetCommunityAndStreamFromChannel(name);
 				if not clubId or not streamId then
 					JoinChannelByName(name)
 				else
@@ -378,7 +378,7 @@ Prat:AddModuleToLoad(function()
 		end
 
 		-- Disabled for retail because it causes taint errors with edit mode
-		if Prat.IsClassic then
+		if EverlookDBChat.IsClassic then
 			-- restore frame appearance and layout
 			if not self.working.frames then
 				for k, _ in pairs(db.frames) do
@@ -438,7 +438,7 @@ Prat:AddModuleToLoad(function()
 		end
 	end
 
-	function module:Prat_PreAddMessage(_, message)
+	function module:EverlookDBChat_PreAddMessage(_, message)
 		if self.working and ("YOU_CHANGED" == message.NOTICE or "YOU_LEFT" == message.NOTICE) then
 			message.DONOTPROCESS = true
 		end

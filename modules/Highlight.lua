@@ -24,11 +24,11 @@
 --
 -------------------------------------------------------------------------------
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("Highlight")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("Highlight")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 			player = true,
@@ -46,7 +46,7 @@ Prat:AddModuleToLoad(function()
 		type = "toggle",
 	}
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL.module_name,
 		desc = PL.module_desc,
 		type = "group",
@@ -56,7 +56,7 @@ Prat:AddModuleToLoad(function()
 		}
 	})
 
-	local CLR = Prat.CLR
+	local CLR = EverlookDBChat.CLR
 	local function guildBracket(text)
 		return CLR:Colorize("ffffff", text)
 	end
@@ -67,18 +67,18 @@ Prat:AddModuleToLoad(function()
 
 	local function highlightPlayer(text)
 		if module.db.profile.player then
-			return Prat:RegisterMatch(CLR:Colorize("00ff00", text))
+			return EverlookDBChat:RegisterMatch(CLR:Colorize("00ff00", text))
 		end
 	end
 
 	local function highlightGuild(text)
 		if module.db.profile.guild then
-			return Prat:RegisterMatch(guildBracket("<") .. guildText(text) .. guildBracket(">"))
+			return EverlookDBChat:RegisterMatch(guildBracket("<") .. guildText(text) .. guildBracket(">"))
 		end
 	end
 
-	Prat:SetModulePatterns(module, {
-		{ pattern = Prat.GetNamePattern(UnitName("player")), matchfunc = highlightPlayer, priority = 47 },
+	EverlookDBChat:SetModulePatterns(module, {
+		{ pattern = EverlookDBChat.GetNamePattern(UnitName("player")), matchfunc = highlightPlayer, priority = 47 },
 		{ pattern = "<(..-)>", matchfunc = highlightGuild, priority = 49 },
 	})
 end)

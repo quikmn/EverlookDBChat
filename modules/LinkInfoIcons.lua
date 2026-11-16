@@ -25,11 +25,11 @@
 -------------------------------------------------------------------------------
 
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("LinkInfoIcons")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("LinkInfoIcons")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = false,
 			item = {
@@ -51,7 +51,7 @@ Prat:AddModuleToLoad(function()
 		}
 	})
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL.module_name,
 		desc = PL.module_desc,
 		type = "group",
@@ -143,27 +143,27 @@ Prat:AddModuleToLoad(function()
 		},
 	})
 
-	Prat:SetModuleInit(module, function()
-		Prat.RegisterMessageItem("PLAYERINFO", "PLAYER", "before")
+	EverlookDBChat:SetModuleInit(module, function()
+		EverlookDBChat.RegisterMessageItem("PLAYERINFO", "PLAYER", "before")
 	end)
 
 	function module:OnModuleEnable()
 	end
 
 	function module:OnModuleEnable()
-		Prat.RegisterChatEvent(self, "Prat_FrameMessage")
+		EverlookDBChat.RegisterChatEvent(self, "EverlookDBChat_FrameMessage")
 	end
 
 	function module:OnModuleDisable()
-		Prat.UnregisterAllChatEvents(self)
+		EverlookDBChat.UnregisterAllChatEvents(self)
 	end
 
 	local function GetClassTexture(classFilename)
 		return CreateAtlasMarkup(GetClassAtlas(classFilename), 12, 12, 0, -2)
 	end
 
-	-- replace text using prat event implementation
-	function module:Prat_FrameMessage(_, message)
+	-- replace text using edbchat event implementation
+	function module:EverlookDBChat_FrameMessage(_, message)
 		if message.GUID == nil or (_G.issecretvalue and _G.issecretvalue(message.GUID)) then
 			return
 		end
@@ -191,7 +191,7 @@ Prat:AddModuleToLoad(function()
 		end
 	end
 
-	function module:Prat_Ready()
+	function module:EverlookDBChat_Ready()
 		self:updateAll()
 	end
 
@@ -272,29 +272,29 @@ Prat:AddModuleToLoad(function()
 		return res
 	end
 
-	Prat:RegisterPattern({
+	EverlookDBChat:RegisterPattern({
 		pattern = GetPattern("item"),
 		matchfunc = function(link)
 			if module.db.profile.on then
-				return Prat:RegisterMatch(SubInItemInfo(link))
+				return EverlookDBChat:RegisterMatch(SubInItemInfo(link))
 			end
 		end,
 		type = "FRAME",
 		priority = 43
 	}, module.name)
 
-	Prat:RegisterPattern({
+	EverlookDBChat:RegisterPattern({
 		pattern = GetPattern("spell"),
 		matchfunc = function(link)
 			if module.db.profile.on then
-				return Prat:RegisterMatch(SubInSpellInfo(link))
+				return EverlookDBChat:RegisterMatch(SubInSpellInfo(link))
 			end
 		end,
 		type = "FRAME",
 		priority = 43
 	}, module.name)
 
-	Prat:RegisterPattern({
+	EverlookDBChat:RegisterPattern({
 		pattern = GetPattern("achievement"),
 		matchfunc = function(link)
 			if module.db.profile.on then
@@ -306,4 +306,4 @@ Prat:AddModuleToLoad(function()
 	}, module.name)
 
 	return
-end) -- Prat:AddModuleToLoad
+end) -- EverlookDBChat:AddModuleToLoad

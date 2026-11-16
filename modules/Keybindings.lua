@@ -24,36 +24,39 @@
 --
 -------------------------------------------------------------------------------
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("KeyBindings")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("KeyBindings")
 	local PL = module.PL
 
-	Prat:SetModuleInit(module,
+	EverlookDBChat:SetModuleInit(module,
 		function()
-			BINDING_HEADER_Prat = PL["Prat Keybindings"]
-			BINDING_NAME_officer = PL["Officer Channel"]
-			BINDING_NAME_guild = PL["Guild Channel"]
-			BINDING_NAME_party = PL["Party Channel"]
-			BINDING_NAME_raid = PL["Raid Channel"]
-			BINDING_NAME_raidwarn = PL["Raid Warning Channel"]
-			BINDING_NAME_instance = PL["Instance Channel"]
-			BINDING_NAME_say = PL["Say"]
-			BINDING_NAME_yell = PL["Yell"]
-			BINDING_NAME_whisper = PL["Whisper"]
-			BINDING_NAME_one = (PL["Channel %d"]):format(1)
-			BINDING_NAME_two = (PL["Channel %d"]):format(2)
-			BINDING_NAME_three = (PL["Channel %d"]):format(3)
-			BINDING_NAME_four = (PL["Channel %d"]):format(4)
-			BINDING_NAME_five = (PL["Channel %d"]):format(5)
-			BINDING_NAME_six = (PL["Channel %d"]):format(6)
-			BINDING_NAME_seven = (PL["Channel %d"]):format(7)
-			BINDING_NAME_eight = (PL["Channel %d"]):format(8)
-			BINDING_NAME_nine = (PL["Channel %d"]):format(9)
-			BINDING_NAME_SmartGroup = PL["Smart Group Channel"]
-			--	    BINDING_HEADER_Prat_TellTarget = PL["Prat TellTarget"]
-			--	    BINDING_HEADER_Prat_CopyChat = PL["Prat CopyChat"]
-			BINDING_NAME_NextTab = PL["Next Chat Tab"]
-			BINDING_NAME_CopySelected = PL["Copy Selected Chat Frame"]
+			BINDING_HEADER_EverlookDBChat = PL["EverlookDBChat Keybindings"]
+			BINDING_NAME_EDBCHAT_OFFICER = PL["Officer Channel"]
+			BINDING_NAME_EDBCHAT_GUILD = PL["Guild Channel"]
+			BINDING_NAME_EDBCHAT_PARTY = PL["Party Channel"]
+			BINDING_NAME_EDBCHAT_RAID = PL["Raid Channel"]
+			BINDING_NAME_EDBCHAT_RAIDWARN = PL["Raid Warning Channel"]
+			BINDING_NAME_EDBCHAT_INSTANCE = PL["Instance Channel"]
+			BINDING_NAME_EDBCHAT_SAY = PL["Say"]
+			BINDING_NAME_EDBCHAT_YELL = PL["Yell"]
+			BINDING_NAME_EDBCHAT_WHISPER = PL["Whisper"]
+			BINDING_NAME_EDBCHAT_CHANNEL1 = (PL["Channel %d"]):format(1)
+			BINDING_NAME_EDBCHAT_CHANNEL2 = (PL["Channel %d"]):format(2)
+			BINDING_NAME_EDBCHAT_CHANNEL3 = (PL["Channel %d"]):format(3)
+			BINDING_NAME_EDBCHAT_CHANNEL4 = (PL["Channel %d"]):format(4)
+			BINDING_NAME_EDBCHAT_CHANNEL5 = (PL["Channel %d"]):format(5)
+			BINDING_NAME_EDBCHAT_CHANNEL6 = (PL["Channel %d"]):format(6)
+			BINDING_NAME_EDBCHAT_CHANNEL7 = (PL["Channel %d"]):format(7)
+			BINDING_NAME_EDBCHAT_CHANNEL8 = (PL["Channel %d"]):format(8)
+			BINDING_NAME_EDBCHAT_CHANNEL9 = (PL["Channel %d"]):format(9)
+			BINDING_NAME_EDBCHAT_SMARTGROUP = PL["Smart Group Channel"]
+			--	    BINDING_HEADER_EverlookDBChat_TellTarget = PL["EverlookDBChat TellTarget"]
+			--	    BINDING_HEADER_EverlookDBChat_CopyChat = PL["EverlookDBChat CopyChat"]
+			BINDING_NAME_EDBCHAT_NEXTTAB = PL["Next Chat Tab"]
+			BINDING_NAME_EDBCHAT_COPYCHAT = PL["Copy Selected Chat Frame"]
+			BINDING_NAME_EDBCHAT_TELLTARGET = PL["TellTarget"]
+			BINDING_NAME_EDBCHAT_SCROLLBOTTOM = "Scroll To Bottom"
+			BINDING_NAME_EDBCHAT_SCROLLTOP = "Scroll To Top"
 		end)
 
 	-- /script keybindings:CycleChatTabs()
@@ -81,4 +84,4 @@ Prat:AddModuleToLoad(function()
 	end
 
 	return
-end) -- Prat:AddModuleToLoad
+end) -- EverlookDBChat:AddModuleToLoad

@@ -26,13 +26,13 @@
 
 local SendChatMessage = C_ChatInfo.SendChatMessage or SendChatMessage
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("Achievements")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("Achievements")
 	local PL = module.PL
 
 	local repeatPrevention = {}
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 			dontShowAchievements = false,
@@ -43,7 +43,7 @@ Prat:AddModuleToLoad(function()
 		}
 	})
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL.module_name,
 		desc = PL.module_desc,
 		type = "group",
@@ -110,7 +110,7 @@ Prat:AddModuleToLoad(function()
 	}
 
 	local function white(text)
-		return Prat.CLR:Colorize("ffffff", text)
+		return EverlookDBChat.CLR:Colorize("ffffff", text)
 	end
 
 	local regexp = "(|cffffff00|Hachievement:([0-9]+):(.+):([%-0-9]+):([%-0-9]+):([%-0-9]+):([%-0-9]+):([%-0-9]+):([%-0-9]+):([%-0-9]+):([%-0-9]+)|h%[([^]]+)%]|h|r)"
@@ -118,14 +118,14 @@ Prat:AddModuleToLoad(function()
 
 	local function buildGratsLink(name, group, channel, achievementId)
 		if type(name) ~= "nil" and type(group) ~= "nil" then
-			return Prat.BuildLink(gratsLinkType, ("%s:%s:%s:%s"):format(name, group, channel or "", tostring(achievementId)), PL.grats_link, "2080a0")
+			return EverlookDBChat.BuildLink(gratsLinkType, ("%s:%s:%s:%s"):format(name, group, channel or "", tostring(achievementId)), PL.grats_link, "2080a0")
 		end
 
 		return ""
 	end
 
 	local function ShowOurCompletion(text, theirId, theirPlayerGuid, theirDone)
-		local type = Prat.CurrentMessage.CHATTYPE
+		local type = EverlookDBChat.CurrentMessage.CHATTYPE
 		if type == "WHISPER_INFORM" then
 			return
 		end
@@ -137,33 +137,33 @@ Prat:AddModuleToLoad(function()
 		local _, _, _, completed, month, day, year = GetAchievementInfo(theirId)
 
 		local _, _, _, _, _, theirName, _ = GetPlayerInfoByGUID(theirPlayerGuid)
-		local group = Prat.CurrentMessage.CHATGROUP
-		local channelNum = Prat.CurrentMessage.CHATTARGET
+		local group = EverlookDBChat.CurrentMessage.CHATGROUP
+		local channelNum = EverlookDBChat.CurrentMessage.CHATTARGET
 
 		if group == "CHANNEL" and not tonumber(channelNum) then
 			return
 		end
 
 		if completed then
-			return Prat:RegisterMatch(text .. module:addDate(day, month, year) .. (theirDone and module:addGrats(theirName, group, channelNum, theirId, Prat.CurrentMessage)) or "")
+			return EverlookDBChat:RegisterMatch(text .. module:addDate(day, month, year) .. (theirDone and module:addGrats(theirName, group, channelNum, theirId, EverlookDBChat.CurrentMessage)) or "")
 		elseif theirDone then
-			return Prat:RegisterMatch(text .. module:addGrats(theirName, group, channelNum, theirId, Prat.CurrentMessage))
+			return EverlookDBChat:RegisterMatch(text .. module:addGrats(theirName, group, channelNum, theirId, EverlookDBChat.CurrentMessage))
 		end
 	end
 
-	Prat:SetModulePatterns(module, {
+	EverlookDBChat:SetModulePatterns(module, {
 		{ pattern = regexp, matchfunc = ShowOurCompletion, priority = 42 },
 	})
 
 	function module:OnModuleEnable()
-		Prat.EnableProcessingForEvent("CHAT_MSG_GUILD_ACHIEVEMENT")
-		Prat.EnableProcessingForEvent("CHAT_MSG_ACHIEVEMENT")
-		Prat.RegisterChatEvent(self, "Prat_FrameMessage")
-		Prat.RegisterLinkType({ linkid = gratsLinkType, linkfunc = self.OnGratsLink, handler = self }, self.name)
+		EverlookDBChat.EnableProcessingForEvent("CHAT_MSG_GUILD_ACHIEVEMENT")
+		EverlookDBChat.EnableProcessingForEvent("CHAT_MSG_ACHIEVEMENT")
+		EverlookDBChat.RegisterChatEvent(self, "EverlookDBChat_FrameMessage")
+		EverlookDBChat.RegisterLinkType({ linkid = gratsLinkType, linkfunc = self.OnGratsLink, handler = self }, self.name)
 	end
 
 	function module:OnModuleDisable()
-		Prat.UnregisterAllChatEvents(self)
+		EverlookDBChat.UnregisterAllChatEvents(self)
 	end
 
 	function module:addGrats(name, group, channel, achievementId)
@@ -183,7 +183,7 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:OnGratsLink(link)
-		if Prat.IsModernAPI and InCombatLockdown() then
+		if EverlookDBChat.IsModernAPI and InCombatLockdown() then
 			return false
 		end
 
@@ -211,16 +211,16 @@ Prat:AddModuleToLoad(function()
 			repeatPrevention[wasEarnedByMe and 1 or 2] = last
 		end
 
-		if group == "WHISPER" or not Prat.CanSendChatMessage(group) then
+		if group == "WHISPER" or not EverlookDBChat.CanSendChatMessage(group) then
 			SendChatMessage(grats:format(theirName), "WHISPER", nil, theirName)
-		elseif Prat.CanSendChatMessage(group) then
+		elseif EverlookDBChat.CanSendChatMessage(group) then
 			SendChatMessage(grats:format(theirName), group)
 		end
 
 		return false
 	end
 
-	function module:Prat_FrameMessage(_, message, _, event)
+	function module:EverlookDBChat_FrameMessage(_, message, _, event)
 		if self.db.profile.dontShowAchievements and event == "CHAT_MSG_GUILD_ACHIEVEMENT" then
 			message.DONOTPROCESS = true
 		end

@@ -24,11 +24,11 @@
 --
 -------------------------------------------------------------------------------
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("EventNames")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("EventNames")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 			show = {},
@@ -36,7 +36,7 @@ Prat:AddModuleToLoad(function()
 		}
 	})
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL["EventNames"],
 		desc = PL["Chat window event name options."],
 		type = "group",
@@ -45,7 +45,7 @@ Prat:AddModuleToLoad(function()
 				name = PL["show_name"],
 				desc = PL["show_desc"],
 				type = "multiselect",
-				values = Prat.HookedFrameList,
+				values = EverlookDBChat.HookedFrameList,
 				get = "GetSubValue",
 				set = "SetSubValue"
 			},
@@ -62,13 +62,13 @@ Prat:AddModuleToLoad(function()
 	})
 
 	function module:OnModuleEnable()
-		Prat.RegisterChatEvent(self, "Prat_PreAddMessage", "Prat_PreAddMessage")
+		EverlookDBChat.RegisterChatEvent(self, "EverlookDBChat_PreAddMessage", "EverlookDBChat_PreAddMessage")
 		self:SetAllEvents(self.db.profile.allevents)
 	end
 
 	function module:OnModuleDisable()
 		self:SetAllEvents(false)
-		Prat.UnregisterAllChatEvents(self)
+		EverlookDBChat.UnregisterAllChatEvents(self)
 	end
 
 	function module:GetDescription()
@@ -83,21 +83,21 @@ Prat:AddModuleToLoad(function()
 	end
 
 	local function allEventsEnabled()
-		return Prat.EventProcessingType.Full
+		return EverlookDBChat.EventProcessingType.Full
 	end
 
 	function module:SetAllEvents(allevents)
 		if not allevents then
-			Prat.EventIsProcessed = self.origEventIsProcessed or Prat.EventIsProcessed
+			EverlookDBChat.EventIsProcessed = self.origEventIsProcessed or EverlookDBChat.EventIsProcessed
 			self.origEventIsProcessed = nil
 		elseif not self.origEventIsProcessed and allevents then
-			self.origEventIsProcessed = Prat.EventIsProcessed
-			Prat.EventIsProcessed = allEventsEnabled
+			self.origEventIsProcessed = EverlookDBChat.EventIsProcessed
+			EverlookDBChat.EventIsProcessed = allEventsEnabled
 		end
 	end
 
 	do
-		local CLR = Prat.CLR
+		local CLR = EverlookDBChat.CLR
 		local function EventBrackets(text)
 			return CLR:Colorize("ffffff", text)
 		end
@@ -108,7 +108,7 @@ Prat:AddModuleToLoad(function()
 
 		local desat = 192 * 0.7 + 63
 		local c
-		function module:Prat_PreAddMessage(_, message, frame, event, _, r, g, b)
+		function module:EverlookDBChat_PreAddMessage(_, message, frame, event, _, r, g, b)
 			if self.db.profile.show[frame:GetName()] then
 				c = ("%02x%02x%02x"):format((r or 1.0) * desat, (g or 1.0) * desat, (b or 1.0) * desat)
 				message.POST = "  " .. EventBrackets("(") .. EventName(tostring(event), c) .. EventBrackets(")")
@@ -117,4 +117,4 @@ Prat:AddModuleToLoad(function()
 	end
 
 	return
-end) -- Prat:AddModuleToLoad
+end) -- EverlookDBChat:AddModuleToLoad

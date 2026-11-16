@@ -1,6 +1,6 @@
 if GetLocale() ~= "ptBR" then return end
 
-local L = PRAT_L
+local L = EVERLOOKDBCHAT_L
 
 L["display_desc"] = "Controle de Visualização de Frame de Chat"
 L["display_name"] = "Configurações de Visualização"
@@ -9,9 +9,9 @@ L["formatting_name"] = "Formatação do Chat"
 L["load_disabled"] = "Desativado"
 L["load_enabled"] = "Ativado"
 L["load_no"] = "Não Carregar"
-L["modulecontrol_desc"] = "Controla o carregamento e ativação de módulos do Prat."
+L["modulecontrol_desc"] = "Controla o carregamento e ativação de módulos do EverlookDB Chat."
 L["modulecontrol_name"] = "Controle do Módulo"
-L["prat"] = "Prat"
+L["edbchat"] = "EverlookDB Chat"
 L["reload_required"] = "Essa alteração pode não ter efeitos até você %s sua IU."
 L["Achievements/grats_donthave_1"] = "Parabéns %s"
 L["Achievements/grats_donthave_10"] = "Não vejo a hora de ter esse, %s"

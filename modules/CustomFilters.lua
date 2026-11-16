@@ -24,8 +24,8 @@
 --
 -------------------------------------------------------------------------------
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("CustomFilters", "LibSink-2.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("CustomFilters", "LibSink-2.0")
 	local PL = module.PL
 
 	local eventMap = {
@@ -49,7 +49,7 @@ Prat:AddModuleToLoad(function()
 		for k, _ in pairs(ChatTypeGroup) do
 			eventTypes[k] = _G["CHAT_MSG_" .. k]
 		end
-		for _, v in ipairs(Prat.GetChannelTable()) do
+		for _, v in ipairs(EverlookDBChat.GetChannelTable()) do
 			eventTypes[v] = "Channel: " .. v
 		end
 		eventTypes.WHISPER_INFORM = CHAT_MSG_WHISPER_INFORM
@@ -137,7 +137,7 @@ Prat:AddModuleToLoad(function()
 			}
 		}
 	}
-	Prat:SetModuleDefaults(module, {
+	EverlookDBChat:SetModuleDefaults(module, {
 		profile = {
 			on = false,
 			inbound = patterndefaults,
@@ -165,7 +165,7 @@ Prat:AddModuleToLoad(function()
 		}
 	}
 
-	Prat:SetModuleOptions(module, {
+	EverlookDBChat:SetModuleOptions(module, {
 		name = PL["module_name"],
 		desc = PL["module_desc"],
 		type = "group",
@@ -385,7 +385,7 @@ Prat:AddModuleToLoad(function()
 		po.args.output.disabled = "DisableOutputOption"
 	end
 
-	local CLR = Prat.CLR
+	local CLR = EverlookDBChat.CLR
 
 	local function match(text, matchopts, mode)
 		if (not matchopts) or (not matchopts.enabled) then
@@ -402,11 +402,11 @@ Prat:AddModuleToLoad(function()
 		local textout = text
 
 		if mode == "inbound" then
-			local chatype = Prat.SplitMessage.CHATTYPE
+			local chatype = EverlookDBChat.SplitMessage.CHATTYPE
 			local typeopt = matchopts.inchannels[chatype]
 
-			if Prat.SplitMessage.CHATTYPE == "CHANNEL" then
-				local channelopt = matchopts.inchannels[Prat.SplitMessage.ORG.CHANNEL]
+			if EverlookDBChat.SplitMessage.CHATTYPE == "CHANNEL" then
+				local channelopt = matchopts.inchannels[EverlookDBChat.SplitMessage.ORG.CHANNEL]
 
 				if channelopt == false then
 					return
@@ -436,37 +436,37 @@ Prat:AddModuleToLoad(function()
 
 		if matchopts.sink20OutputSink then
 			if mode == "inbound" then
-				Prat.SplitMessage.CF_SINK_OUT = matchopts
+				EverlookDBChat.SplitMessage.CF_SINK_OUT = matchopts
 			else
-				Prat.SplitMessageOut.CF_SINK_OUT = matchopts
+				EverlookDBChat.SplitMessageOut.CF_SINK_OUT = matchopts
 			end
 		end
 
 		if matchopts.tosink then
 			if mode == "inbound" then
-				Prat.SplitMessage.CF_SINK = true
+				EverlookDBChat.SplitMessage.CF_SINK = true
 			else
-				Prat.SplitMessageOut.CF_SINK = true
+				EverlookDBChat.SplitMessageOut.CF_SINK = true
 			end
 		end
 
 		if matchopts.sound then
 			if mode == "inbound" then
-				Prat.SplitMessage.CF_SOUND = matchopts.sound
+				EverlookDBChat.SplitMessage.CF_SOUND = matchopts.sound
 			else
-				Prat.SplitMessageOut.CF_SOUND = matchopts.sound
+				EverlookDBChat.SplitMessageOut.CF_SOUND = matchopts.sound
 			end
 		end
 
 		if matchopts.block then
 			if mode == "inbound" then
-				Prat.SplitMessage.DONOTPROCESS = true
+				EverlookDBChat.SplitMessage.DONOTPROCESS = true
 			else
-				Prat.SplitMessageOut.DONOTPROCESS = true
+				EverlookDBChat.SplitMessageOut.DONOTPROCESS = true
 			end
 		end
 
-		textout = Prat:RegisterMatch(textout, matchtype)
+		textout = EverlookDBChat:RegisterMatch(textout, matchtype)
 		--  end
 
 		return textout
@@ -490,7 +490,7 @@ Prat:AddModuleToLoad(function()
 			priority = 46
 		}
 
-		Prat:RegisterPattern(patterninfo, self.name)
+		EverlookDBChat:RegisterPattern(patterninfo, self.name)
 
 		table.insert(self.modulePatterns, patterninfo)
 	end
@@ -508,7 +508,7 @@ Prat:AddModuleToLoad(function()
 		end
 
 		if patterninfo.idx then
-			Prat:UnregisterPattern(patterninfo.idx)
+			EverlookDBChat:UnregisterPattern(patterninfo.idx)
 		end
 
 		local idx
@@ -551,7 +551,7 @@ Prat:AddModuleToLoad(function()
 		Module Event Functions
 	------------------------------------------------]] --
 
-	Prat:SetModuleInit(module,
+	EverlookDBChat:SetModuleInit(module,
 		function(self)
 
 			self:RegisterSink(PL.chatframesink_name,
@@ -560,7 +560,7 @@ Prat:AddModuleToLoad(function()
 				"ChatframeSink",
 				function()
 					local keys = {}
-					for k, v in pairs(Prat.HookedFrames) do
+					for k, v in pairs(EverlookDBChat.HookedFrames) do
 						if not v.isTemporary and (v:IsShown() or v.isDocked) then
 							keys[#keys + 1] = v.name or k
 						end
@@ -593,16 +593,16 @@ Prat:AddModuleToLoad(function()
 			end
 		end
 
-		Prat.RegisterChatEvent(self, Prat.Events.POST_ADDMESSAGE)
-		Prat.RegisterChatEvent(self, Prat.Events.POST_ADDMESSAGE_BLOCKED, "Prat_PostAddMessage")
+		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.POST_ADDMESSAGE)
+		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.POST_ADDMESSAGE_BLOCKED, "EverlookDBChat_PostAddMessage")
 	end
 
 	function module:OnModuleDisable()
 		self.modulePatterns = nil
-		Prat.UnregisterAllChatEvents(self)
+		EverlookDBChat.UnregisterAllChatEvents(self)
 	end
 
-	function module:Prat_PostAddMessage(_, message, _, event, text, r, g, b)
+	function module:EverlookDBChat_PostAddMessage(_, message, _, event, text, r, g, b)
 		local uid = message.LINE_ID
 		if uid and
 			uid == self.lastevent and
@@ -622,7 +622,7 @@ Prat:AddModuleToLoad(function()
 		end
 
 		if message.CF_SOUND then
-			Prat:PlaySound(message.CF_SOUND)
+			EverlookDBChat:PlaySound(message.CF_SOUND)
 		end
 	end
 
@@ -738,7 +738,7 @@ Prat:AddModuleToLoad(function()
 	function module:SetSoundMessage(p, v)
 		p.sound = v
 
-		Prat:PlaySound(v)
+		EverlookDBChat:PlaySound(v)
 	end
 
 	local white_clr = { r = 1.0, b = 1.0, g = 1.0 }
@@ -829,7 +829,7 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:RefreshOptions()
-		LibStub("AceConfigRegistry-3.0"):NotifyChange("Prat")
+		LibStub("AceConfigRegistry-3.0"):NotifyChange("EverlookDB Chat")
 	end
 
 	function module:ChatframeSink(source, text, r, g, b)
@@ -837,7 +837,7 @@ Prat:AddModuleToLoad(function()
 		local s = sink.storageForAddon[source]
 		local name = s and s.sink20ScrollArea or ""
 
-		for k, v in pairs(Prat.HookedFrames) do
+		for k, v in pairs(EverlookDBChat.HookedFrames) do
 			if k == name or v.name == name then
 				v:AddMessage(text, r, g, b)
 				return

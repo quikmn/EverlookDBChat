@@ -24,8 +24,8 @@
 --
 -------------------------------------------------------------------------------
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("ChannelNames", "AceEvent-3.0", "AceTimer-3.0", "AceHook-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("ChannelNames", "AceEvent-3.0", "AceTimer-3.0", "AceHook-3.0")
 	local PL = module.PL
 
 	-- order to show channels
@@ -89,9 +89,9 @@ Prat:AddModuleToLoad(function()
 		CHAT_MSG_BN_CONVERSATION = "bnconversation"
 	}
 
-	local CLR = Prat.CLR
+	local CLR = EverlookDBChat.CLR
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 			space = true,
@@ -229,7 +229,7 @@ Prat:AddModuleToLoad(function()
 	local nickPlugins = { nicks = {} }
 
 	--- module.toggleOptions = { optsep227_sep = 227, optsep_sep = 229, space = 230, colon = 240, sep241_sep = 241, chanlink = 242 }
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL["ChannelNames"],
 		desc = PL["Channel name abbreviation options."],
 		type = "group",
@@ -280,17 +280,17 @@ Prat:AddModuleToLoad(function()
 		self:RegisterEvent("UPDATE_CHAT_COLOR", "RefreshOptions")
 		self:RegisterEvent("CHAT_MSG_CHANNEL_NOTICE")
 
-		Prat.RegisterChatEvent(self, "Prat_FrameMessage")
+		EverlookDBChat.RegisterChatEvent(self, "EverlookDBChat_FrameMessage")
 
-		Prat.EnableProcessingForEvent("CHAT_MSG_CHANNEL_NOTICE")
-		Prat.EnableProcessingForEvent("CHAT_MSG_CHANNEL_NOTICE_USER")
-		Prat.EnableProcessingForEvent("CHAT_MSG_CHANNEL_LEAVE")
-		Prat.EnableProcessingForEvent("CHAT_MSG_CHANNEL_JOIN")
+		EverlookDBChat.EnableProcessingForEvent("CHAT_MSG_CHANNEL_NOTICE")
+		EverlookDBChat.EnableProcessingForEvent("CHAT_MSG_CHANNEL_NOTICE_USER")
+		EverlookDBChat.EnableProcessingForEvent("CHAT_MSG_CHANNEL_LEAVE")
+		EverlookDBChat.EnableProcessingForEvent("CHAT_MSG_CHANNEL_JOIN")
 	end
 
 	function module:OnModuleDisable()
 		self:UnregisterAllEvents()
-		Prat.UnregisterAllChatEvents(self)
+		EverlookDBChat.UnregisterAllChatEvents(self)
 	end
 
 	function module:GetDescription()
@@ -306,7 +306,7 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:RefreshOptions()
-		LibStub("AceConfigRegistry-3.0"):NotifyChange("Prat")
+		LibStub("AceConfigRegistry-3.0"):NotifyChange("EverlookDB Chat")
 	end
 
 	function module:AddNickname(info, name)
@@ -327,8 +327,8 @@ Prat:AddModuleToLoad(function()
 		return (self:GetNickname(info) == nil) and true or false
 	end
 
-	-- replace text using prat event implementation
-	function module:Prat_FrameMessage(_, message, _, event)
+	-- replace text using edbchat event implementation
+	function module:EverlookDBChat_FrameMessage(_, message, _, event)
 		if event == "CHAT_MSG_CHANNEL_JOIN" or event == "CHAT_MSG_CHANNEL_LEAVE" then
 			message.MESSAGE = message.ORG.TYPEPOSTFIX:trim()
 			message.ORG.TYPEPOSTFIX = " "
@@ -391,7 +391,7 @@ Prat:AddModuleToLoad(function()
 			self:CreateChannelOption(eventPlugins["channels"], "channel" .. i, i)
 		end
 
-		local t = Prat.GetChannelTable()
+		local t = EverlookDBChat.GetChannelTable()
 		for _, v in pairs(t) do
 			if type(v) == "string" then
 				self:CreateChanNickOption(nickPlugins["nicks"], v)

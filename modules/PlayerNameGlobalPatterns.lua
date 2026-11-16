@@ -24,8 +24,8 @@
 --
 -------------------------------------------------------------------------------
 
-Prat:AddModuleExtension(function()
-	local module = Prat:GetModule("PlayerNames")
+EverlookDBChat:AddModuleExtension(function()
+	local module = EverlookDBChat:GetModule("PlayerNames")
 	if not module then
 		return
 	end
@@ -42,28 +42,28 @@ Prat:AddModuleExtension(function()
 		}
 	}
 
-	Prat:RegisterPattern({
+	EverlookDBChat:RegisterPattern({
 		pattern = "|c.-|H.-:.-|h.-|h|r",
 		matchfunc = function(link)
-			return Prat:RegisterMatch(link)
+			return EverlookDBChat:RegisterMatch(link)
 		end,
 		type = "FRAME",
 		priority = 44
 	}, module.name)
 
-	Prat:RegisterPattern({
+	EverlookDBChat:RegisterPattern({
 		pattern = "|H.-:.-|h.-|h",
 		matchfunc = function(link)
-			return Prat:RegisterMatch(link)
+			return EverlookDBChat:RegisterMatch(link)
 		end,
 		type = "FRAME",
 		priority = 45
 	}, module.name)
 
-	Prat:RegisterPattern({
+	EverlookDBChat:RegisterPattern({
 		pattern = "|K.-|k",
 		matchfunc = function(link)
-			return Prat:RegisterMatch(link)
+			return EverlookDBChat:RegisterMatch(link)
 		end,
 		type = "FRAME",
 		priority = 45
@@ -72,16 +72,16 @@ Prat:AddModuleExtension(function()
 	local ColorPlayer
 	do
 		local function Player(name, class)
-			return Prat.CLR:Player(name, name, class)
+			return EverlookDBChat.CLR:Player(name, name, class)
 		end
 
 		ColorPlayer = function(name)
-			return Prat:RegisterMatch(Player(name, module:GetData(name)))
+			return EverlookDBChat:RegisterMatch(Player(name, module:GetData(name)))
 		end
 	end
 
 	local function newPattern(name)
-		return { pattern = Prat.GetNamePattern(name), matchfunc = ColorPlayer, priority = 48 }
+		return { pattern = EverlookDBChat.GetNamePattern(name), matchfunc = ColorPlayer, priority = 48 }
 	end
 
 	do
@@ -93,12 +93,12 @@ Prat:AddModuleExtension(function()
 			if self.db.profile.coloreverywhere and Name then
 				Name = Name:match("(.-)%-.+") or Name
 				Name = Name:lower()
-				if not namePatterns[Name] and not Prat.PlayerNameBlackList[Name] and Name:len() > 1 then
-					namePatterns[Name] = Prat:RegisterPattern(newPattern(Name), self.name)
+				if not namePatterns[Name] and not EverlookDBChat.PlayerNameBlackList[Name] and Name:len() > 1 then
+					namePatterns[Name] = EverlookDBChat:RegisterPattern(newPattern(Name), self.name)
 				end
 			else
 				for k, v in pairs(namePatterns) do
-					Prat:UnregisterPattern(v)
+					EverlookDBChat:UnregisterPattern(v)
 					namePatterns[k] = nil
 				end
 			end
@@ -114,4 +114,4 @@ Prat:AddModuleExtension(function()
 	end
 
 	return
-end) -- Prat:AddModuleToLoad
+end) -- EverlookDBChat:AddModuleToLoad

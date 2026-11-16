@@ -31,7 +31,7 @@ do
 				if name then
 					key = name .. '/' .. key
 				end
-				local value = PRAT_L[key]
+				local value = EVERLOOKDBCHAT_L[key]
 				if value == true then
 					return tostring(k)
 				end
@@ -66,34 +66,34 @@ do
 
 	local sectionlist = {
 		--display
-		["Prat_ChannelColorMemory"] = "display",
-		["Prat_ChannelSticky"] = "display",
-		["Prat_ChatFrames"] = "display",
-		["Prat_Fading"] = "display",
-		["Prat_History"] = "display",
-		["Prat_Frames"] = "display",
-		["Prat_Editbox"] = "display",
-		["Prat_Paragraph"] = "display",
-		["Prat_Scroll"] = "display",
-		["Prat_Clear"] = "display",
-		["Prat_Font"] = "display",
-		["Prat_ChatTabs"] = "display",
-		["Prat_Buttons"] = "display",
-		["Prat_SideTabs"] = "display",
+		["EverlookDBChat_ChannelColorMemory"] = "display",
+		["EverlookDBChat_ChannelSticky"] = "display",
+		["EverlookDBChat_ChatFrames"] = "display",
+		["EverlookDBChat_Fading"] = "display",
+		["EverlookDBChat_History"] = "display",
+		["EverlookDBChat_Frames"] = "display",
+		["EverlookDBChat_Editbox"] = "display",
+		["EverlookDBChat_Paragraph"] = "display",
+		["EverlookDBChat_Scroll"] = "display",
+		["EverlookDBChat_Clear"] = "display",
+		["EverlookDBChat_Font"] = "display",
+		["EverlookDBChat_ChatTabs"] = "display",
+		["EverlookDBChat_Buttons"] = "display",
+		["EverlookDBChat_SideTabs"] = "display",
 
 		--formatting
-		["Prat_ChannelNames"] = "formatting",
-		["Prat_PlayerNames"] = "formatting",
-		["Prat_ServerNames"] = "formatting",
-		["Prat_Substitutions"] = "formatting",
-		["Prat_Timestamps"] = "formatting",
-		["Prat_UrlCopy"] = "formatting",
+		["EverlookDBChat_ChannelNames"] = "formatting",
+		["EverlookDBChat_PlayerNames"] = "formatting",
+		["EverlookDBChat_ServerNames"] = "formatting",
+		["EverlookDBChat_Substitutions"] = "formatting",
+		["EverlookDBChat_Timestamps"] = "formatting",
+		["EverlookDBChat_UrlCopy"] = "formatting",
 
 		--extras
-		["Prat_AddonMsgs"] = "extras",
-		["Prat_EventNames"] = "extras",
-		["Prat_PopupMessage"] = "extras",
-		["Prat_Sounds"] = "extras",
+		["EverlookDBChat_AddonMsgs"] = "extras",
+		["EverlookDBChat_EventNames"] = "extras",
+		["EverlookDBChat_PopupMessage"] = "extras",
+		["EverlookDBChat_Sounds"] = "extras",
 	}
 	setmetatable(sectionlist, {
 		__index = function()

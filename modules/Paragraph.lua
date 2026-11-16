@@ -24,11 +24,11 @@
 --
 -------------------------------------------------------------------------------
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("Paragraph")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("Paragraph")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module, {
+	EverlookDBChat:SetModuleDefaults(module, {
 		profile = {
 			on = false,
 			justification = { ["*"] = "LEFT" },
@@ -39,7 +39,7 @@ Prat:AddModuleToLoad(function()
 	do
 		local justifyoption = {
 			name = function(info)
-				return Prat.FrameList[info[#info]] or ""
+				return EverlookDBChat.FrameList[info[#info]] or ""
 			end,
 			desc = PL["justification_name"],
 			type = "select",
@@ -52,11 +52,11 @@ Prat:AddModuleToLoad(function()
 			end,
 			values = { ["RIGHT"] = PL["Right"], ["CENTER"] = PL["Center"], ["LEFT"] = PL["Left"] },
 			hidden = function(info)
-				return Prat.FrameList[info[#info]] == nil
+				return EverlookDBChat.FrameList[info[#info]] == nil
 			end,
 		}
 
-		Prat:SetModuleOptions(module, {
+		EverlookDBChat:SetModuleOptions(module, {
 			name = PL["Paragraph"],
 			desc = PL["Chat window paragraph options."],
 			type = "group",
@@ -100,7 +100,7 @@ Prat:AddModuleToLoad(function()
 
 	function module:OnModuleEnable()
 		self:ConfigureAllChatFrames(true)
-		Prat.RegisterChatEvent(self, Prat.Events.FRAMES_UPDATED)
+		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.FRAMES_UPDATED)
 	end
 
 	function module:OnModuleDisable()
@@ -111,7 +111,7 @@ Prat:AddModuleToLoad(function()
 		self:ConfigureAllChatFrames(true)
 	end
 
-	function module:Prat_FramesUpdated()
+	function module:EverlookDBChat_FramesUpdated()
 		self:ConfigureAllChatFrames(true)
 	end
 
@@ -124,11 +124,11 @@ Prat:AddModuleToLoad(function()
 
 	function module:ConfigureAllChatFrames(enable)
 		local prof = self.db.profile
-		for k, v in pairs(Prat.Frames) do
+		for k, v in pairs(EverlookDBChat.Frames) do
 			v:SetJustifyH(enable and prof.justification[k] or "LEFT")
 			v:SetSpacing(prof.spacing)
 		end
 	end
 
 	return
-end) -- Prat:AddModuleToLoad
+end) -- EverlookDBChat:AddModuleToLoad

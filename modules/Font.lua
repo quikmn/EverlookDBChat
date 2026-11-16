@@ -24,11 +24,11 @@
 --
 -------------------------------------------------------------------------------
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("Font", "AceHook-3.0", "AceEvent-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("Font", "AceHook-3.0", "AceEvent-3.0")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module, {
+	EverlookDBChat:SetModuleDefaults(module, {
 		profile = {
 			on = true,
 			fontface = "",
@@ -49,7 +49,7 @@ Prat:AddModuleToLoad(function()
 
 	local frameOption = {
 		name = function(info)
-			return Prat.FrameList[info[#info]] or ""
+			return EverlookDBChat.FrameList[info[#info]] or ""
 		end,
 		desc = PL["Set text font size."],
 		type = "range",
@@ -59,7 +59,7 @@ Prat:AddModuleToLoad(function()
 		max = 100,
 		step = 1,
 		hidden = function(info)
-			return Prat.FrameList[info[#info]] == nil
+			return EverlookDBChat.FrameList[info[#info]] == nil
 		end,
 	}
 	local whisperTabsOption = {
@@ -84,11 +84,11 @@ Prat:AddModuleToLoad(function()
 		min = 4,
 		max = 100,
 		step = 1,
-		hidden = not Prat.IsModernAPI and not Prat.IsMop,
+		hidden = not EverlookDBChat.IsModernAPI and not EverlookDBChat.IsMop,
 		order = 900,
 	}
 
-	Prat:SetModuleOptions(module, {
+	EverlookDBChat:SetModuleOptions(module, {
 		name = PL["Font"],
 		desc = PL["Chat window font options."],
 		type = "group",
@@ -162,7 +162,7 @@ Prat:AddModuleToLoad(function()
 		self:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 		self.oldsize = {}
-		for k, cf in pairs(Prat.Frames) do
+		for k, cf in pairs(EverlookDBChat.Frames) do
 			local _, s, _ = cf:GetFont()
 			self.oldsize[k] = s
 		end
@@ -175,10 +175,10 @@ Prat:AddModuleToLoad(function()
 
 		self:SecureHook("FCF_SetChatWindowFontSize")
 
-		Prat.Media.RegisterCallback(self, "LibSharedMedia_Registered", "SharedMedia_Registered")
-		Prat.Media.RegisterCallback(self, "LibSharedMedia_SetGlobal", "SharedMedia_Registered")
+		EverlookDBChat.Media.RegisterCallback(self, "LibSharedMedia_Registered", "SharedMedia_Registered")
+		EverlookDBChat.Media.RegisterCallback(self, "LibSharedMedia_SetGlobal", "SharedMedia_Registered")
 
-		Prat.RegisterChatEvent(self, Prat.Events.FRAMES_UPDATED)
+		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.FRAMES_UPDATED)
 	end
 
 	function module:GetDescription()
@@ -193,7 +193,7 @@ Prat:AddModuleToLoad(function()
 		end
 	end
 
-	function module:Prat_FramesUpdated()
+	function module:EverlookDBChat_FramesUpdated()
 		self:ConfigureAllChatFrames()
 	end
 
@@ -204,9 +204,9 @@ Prat:AddModuleToLoad(function()
 
 	function module:OnModuleDisable()
 		self:UnhookAll()
-		Prat.Media.UnregisterAllCallbacks(self)
+		EverlookDBChat.Media.UnregisterAllCallbacks(self)
 
-		for k, cf in pairs(Prat.Frames) do
+		for k, cf in pairs(EverlookDBChat.Frames) do
 			self:SetFontSize(cf, self.oldsize[k] or 12)
 		end
 		self:SetFontMode("")
@@ -239,7 +239,7 @@ Prat:AddModuleToLoad(function()
 			self:SetFont(db.fontface)
 		end
 
-		for k, v in pairs(Prat.Frames) do
+		for k, v in pairs(EverlookDBChat.Frames) do
 			if IsWhisperFrame(v) then
 				self:SetFontSize(v, db.size.WhisperTabs)
 			elseif IsPetBattleFrame(v) then
@@ -268,15 +268,15 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:SetFont(font)
-		local fontfile = Prat.Media:Fetch(Prat.Media.MediaType.FONT, font)
-		for _, cf in pairs(Prat.Frames) do
+		local fontfile = EverlookDBChat.Media:Fetch(EverlookDBChat.Media.MediaType.FONT, font)
+		for _, cf in pairs(EverlookDBChat.Frames) do
 			local _, s, m = cf:GetFont()
 			cf:SetFont(fontfile, s, m)
 		end
 	end
 
 	function module:SetFontMode(mode)
-		for _, cf in pairs(Prat.Frames) do
+		for _, cf in pairs(EverlookDBChat.Frames) do
 			local f, s, _ = cf:GetFont()
 			cf:SetFont(f, s, mode)
 

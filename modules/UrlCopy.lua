@@ -28,11 +28,11 @@ local ChatEdit_ChooseBoxForSend = _G.ChatEdit_ChooseBoxForSend or _G.ChatFrameUt
 local ChatEdit_GetActiveWindow = _G.ChatEdit_GetActiveWindow or _G.ChatFrameUtil.GetActiveWindow
 local ChatFrame_OpenChat = _G.ChatFrame_OpenChat or _G.ChatFrameUtil.OpenChat
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("UrlCopy")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("UrlCopy")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 			bracket = true,
@@ -56,7 +56,7 @@ Prat:AddModuleToLoad(function()
 			return module:LinkwTLD(...)
 		end
 
-		Prat:SetModulePatterns(module, {
+		EverlookDBChat:SetModulePatterns(module, {
 			-- X://Y url
 			{ pattern = "^(%a[%w+.-]+://%S+)", matchfunc = Link },
 			{ pattern = "%f[%S](%a[%w+.-]+://%S+)", matchfunc = Link },
@@ -393,7 +393,7 @@ Prat:AddModuleToLoad(function()
 	XN--ZCKZAH = true,
 	]]
 
-	Prat:SetModuleOptions(module, {
+	EverlookDBChat:SetModuleOptions(module, {
 		name = PL["UrlCopy"],
 		desc = PL["URL formating options."],
 		type = "group",
@@ -436,11 +436,11 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:OnModuleEnable()
-		Prat.RegisterLinkType({ linkid = "url", linkfunc = module.Url_Link, handler = module }, module.name)
+		EverlookDBChat.RegisterLinkType({ linkid = "url", linkfunc = module.Url_Link, handler = module }, module.name)
 	end
 
 	function module:OnModuleDisable()
-		Prat.UnregisterAllLinkTypes(self)
+		EverlookDBChat.UnregisterAllLinkTypes(self)
 	end
 
 	--[[------------------------------------------------
@@ -564,8 +564,8 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:AddLink(link)
-		return Prat:RegisterMatch(link)
+		return EverlookDBChat:RegisterMatch(link)
 	end
 
 	return
-end) -- Prat:AddModuleToLoad
+end) -- EverlookDBChat:AddModuleToLoad

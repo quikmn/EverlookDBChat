@@ -187,7 +187,7 @@ function private.RegisterMessageItem(itemname, anchorvar, relativepos)
 	Example:
 	--------
 
-	The mod Prat_ExampleMod counts the number of times people
+	The mod EverlookDBChat_ExampleMod counts the number of times people
 	say the word "Example" and you would like to display the count
 	for a player before their name in a chat message. Default chat
 	message structure contains:

@@ -24,8 +24,8 @@
 --
 -------------------------------------------------------------------------------
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("ChannelSticky", "AceEvent-3.0", "AceTimer-3.0", "AceHook-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("ChannelSticky", "AceEvent-3.0", "AceTimer-3.0", "AceHook-3.0")
 	local PL = module.PL
 
 	-- chat channel list
@@ -45,7 +45,7 @@ Prat:AddModuleToLoad(function()
 		"BN_CONVERSATION",
 	}
 
-	Prat:SetModuleDefaults(module, {
+	EverlookDBChat:SetModuleDefaults(module, {
 		profile = {
 			on = true,
 			say = true,
@@ -68,7 +68,7 @@ Prat:AddModuleToLoad(function()
 
 	local chatTypePlugins = { ctype = {} }
 
-	Prat:SetModuleOptions(module, {
+	EverlookDBChat:SetModuleOptions(module, {
 		name = PL["ChannelSticky"],
 		desc = PL["Chat channel sticky options."],
 		type = "group",
@@ -166,7 +166,7 @@ Prat:AddModuleToLoad(function()
 	--[[------------------------------------------------
 		Menu Builder Functions
 	------------------------------------------------]] --
-	local CLR = Prat.CLR
+	local CLR = EverlookDBChat.CLR
 	local function StkyChatType(text, type)
 		return CLR:Colorize(module:GetChatCLR(type), text)
 	end
@@ -216,7 +216,7 @@ Prat:AddModuleToLoad(function()
 
 	function module:RegisterSmartGroup(on)
 		if not self.smart_group and on then
-			Prat.RegisterChatEvent(self, Prat.Events.OUTBOUND)
+			EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.OUTBOUND)
 			if ChatFrame1EditBox and ChatFrame1EditBox.OnPreSendText then
 				EventRegistry:RegisterCallback("ChatFrame.OnEditBoxPreSendText", function(_, editBox)
 					local success, ret = pcall(function()
@@ -238,7 +238,7 @@ Prat:AddModuleToLoad(function()
 			CHAT_SMARTGROUP_SEND = "SmartGroup:\32"
 			CHAT_SMARTGROUP_GET = "SmartGroup: %1\32"
 		else
-			Prat.UnregisterAllChatEvents(self)
+			EverlookDBChat.UnregisterAllChatEvents(self)
 			self:UnhookAll()
 
 			self.smart_group = false
@@ -269,7 +269,7 @@ Prat:AddModuleToLoad(function()
 		end
 	end
 
-	function module:Prat_OutboundChat(_, m)
+	function module:EverlookDBChat_OutboundChat(_, m)
 		if m.CTYPE == "SMARTGROUP" then
 			self.groupsay = true
 			m.CTYPE = self:SmartGroupChatType()

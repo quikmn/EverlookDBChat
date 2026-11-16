@@ -24,11 +24,11 @@
 --
 -------------------------------------------------------------------------------
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("Fading")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("Fading")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 			textfade = { ["*"] = true },
@@ -36,7 +36,7 @@ Prat:AddModuleToLoad(function()
 		}
 	})
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL["module_name"],
 		desc = PL["module_desc"],
 		type = "group",
@@ -45,7 +45,7 @@ Prat:AddModuleToLoad(function()
 				name = PL["textfade_name"],
 				desc = PL["textfade_desc"],
 				type = "multiselect",
-				values = Prat.HookedFrameList,
+				values = EverlookDBChat.HookedFrameList,
 				get = "GetSubValue",
 				set = "SetSubValue"
 			},
@@ -63,21 +63,21 @@ Prat:AddModuleToLoad(function()
 
 	function module:OnModuleEnable()
 		self:OnValueChanged()
-		Prat.RegisterChatEvent(self, Prat.Events.FRAMES_UPDATED)
+		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.FRAMES_UPDATED)
 	end
 
 	function module:OnModuleDisable()
-		for _, v in pairs(Prat.HookedFrames) do
+		for _, v in pairs(EverlookDBChat.HookedFrames) do
 			self:Fade(v, true)
 		end
 	end
 
-	function module:Prat_FramesUpdated(_, name, chatFrame)
+	function module:EverlookDBChat_FramesUpdated(_, name, chatFrame)
 		self:Fade(chatFrame, self.db.profile.textfade[name])
 	end
 
 	function module:OnValueChanged()
-		for k, v in pairs(Prat.HookedFrames) do
+		for k, v in pairs(EverlookDBChat.HookedFrames) do
 			self:Fade(v, self.db.profile.textfade[k])
 		end
 	end

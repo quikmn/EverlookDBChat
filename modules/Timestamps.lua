@@ -23,8 +23,8 @@
 --
 --
 -------------------------------------------------------------------------------
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("Timestamps", "AceHook-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("Timestamps", "AceHook-3.0")
 	local PL = module.PL
 
 	module.pluginopts = {}
@@ -47,7 +47,7 @@ Prat:AddModuleToLoad(function()
 		["%m/%d"] = PL["mm/dd"],
 	}
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 			show = { ["*"] = true },
@@ -68,7 +68,7 @@ Prat:AddModuleToLoad(function()
 		}
 	})
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL["Timestamps"],
 		desc = PL["Chat window timestamp options."],
 		type = "group",
@@ -79,7 +79,7 @@ Prat:AddModuleToLoad(function()
 				desc = PL["Toggle showing timestamp for each window."],
 				type = "multiselect",
 				order = 120,
-				values = Prat.HookedFrameList,
+				values = EverlookDBChat.HookedFrameList,
 				get = "GetSubValue",
 				set = "SetSubValue"
 			},
@@ -154,24 +154,24 @@ Prat:AddModuleToLoad(function()
 		},
 	})
 
-	Prat:SetModuleInit(module, function(self)
-		for _, v in pairs(Prat.HookedFrames) do
+	EverlookDBChat:SetModuleInit(module, function(self)
+		for _, v in pairs(EverlookDBChat.HookedFrames) do
 			self:SecureHook(v, "AddMessage")
 		end
 	end)
 
 	function module:OnModuleEnable()
-		for _, v in pairs(Prat.HookedFrames) do
+		for _, v in pairs(EverlookDBChat.HookedFrames) do
 			if not self:IsHooked(v, "AddMessage") then
 				self:SecureHook(v, "AddMessage")
 			end
 		end
-		Prat.RegisterChatEvent(self, Prat.Events.FRAMES_UPDATED)
-		Prat.RegisterChatEvent(self, Prat.Events.FRAMES_REMOVED)
+		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.FRAMES_UPDATED)
+		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.FRAMES_REMOVED)
 	end
 
 	function module:OnModuleDisable()
-		for _, v in pairs(Prat.HookedFrames) do
+		for _, v in pairs(EverlookDBChat.HookedFrames) do
 			if self:IsHooked(v, "AddMessage") then
 				self:Unhook(v, "AddMessage")
 			end
@@ -182,13 +182,13 @@ Prat:AddModuleToLoad(function()
 		return PL["Chat window timestamp options."]
 	end
 
-	function module:Prat_FramesUpdated(_, _, chatFrame)
+	function module:EverlookDBChat_FramesUpdated(_, _, chatFrame)
 		if not self:IsHooked(chatFrame, "AddMessage") then
 			self:SecureHook(chatFrame, "AddMessage")
 		end
 	end
 
-	function module:Prat_FramesRemoved(_, _, chatFrame)
+	function module:EverlookDBChat_FramesRemoved(_, _, chatFrame)
 		if self:IsHooked(chatFrame, "AddMessage") then
 			self:Unhook(chatFrame, "AddMessage")
 		end
@@ -199,7 +199,7 @@ Prat:AddModuleToLoad(function()
 	------------------------------------------------]] --
 	local lastParsed
 	function module:AddMessage(frame)
-		if self.db.profile.on and self.db.profile.show and self.db.profile.show[frame:GetName()] and not Prat.loading then
+		if self.db.profile.on and self.db.profile.show and self.db.profile.show[frame:GetName()] and not EverlookDBChat.loading then
 			local entry = frame.historyBuffer:GetEntryAtIndex(1)
 			if lastParsed == entry then
 				return
@@ -215,7 +215,7 @@ Prat:AddModuleToLoad(function()
 
 	local function Timestamp(text)
 		if not module:IsTimestampPlain() then
-			return Prat.CLR:Colorize(module.db.profile.timestampcolor, text)
+			return EverlookDBChat.CLR:Colorize(module.db.profile.timestampcolor, text)
 		end
 		return text
 	end

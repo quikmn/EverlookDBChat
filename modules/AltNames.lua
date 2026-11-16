@@ -24,15 +24,15 @@
 --
 -------------------------------------------------------------------------------
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("AltNames", "AceHook-3.0", "AceEvent-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("AltNames", "AceHook-3.0", "AceEvent-3.0")
 	local PL = module.PL
 
 	local altregistry
 
 	module.Alts = {}
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = false,
 			quiet = false,
@@ -53,7 +53,7 @@ Prat:AddModuleToLoad(function()
 		}
 	})
 
-	Prat:SetModuleInit(module, function(self)
+	EverlookDBChat:SetModuleInit(module, function(self)
 		altregistry = LibStub("LibAlts-1.0")
 
 		if self.db.profile.alts then
@@ -67,7 +67,7 @@ Prat:AddModuleToLoad(function()
 		-- Load shared Alts data
 		for alt, main in pairs(self.db.realm.alts) do
 
-			altregistry:SetAlt(main, alt, "Prat")
+			altregistry:SetAlt(main, alt, "EverlookDBChat")
 		end
 
 
@@ -108,7 +108,7 @@ Prat:AddModuleToLoad(function()
 		}
 	end)
 
-	Prat:SetModuleOptions(module, {
+	EverlookDBChat:SetModuleOptions(module, {
 		name = PL["AltNames"],
 		desc = PL["module_desc"],
 		type = "group",
@@ -277,7 +277,7 @@ Prat:AddModuleToLoad(function()
 			},
 			importfromlok = {
 				name = PL["LOKWhoIsWho import"],
-				desc = PL["Imports data from LOKWhoIsWho, if present (drop your SavedVariables\\LOKWhoIsWho.lua in the Prat directory to be able to use this)."],
+				desc = PL["Imports data from LOKWhoIsWho, if present (drop your SavedVariables\\LOKWhoIsWho.lua in the EverlookDBChat directory to be able to use this)."],
 				type = "execute",
 				func = "importFromLOK",
 				confirm = true,
@@ -330,7 +330,7 @@ Prat:AddModuleToLoad(function()
 
 		self:setMainPos(self.db.profile.mainpos)
 
-		Prat.RegisterChatEvent(self, "Prat_PreAddMessage")
+		EverlookDBChat.RegisterChatEvent(self, "EverlookDBChat_PreAddMessage")
 
 		self.altertooltip = self.db.profile.tooltip_showmain or self.db.profile.tooltip_showalts
 
@@ -405,7 +405,7 @@ Prat:AddModuleToLoad(function()
 
 
 	function module:OnModuleDisable()
-		Prat.UnregisterAllChatEvents(self)
+		EverlookDBChat.UnregisterAllChatEvents(self)
 		altregistry.UnregisterAllCallbacks(self)
 	end
 
@@ -446,7 +446,7 @@ Prat:AddModuleToLoad(function()
 		name = name:gsub('[%%%[%]":|%s]', '')
 		name = name:gsub("'", '')
 		name = name:lower()
-		name = name:gsub(Prat.MULTIBYTE_FIRST_CHAR, string.upper, 1)
+		name = name:gsub(EverlookDBChat.MULTIBYTE_FIRST_CHAR, string.upper, 1)
 		return name
 	end
 
@@ -482,7 +482,7 @@ Prat:AddModuleToLoad(function()
 		end
 
 		if not eventGenerated then
-			altregistry:SetAlt(mainname, altname, "Prat")
+			altregistry:SetAlt(mainname, altname, "EverlookDBChat")
 		end
 
 		self:print(string.format(PL["linked alt %s => %s"], clralt(altname), clrmain(mainname)))
@@ -505,7 +505,7 @@ Prat:AddModuleToLoad(function()
 			end
 
 			if not eventGenerated then
-				altregistry:DeleteAlt(mainname, altname, "Prat")
+				altregistry:DeleteAlt(mainname, altname, "EverlookDBChat")
 			end
 
 			return true
@@ -583,7 +583,7 @@ Prat:AddModuleToLoad(function()
 		self.Altlists = {}
 	end
 
-	local CLR = Prat.CLR
+	local CLR = EverlookDBChat.CLR
 
 	function module:setMainPos(pos)
 		local msgitems = {
@@ -594,7 +594,7 @@ Prat:AddModuleToLoad(function()
 
 		pos = pos or 'RIGHT'
 
-		Prat.RegisterMessageItem('ALTNAMES', msgitems[pos])
+		EverlookDBChat.RegisterMessageItem('ALTNAMES', msgitems[pos])
 
 		if pos == 'RIGHT' then
 			self.padfmt = ' ' .. CLR:Colorize("ffffff", "(") .. "%s" .. CLR:Colorize("ffffff", ")")
@@ -617,7 +617,7 @@ Prat:AddModuleToLoad(function()
 	end
 
 	local playernames
-	function module:Prat_PreAddMessage(_, message)
+	function module:EverlookDBChat_PreAddMessage(_, message)
 		local hexcolour = CLR.NONE
 
 		local mainname = message.PLAYERLINKRAW or ""
@@ -641,13 +641,13 @@ Prat:AddModuleToLoad(function()
 						self.db.profile.pncol = 'no'
 					end
 
-					playernames = playernames or Prat:GetModule("PlayerNames")
+					playernames = playernames or EverlookDBChat:GetModule("PlayerNames")
 					if charname and playernames then
 						local class = playernames:GetData(charname)
 						if class then
-							local classColor = Prat.GetClassColor(class, true)
+							local classColor = EverlookDBChat.GetClassColor(class, true)
 							if classColor then
-								self.ALTNAMES = string.format(padfmt, classColor:WrapTextInColorCode(altname:gsub(Prat.MULTIBYTE_FIRST_CHAR, string.upper, 1)))
+								self.ALTNAMES = string.format(padfmt, classColor:WrapTextInColorCode(altname:gsub(EverlookDBChat.MULTIBYTE_FIRST_CHAR, string.upper, 1)))
 								message.ALTNAMES = self.ALTNAMES
 								return
 							end
@@ -660,7 +660,7 @@ Prat:AddModuleToLoad(function()
 				hexcolour = hexcolour or CLR:GetHexColor(self.db.profile.colour)
 			end
 
-			self.ALTNAMES = string.format(padfmt, CLR:Colorize(hexcolour, altname:gsub(Prat.MULTIBYTE_FIRST_CHAR, string.upper, 1)))
+			self.ALTNAMES = string.format(padfmt, CLR:Colorize(hexcolour, altname:gsub(EverlookDBChat.MULTIBYTE_FIRST_CHAR, string.upper, 1)))
 
 			message.ALTNAMES = self.ALTNAMES
 		end
@@ -753,8 +753,8 @@ Prat:AddModuleToLoad(function()
 			officernote = (officernote):match(PL["(.-)'s? [Aa]lt"]) or officernote or ""
 			publicnote = (publicnote):match(PL["(.-)'s? [Aa]lt"]) or publicnote or ""
 
-			local cleanpubnote = publicnote:match(Prat.AnyNamePattern)
-			local cleanoffnote = officernote:match(Prat.AnyNamePattern)
+			local cleanpubnote = publicnote:match(EverlookDBChat.AnyNamePattern)
+			local cleanoffnote = officernote:match(EverlookDBChat.AnyNamePattern)
 
 			if (rank:match(PL[".*[Aa]lts?$"]) or rank:match(PL[".*[Tt]wink.*$"]) or (altrank and rank == altrank)) and (cleanpubnote and
 				guildMembers[cleanpubnote:lower()]) then

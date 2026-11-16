@@ -24,8 +24,8 @@
 --
 -------------------------------------------------------------------------------
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("PopupMessage", "LibSink-2.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("PopupMessage", "LibSink-2.0")
 	local PL = module.PL
 
 	local EVENTS_EMOTES = {
@@ -47,7 +47,7 @@ Prat:AddModuleToLoad(function()
 		["CHAT_MSG_PING"] = true,
 	}
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = false,
 			separate = true,
@@ -60,7 +60,7 @@ Prat:AddModuleToLoad(function()
 
 	local pluginOptions = { sink = {} }
 
-	Prat:SetModuleOptions(module, {
+	EverlookDBChat:SetModuleOptions(module, {
 		name = PL["PopupMessage"],
 		desc = PL["Shows messages with your name in a popup."],
 		type = "group",
@@ -76,7 +76,7 @@ Prat:AddModuleToLoad(function()
 				desc = PL["Show Popups for each window."],
 				type = "multiselect",
 				order = 110,
-				values = Prat.HookedFrameList,
+				values = EverlookDBChat.HookedFrameList,
 				get = "GetSubValue",
 				set = "SetSubValue"
 			},
@@ -125,7 +125,7 @@ Prat:AddModuleToLoad(function()
 	--[[------------------------------------------------
 		Module Event Functions
 	------------------------------------------------]] --
-	Prat:SetModuleInit(module,
+	EverlookDBChat:SetModuleInit(module,
 		function(self)
 			self:RegisterSink(PL["Popup"],
 				PL["PopupMessage"],
@@ -140,14 +140,14 @@ Prat:AddModuleToLoad(function()
 		end)
 
 	function module:OnModuleEnable()
-		Prat.RegisterChatEvent(self, Prat.Events.POST_ADDMESSAGE)
+		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.POST_ADDMESSAGE)
 
 		self.nickpat = {}
 		for _, v in ipairs(self.db.profile.nickname) do
-			self.nickpat[v] = Prat.GetNamePattern(v)
+			self.nickpat[v] = EverlookDBChat.GetNamePattern(v)
 		end
 
-		self.playerName = Prat.GetNamePattern(UnitName("player"))
+		self.playerName = EverlookDBChat.GetNamePattern(UnitName("player"))
 	end
 
 	--[[------------------------------------------------
@@ -162,48 +162,48 @@ Prat:AddModuleToLoad(function()
 	-- /dump module.db.profile
 	-- /script module.db.profile.sink10OutputSink = nil
 	function module:Popup(_, text, r, g, b)
-		if Prat_PopupFrame.anim then
-			Prat_PopupFrame.anim:Stop()
+		if EverlookDBChat_PopupFrame.anim then
+			EverlookDBChat_PopupFrame.anim:Stop()
 		else
-			Prat_PopupFrame.anim = Prat_PopupFrame:CreateAnimationGroup()
-			Prat_PopupFrame.anim:SetScript("OnFinished", function()
-				Prat_PopupFrameText:Hide()
+			EverlookDBChat_PopupFrame.anim = EverlookDBChat_PopupFrame:CreateAnimationGroup()
+			EverlookDBChat_PopupFrame.anim:SetScript("OnFinished", function()
+				EverlookDBChat_PopupFrameText:Hide()
 			end)
 
-			local fade1 = Prat_PopupFrame.anim:CreateAnimation("Alpha")
+			local fade1 = EverlookDBChat_PopupFrame.anim:CreateAnimation("Alpha")
 			fade1:SetDuration(1)
 			fade1:SetToAlpha(module.db.profile.framealpha or 1)
 			fade1:SetEndDelay(4)
 			fade1:SetOrder(1)
 
-			local fade2 = Prat_PopupFrame.anim:CreateAnimation("Alpha")
+			local fade2 = EverlookDBChat_PopupFrame.anim:CreateAnimation("Alpha")
 			fade2:SetDuration(5)
 			fade2:SetToAlpha(0)
 			fade2:SetOrder(2)
 		end
 
-		Prat_PopupFrameText:SetTextColor(r, g, b)
-		Prat_PopupFrameText:SetText(text)
+		EverlookDBChat_PopupFrameText:SetTextColor(r, g, b)
+		EverlookDBChat_PopupFrameText:SetText(text)
 
 		local font, _, style = ChatFrame1:GetFont()
 		local _, fontsize = GameFontNormal:GetFont()
-		Prat_PopupFrameText:SetFont(font, fontsize, style)
-		Prat_PopupFrameText:SetNonSpaceWrap(false)
-		Prat_PopupFrame:SetWidth(math.min(math.max(64, Prat_PopupFrameText:GetStringWidth() + 20), 520))
-		Prat_PopupFrame:SetHeight(64)
-		Prat_PopupFrame:SetBackdropBorderColor(r, g, b)
+		EverlookDBChat_PopupFrameText:SetFont(font, fontsize, style)
+		EverlookDBChat_PopupFrameText:SetNonSpaceWrap(false)
+		EverlookDBChat_PopupFrame:SetWidth(math.min(math.max(64, EverlookDBChat_PopupFrameText:GetStringWidth() + 20), 520))
+		EverlookDBChat_PopupFrame:SetHeight(64)
+		EverlookDBChat_PopupFrame:SetBackdropBorderColor(r, g, b)
 
-		Prat_PopupFrameText:ClearAllPoints()
-		Prat_PopupFrameText:SetPoint("TOPLEFT", Prat_PopupFrame, "TOPLEFT", 10, 10)
-		Prat_PopupFrameText:SetPoint("BOTTOMRIGHT", Prat_PopupFrame, "BOTTOMRIGHT", -10, -10)
-		Prat_PopupFrameText:Show()
+		EverlookDBChat_PopupFrameText:ClearAllPoints()
+		EverlookDBChat_PopupFrameText:SetPoint("TOPLEFT", EverlookDBChat_PopupFrame, "TOPLEFT", 10, 10)
+		EverlookDBChat_PopupFrameText:SetPoint("BOTTOMRIGHT", EverlookDBChat_PopupFrame, "BOTTOMRIGHT", -10, -10)
+		EverlookDBChat_PopupFrameText:Show()
 
-		Prat_PopupFrame:SetAlpha(0)
-		Prat_PopupFrame:Show()
-		Prat_PopupFrame.anim:Play()
+		EverlookDBChat_PopupFrame:SetAlpha(0)
+		EverlookDBChat_PopupFrame:Show()
+		EverlookDBChat_PopupFrame.anim:Play()
 	end
 
-	function module:Prat_PostAddMessage(_, message, frame, event, _, r, g, b)
+	function module:EverlookDBChat_PostAddMessage(_, message, frame, event, _, r, g, b)
 		if self.pouring then
 			return
 		end
@@ -230,7 +230,7 @@ Prat:AddModuleToLoad(function()
 		end
 		tinsert(self.db.profile.nickname, name)
 
-		self.nickpat[name] = Prat.GetNamePattern(name)
+		self.nickpat[name] = EverlookDBChat.GetNamePattern(name)
 	end
 
 	function module:RemoveNickname(idx)
@@ -265,10 +265,10 @@ Prat:AddModuleToLoad(function()
 			self.lastevent = eventId
 			self.pouring = true
 			self:Pour(display_text or text, r, g, b)
-			Prat:PlaySound("popup");
+			EverlookDBChat:PlaySound("popup");
 			self.pouring = nil
 		end
 	end
 
 	return
-end) -- Prat:AddModuleToLoad
+end) -- EverlookDBChat:AddModuleToLoad

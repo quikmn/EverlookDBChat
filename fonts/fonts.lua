@@ -4,7 +4,7 @@ if not LSM then
 	return
 end
 
-local folder = [[Prat-3.0\fonts\]]
+local folder = [[EverlookDBChat\fonts\]]
 
 -- From SharedMedia
 LSM:Register("font", "Bazooka", [[Interface\Addons\]] .. folder .. [[Bazooka.ttf]])

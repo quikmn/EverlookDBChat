@@ -17,20 +17,20 @@ files["locales/**/*.lua"] = {
 }
 globals = {
 	-- Saved Variables
-	"Prat3DB",
-	"Prat3CharDB",
-	"Prat3HighCPUPerCharDB",
+	"EverlookDBChatDB",
+	"EverlookDBChatCharDB",
+	"EverlookDBChatHighCPUCharDB",
 
-	-- Prat
-	"Prat",
-	"PRAT_L",
-	"Prat_PopupFrame",
-	"Prat_PopupFrameText",
-	"Prat_ToggleOptionsWindow",
-	"PratCCFrame",
-	"PratCCFrameScrollText",
-	"PratCCFrameScrollScrollBar",
-	"PratCCText",
+	-- EverlookDBChat
+	"EverlookDBChat",
+	"EVERLOOKDBCHAT_L",
+	"EverlookDBChat_PopupFrame",
+	"EverlookDBChat_PopupFrameText",
+	"EverlookDBChat_ToggleOptionsWindow",
+	"EverlookDBChatCCFrame",
+	"EverlookDBChatCCFrameScrollText",
+	"EverlookDBChatCCFrameScrollScrollBar",
+	"EverlookDBChatCCText",
 	"CHAT_SMARTGROUP_SEND",
 	"CHAT_SMARTGROUP_GET",
 

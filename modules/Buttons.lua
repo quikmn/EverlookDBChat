@@ -23,11 +23,11 @@
 --
 -------------------------------------------------------------------------------
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("Buttons", "AceHook-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("Buttons", "AceHook-3.0")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 			scrollReminder = true,
@@ -40,7 +40,7 @@ Prat:AddModuleToLoad(function()
 		}
 	})
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL["Buttons"],
 		desc = PL["Chat window button options."],
 		type = "group",
@@ -80,7 +80,7 @@ Prat:AddModuleToLoad(function()
 				desc = PL["showvoice_desc"],
 				type = "toggle",
 				order = 150,
-				hidden = not Prat.IsModernAPI,
+				hidden = not EverlookDBChat.IsModernAPI,
 			},
 			showchannel = {
 				name = PL["showchannel_name"],
@@ -107,17 +107,17 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:OnModuleEnable()
-		local buttons3 = Prat:GetModule("OriginalButtons")
+		local buttons3 = EverlookDBChat:GetModule("OriginalButtons")
 		if buttons3 then
 			self.disabledB3 = true
 			buttons3.db.profile.on = false
 			buttons3:Disable()
-			LibStub("AceConfigRegistry-3.0"):NotifyChange("Prat")
+			LibStub("AceConfigRegistry-3.0"):NotifyChange("EverlookDB Chat")
 		end
 
 		self:APLyAllSettings()
 
-		Prat.RegisterChatEvent(self, Prat.Events.POST_ADDMESSAGE)
+		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.POST_ADDMESSAGE)
 
 		self:SecureHook("FCF_SetButtonSide")
 	end
@@ -144,7 +144,7 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:MarkButtonFramesDirty()
-		for _, frame in pairs(Prat.Frames) do
+		for _, frame in pairs(EverlookDBChat.Frames) do
 			if frame.buttonFrame and frame.buttonFrame.IsLayoutFrame and frame.buttonFrame:IsLayoutFrame() then
 				frame.buttonFrame:MarkDirty()
 			end
@@ -155,7 +155,7 @@ Prat:AddModuleToLoad(function()
 		self:DisableBottomButton()
 		self:ShowButtons()
 
-		Prat.UnregisterAllChatEvents(self)
+		EverlookDBChat.UnregisterAllChatEvents(self)
 	end
 
 	function module:UpdateReminder()
@@ -225,8 +225,8 @@ Prat:AddModuleToLoad(function()
 
 		local upButton, downButton, bottomButton
 
-		for name, frame in pairs(Prat.Frames) do
-			if not Prat.IsModernAPI then
+		for name, frame in pairs(EverlookDBChat.Frames) do
+			if not EverlookDBChat.IsModernAPI then
 				upButton = _G[name .. "ButtonFrameUpButton"]
 				upButton:SetScript("OnShow", hide)
 				upButton:Hide()
@@ -249,7 +249,7 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:AdjustButtonFrames()
-		for name, _ in pairs(Prat.Frames) do
+		for name, _ in pairs(EverlookDBChat.Frames) do
 			local f = _G[name .. "ButtonFrame"]
 
 			local hasChildren = false
@@ -273,7 +273,7 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:AdjustMinimizeButtons()
-		for name, frame in pairs(Prat.Frames) do
+		for name, frame in pairs(EverlookDBChat.Frames) do
 			local min = _G[name .. "ButtonFrameMinimizeButton"] or _G[name .. "MinimizeButton"]
 
 			if min then
@@ -312,8 +312,8 @@ Prat:AddModuleToLoad(function()
 		self:UpdateMenuButtons()
 		local upButton, downButton, bottomButton
 
-		for name, frame in pairs(Prat.Frames) do
-			if not Prat.IsModernAPI then
+		for name, frame in pairs(EverlookDBChat.Frames) do
+			if not EverlookDBChat.IsModernAPI then
 				upButton = _G[name .. "ButtonFrameUpButton"]
 				upButton:SetScript("OnShow", nil)
 				upButton:Show()
@@ -339,7 +339,7 @@ Prat:AddModuleToLoad(function()
 		local f = _G[chatFrame:GetName() .. "ButtonFrameBottomButton"]
 		local bf = _G[chatFrame:GetName() .. "ButtonFrame"]
 
-		if not Prat.IsModernAPI then
+		if not EverlookDBChat.IsModernAPI then
 			if self.db.profile.showButtons then
 				f:ClearAllPoints()
 				f:SetPoint("BOTTOM", bf, "BOTTOM", 0, 0)
@@ -355,7 +355,7 @@ Prat:AddModuleToLoad(function()
 			return
 		end
 		self.buttonsEnabled = true
-		for name, f in pairs(Prat.Frames) do
+		for name, f in pairs(EverlookDBChat.Frames) do
 			self:SecureHook(f, "ScrollUp")
 			self:SecureHook(f, "ScrollToTop", "ScrollUp")
 			self:SecureHook(f, "PageUp", "ScrollUp")
@@ -382,7 +382,7 @@ Prat:AddModuleToLoad(function()
 			return
 		end
 		self.buttonsEnabled = false
-		for name, f in pairs(Prat.Frames) do
+		for name, f in pairs(EverlookDBChat.Frames) do
 			if f then
 				self:Unhook(f, "ScrollUp")
 				self:Unhook(f, "ScrollToTop")
@@ -426,7 +426,7 @@ Prat:AddModuleToLoad(function()
 	end
 
 	--function module:AddMessage(frame, text, ...)
-	function module:Prat_PostAddMessage(_, _, frame)
+	function module:EverlookDBChat_PostAddMessage(_, _, frame)
 		local button = _G[frame:GetName() .. "ButtonFrameBottomButton"]
 
 		if not button then
@@ -442,4 +442,4 @@ Prat:AddModuleToLoad(function()
 	end
 
 	return
-end) -- Prat:AddModuleToLoad
+end) -- EverlookDBChat:AddModuleToLoad

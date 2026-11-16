@@ -24,11 +24,11 @@
 --
 -------------------------------------------------------------------------------
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("Scroll", "AceHook-3.0", "AceTimer-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("Scroll", "AceHook-3.0", "AceTimer-3.0")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 			mousewheel = { ["*"] = true },
@@ -41,7 +41,7 @@ Prat:AddModuleToLoad(function()
 	})
 
 
-	--- - build the options menu using prat templates
+	--- - build the options menu using edbchat templates
 	-- module.toggleOptions = {
 	-- mousewheel_handler = {},
 	-- sep135_sep = 135,
@@ -49,7 +49,7 @@ Prat:AddModuleToLoad(function()
 	-- }
 
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL["Scroll"],
 		desc = PL["Chat window scrolling options."],
 		type = "group",
@@ -59,7 +59,7 @@ Prat:AddModuleToLoad(function()
 				desc = PL["mousewheel_desc"],
 				type = "multiselect",
 				order = 110,
-				values = Prat.HookedFrameList,
+				values = EverlookDBChat.HookedFrameList,
 				get = "GetSubValue",
 				set = "SetSubValue"
 			},
@@ -93,7 +93,7 @@ Prat:AddModuleToLoad(function()
 				desc = PL["lowdown_desc"],
 				type = "multiselect",
 				order = 110,
-				values = Prat.HookedFrameList,
+				values = EverlookDBChat.HookedFrameList,
 				get = "GetSubValue",
 				set = "SetSubValue"
 			},
@@ -119,12 +119,12 @@ Prat:AddModuleToLoad(function()
 	-- things to do when the module is enabled
 	function module:OnModuleEnable()
 		self:ConfigureAllFrames()
-		Prat.RegisterChatEvent(self, Prat.Events.FRAMES_UPDATED)
+		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.FRAMES_UPDATED)
 	end
 
 	-- things to do when the module is disabled
 	function module:OnModuleDisable()
-		for _, v in pairs(Prat.Frames) do
+		for _, v in pairs(EverlookDBChat.Frames) do
 			self:MouseWheel(v, false)
 			if not IsCombatLog(v) then
 				self:LowDown(v, false)
@@ -137,7 +137,7 @@ Prat:AddModuleToLoad(function()
 	--[[------------------------------------------------
 		Core Functions
 	------------------------------------------------]] --
-	function module:Prat_FramesUpdated()
+	function module:EverlookDBChat_FramesUpdated()
 		self:ConfigureAllFrames()
 	end
 
@@ -146,7 +146,7 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:ConfigureAllFrames()
-		for k, v in pairs(Prat.Frames) do
+		for k, v in pairs(EverlookDBChat.Frames) do
 			self:MouseWheel(v, self.db.profile.mousewheel[k])
 			if not IsCombatLog(v) then
 				self:LowDown(v, self.db.profile.lowdown[k])
@@ -240,7 +240,7 @@ Prat:AddModuleToLoad(function()
 	function module:SetScrollDirection(direction)
 		-- Blizz bug DISABLED 10172010
 
-		--    for k, v in pairs(Prat.HookedFrames) do
+		--    for k, v in pairs(EverlookDBChat.HookedFrames) do
 		--		self:ScrollDirection(v, direction)
 		--    end
 
@@ -255,4 +255,4 @@ Prat:AddModuleToLoad(function()
 	end
 
 	return
-end) -- Prat:AddModuleToLoad
+end) -- EverlookDBChat:AddModuleToLoad

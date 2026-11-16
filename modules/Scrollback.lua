@@ -26,8 +26,8 @@
 
 local ChatFrame_TimeBreakDown = _G.ChatFrame_TimeBreakDown or _G.ChatFrameUtil.TimeBreakDown
 
-Prat:AddModuleExtension(function()
-	local module = Prat:GetModule("History")
+EverlookDBChat:AddModuleExtension(function()
+	local module = EverlookDBChat:GetModule("History")
 	if not module then
 		return
 	end
@@ -74,17 +74,17 @@ Prat:AddModuleExtension(function()
 	function module:OnModuleEnable(...)
 		orgOME(self, ...)
 
-		Prat3HighCPUPerCharDB = Prat3HighCPUPerCharDB
-		Prat3HighCPUPerCharDB = Prat3HighCPUPerCharDB or {}
+		EverlookDBChatHighCPUCharDB = EverlookDBChatHighCPUCharDB
+		EverlookDBChatHighCPUCharDB = EverlookDBChatHighCPUCharDB or {}
 
-		Prat3HighCPUPerCharDB.scrollback = Prat3HighCPUPerCharDB.scrollback or {}
+		EverlookDBChatHighCPUCharDB.scrollback = EverlookDBChatHighCPUCharDB.scrollback or {}
 
-		self.scrollback = Prat3HighCPUPerCharDB.scrollback
+		self.scrollback = EverlookDBChatHighCPUCharDB.scrollback
 
 		if self.db.profile.scrollback then
 			self:RestoreLastSession()
 
-			for k, v in pairs(Prat.HookedFrames) do
+			for k, v in pairs(EverlookDBChat.HookedFrames) do
 				self.scrollback[k] = v.historyBuffer
 				if not self:IsHooked(v, "AddMessage") then
 					self:SecureHook(v, "AddMessage")
@@ -92,15 +92,15 @@ Prat:AddModuleExtension(function()
 			end
 		end
 
-		Prat.RegisterChatEvent(self, Prat.Events.FRAMES_UPDATED)
-		Prat.RegisterChatEvent(self, Prat.Events.FRAMES_REMOVED)
+		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.FRAMES_UPDATED)
+		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.FRAMES_REMOVED)
 	end
 
 	local orgOMD = module.OnModuleDisable
 	function module:OnModuleDisable(...)
 		orgOMD(self, ...)
 
-		for name, v in pairs(Prat.HookedFrames) do
+		for name, v in pairs(EverlookDBChat.HookedFrames) do
 			if self:IsHooked(v, "AddMessage") then
 				self:Unhook(v, "AddMessage")
 			end
@@ -109,7 +109,7 @@ Prat:AddModuleExtension(function()
 	end
 
 	function module:OnValueChanged()
-		for k, v in pairs(Prat.HookedFrames) do
+		for k, v in pairs(EverlookDBChat.HookedFrames) do
 			if self.db.profile.scrollback then
 				if not v.isTemporary then
 					self.scrollback[k] = v.historyBuffer
@@ -122,7 +122,7 @@ Prat:AddModuleExtension(function()
 		end
 	end
 
-	function module:Prat_FramesUpdated(_, name, chatFrame)
+	function module:EverlookDBChat_FramesUpdated(_, name, chatFrame)
 		if self.db.profile.scrollback and not chatFrame.isTemporary then
 			self.scrollback[name] = chatFrame.historyBuffer
 		end
@@ -131,7 +131,7 @@ Prat:AddModuleExtension(function()
 		end
 	end
 
-	function module:Prat_FramesRemoved(_, name, chatFrame)
+	function module:EverlookDBChat_FramesRemoved(_, name, chatFrame)
 		self.scrollback[name] = nil
 		if self:IsHooked(chatFrame, "AddMessage") then
 			self:Unhook(chatFrame, "AddMessage")
@@ -185,7 +185,7 @@ Prat:AddModuleExtension(function()
 	local battleTagLookup
 
 	local function getBNPlayerLink(name, linkDisplayText, bnetIDAccount, lineID, chatType, chatTarget, battleTag)
-		return Prat.FormatLink("BNplayer", linkDisplayText, name, bnetIDAccount, lineID or 0, chatType, chatTarget, battleTag);
+		return EverlookDBChat.FormatLink("BNplayer", linkDisplayText, name, bnetIDAccount, lineID or 0, chatType, chatTarget, battleTag);
 	end
 
 	local function updateBnet(data, display)

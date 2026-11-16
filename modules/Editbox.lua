@@ -1,11 +1,11 @@
 local ChatEdit_ChooseBoxForSend = _G.ChatEdit_ChooseBoxForSend or _G.ChatFrameUtil.ChooseBoxForSend
 local ChatEdit_DeactivateChat = _G.ChatEdit_DeactivateChat or _G.ChatFrameUtil.DeactivateChat
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("Editbox", "AceHook-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("Editbox", "AceHook-3.0")
 	local PL = module.PL
 
-	local Media = Prat.Media
+	local Media = EverlookDBChat.Media
 	local backgrounds, borders, fonts = {}, {}, {}
 
 	local VALID_ATTACH_POINTS = {
@@ -22,7 +22,7 @@ Prat:AddModuleToLoad(function()
 		end
 	end
 
-	Prat:SetModuleOptions(module, {
+	EverlookDBChat:SetModuleOptions(module, {
 		name = PL["Editbox"],
 		desc = PL["Editbox options."],
 		type = "group",
@@ -201,7 +201,7 @@ Prat:AddModuleToLoad(function()
 		},
 	})
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 			background = "Blizzard Tooltip",
@@ -241,7 +241,7 @@ Prat:AddModuleToLoad(function()
 		end
 	end
 
-	local function MakePratEditbox(self, i)
+	local function MakeEverlookDBChatEditbox(self, i)
 		if not self.frames[i] then
 			local parent = _G["ChatFrame" .. i .. "EditBox"]
 
@@ -250,7 +250,7 @@ Prat:AddModuleToLoad(function()
 			frame:SetFrameLevel(parent:GetFrameLevel() - 1)
 			frame:SetAllPoints(parent)
 			frame:Hide()
-			parent.pratFrame = frame
+			parent.edbchatFrame = frame
 			self.frames[i] = frame
 
 			parent.lDrag = CreateFrame("Frame", nil, parent)
@@ -285,14 +285,14 @@ Prat:AddModuleToLoad(function()
 		end
 	end
 
-	Prat:SetModuleInit(module, function(self)
+	EverlookDBChat:SetModuleInit(module, function(self)
 		Media.RegisterCallback(module, "LibSharedMedia_Registered")
 		self.frames = {}
 
 		self:LibSharedMedia_Registered()
 
 		for i = 1, #CHAT_FRAMES do
-			MakePratEditbox(self, i)
+			MakeEverlookDBChatEditbox(self, i)
 		end
 	end)
 
@@ -331,7 +331,7 @@ Prat:AddModuleToLoad(function()
 		e:HookScript("OnArrowPressed", OnArrowPressed)
 	end
 
-	function module:Prat_FramesUpdated(_, _, chatFrame)
+	function module:EverlookDBChat_FramesUpdated(_, _, chatFrame)
 		local i = chatFrame:GetID()
 		local f = _G["ChatFrame" .. i .. "EditBox"]
 		_G["ChatFrame" .. i .. "EditBoxLeft"]:Hide()
@@ -350,7 +350,7 @@ Prat:AddModuleToLoad(function()
 		f:SetAlpha(0)
 		f:EnableMouse(false)
 
-		MakePratEditbox(self, i)
+		MakeEverlookDBChatEditbox(self, i)
 		self.frames[i]:Show()
 
 		local _, s, m = f:GetFont()
@@ -390,7 +390,7 @@ Prat:AddModuleToLoad(function()
 			f:SetAlpha(0)
 			f:EnableMouse(false)
 
-			MakePratEditbox(self, i) -- For new temporary chat frames created between init and now
+			MakeEverlookDBChatEditbox(self, i) -- For new temporary chat frames created between init and now
 			self.frames[i]:Show()
 			local _, s, m = f:GetFont()
 			f:SetFont(Media:Fetch("font", self.db.profile.font), s, m)
@@ -436,7 +436,7 @@ Prat:AddModuleToLoad(function()
 		self:SetBackdrop()
 		self:UpdateHeight()
 
-		Prat.RegisterChatEvent(self, Prat.Events.FRAMES_UPDATED)
+		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.FRAMES_UPDATED)
 	end
 
 	function module:ChatFrame_OpenChat(_, chatFrame)
@@ -466,12 +466,12 @@ Prat:AddModuleToLoad(function()
 			end
 			f:SetAltArrowKeyMode(true)
 			f:EnableMouse(true)
-			f.pratFrame:Hide()
+			f.edbchatFrame:Hide()
 			-- restore Blizz size/position
 			f:ClearAllPoints()
 			f:SetHeight(32)
 			f:SetPoint("TOPLEFT", f.chatFrame, "BOTTOMLEFT", -5, -2)
-			if Prat.IsClassic then
+			if EverlookDBChat.IsClassic then
 				f:SetPoint("TOPRIGHT", f.chatFrame, "BOTTOMRIGHT", 5, -2)
 			else
 				f:SetPoint("RIGHT", f.chatFrame.ScrollBar, "RIGHT", 5, 0)

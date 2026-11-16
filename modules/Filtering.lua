@@ -26,11 +26,11 @@
 
 local issecretvalue = issecretvalue or function() return false end
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("Filtering", "AceEvent-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("Filtering", "AceEvent-3.0")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module, {
+	EverlookDBChat:SetModuleDefaults(module, {
 		profile = {
 			on = false,
 			leavejoin = true,
@@ -42,7 +42,7 @@ Prat:AddModuleToLoad(function()
 		}
 	})
 
-	Prat:SetModuleOptions(module, {
+	EverlookDBChat:SetModuleOptions(module, {
 		name = PL["Filtering"],
 		desc = PL["A module to provide basic chat filtering."],
 		type = "group",
@@ -82,7 +82,7 @@ Prat:AddModuleToLoad(function()
 
 	local THROTTLE_TIME = 120
 	local MessageTime = {}
-	local CLR = Prat.CLR
+	local CLR = EverlookDBChat.CLR
 
 	local function cleanText(msg, author)
 		local cleanmsg = msg:gsub("...hic!", ""):gsub("%d", ""):gsub("%c", ""):gsub("%p", ""):gsub("%s", ""):upper():gsub("SH", "S");
@@ -90,8 +90,8 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:OnModuleEnable()
-		Prat.RegisterMessageItem("SPAMPROB", "PRE", "after")
-		self.classifier = Prat.GetClassifier(self.db.global)
+		EverlookDBChat.RegisterMessageItem("SPAMPROB", "PRE", "after")
+		self.classifier = EverlookDBChat.GetClassifier(self.db.global)
 		self.throttleFrame = self.throttleFrame or CreateFrame("FRAME");
 		self.lineTable = {}
 		self.trainTable = {}
@@ -105,17 +105,17 @@ Prat:AddModuleToLoad(function()
 			end
 		end)
 
-		Prat.RegisterChatEvent(self, "Prat_FrameMessage")
-		Prat.RegisterLinkType({ linkid = "pratfilter", linkfunc = module.PratFilter, handler = module }, module.name)
+		EverlookDBChat.RegisterChatEvent(self, "EverlookDBChat_FrameMessage")
+		EverlookDBChat.RegisterLinkType({ linkid = "edbchatfilter", linkfunc = module.EverlookDBChatFilter, handler = module }, module.name)
 	end
 
 	function module:OnModuleDisable()
 		self.lineTable = nil
 		self.trainTable = nil
-		Prat.UnregisterAllChatEvents(self)
+		EverlookDBChat.UnregisterAllChatEvents(self)
 	end
 
-	function module:PratFilter(data, frame)
+	function module:EverlookDBChatFilter(data, frame)
 		local _, id, found = strsplit(":", data)
 		found = tonumber(found) == 1 and true or false
 		self:ToggleLearn(id, found, frame)
@@ -155,7 +155,7 @@ Prat:AddModuleToLoad(function()
 		for _, v in ipairs(frame.visibleLines) do
 			local mi = v.messageInfo
 			local m = mi.message
-			if m:match(("pratfilter:%d"):format(id)) then
+			if m:match(("edbchatfilter:%d"):format(id)) then
 				mi.message = m:gsub("|c%x-%d+%%%x-|r", CLR:Probability(FormatPercentage(prob), prob):gsub("%%", "%%%%"))
 				break
 			end
@@ -229,14 +229,14 @@ Prat:AddModuleToLoad(function()
 		CHAT_MSG_CHANNEL = true
 	}
 
-	function module:Prat_FrameMessage(_, message, _, event)
+	function module:EverlookDBChat_FrameMessage(_, message, _, event)
 		if self.db.profile.useai and not issecretvalue(message.GUID) and eventsToHandle[event] and message.GUID ~= UnitGUID("player") then
 			local msg = tokenize(message.ORG.MESSAGE)
 			local prob = self.classifier.getprob(msg)
 			local isSpam = prob >= SPAM_CUTOFF
 			if self.db.profile.training then
 				self.lineTable[message.LINE_ID] = message.ORG.MESSAGE
-				message.SPAMPROB = ("|cff40ff40|Hpratfilter:%d:0|h[--]|h|r" .. CLR:Bracket("[") .. "%s" .. CLR:Bracket("]") .. "|cffff4040|Hpratfilter:%d:1|h[++]|h|r ")
+				message.SPAMPROB = ("|cff40ff40|Hedbchatfilter:%d:0|h[--]|h|r" .. CLR:Bracket("[") .. "%s" .. CLR:Bracket("]") .. "|cffff4040|Hedbchatfilter:%d:1|h[++]|h|r ")
 					:format(message.LINE_ID, CLR:Probability(FormatPercentage(prob), prob), message.LINE_ID)
 			elseif isSpam then
 				message.DONOTPROCESS = true

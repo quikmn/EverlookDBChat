@@ -23,11 +23,11 @@
 --
 --
 -------------------------------------------------------------------------------
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("ServerNames")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("ServerNames")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 			space = true,
@@ -54,7 +54,7 @@ Prat:AddModuleToLoad(function()
 
 	local serverPlugins = { servers = {} }
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL["ServerNames"],
 		desc = PL["Server name abbreviation options."],
 		type = "group",
@@ -86,7 +86,7 @@ Prat:AddModuleToLoad(function()
 		}
 	})
 
-	-- build the options menu using prat templates
+	-- build the options menu using edbchat templates
 	--module.toggleOptions = { optsep_sep = 240, randomclr = 250}
 	--module.toggleOptions = { optsep_sep = 229, space = 230, colon = 240 }
 
@@ -104,7 +104,7 @@ Prat:AddModuleToLoad(function()
 	--    ["RP-PvP"] = "RPPvP",
 	--}
 
-	local CLR = Prat.CLR
+	local CLR = EverlookDBChat.CLR
 	local function Server(server, text)
 		return CLR:Colorize(module:GetServerCLR(server), text or server)
 	end
@@ -147,11 +147,11 @@ Prat:AddModuleToLoad(function()
 		Module Event Functions
 	------------------------------------------------]] --
 	function module:OnModuleEnable()
-		Prat.RegisterChatEvent(self, "Prat_PreAddMessage")
+		EverlookDBChat.RegisterChatEvent(self, "EverlookDBChat_PreAddMessage")
 	end
 
 	function module:OnModuleDisable()
-		Prat.UnregisterAllChatEvents(self)
+		EverlookDBChat.UnregisterAllChatEvents(self)
 	end
 
 	--[[------------------------------------------------
@@ -161,8 +161,8 @@ Prat:AddModuleToLoad(function()
 		return PL["Server name abbreviation options."]
 	end
 
-	-- replace text using prat event implementation
-	function module:Prat_PreAddMessage(_, m)
+	-- replace text using edbchat event implementation
+	function module:EverlookDBChat_PreAddMessage(_, m)
 		local serverKey = self:GetServerKey(m.SERVER)
 		local opts = serverKey and self:GetServerSettings(serverKey)
 
@@ -179,7 +179,7 @@ Prat:AddModuleToLoad(function()
 		end
 
 		if not (m.SERVER and strlen(m.SERVER) > 0) then
-			local s = Prat.SplitMessage
+			local s = EverlookDBChat.SplitMessage
 			s.SERVER, s.sS, s.Ss = "", "", ""
 		end
 	end
@@ -235,4 +235,4 @@ Prat:AddModuleToLoad(function()
 		return CLR.COLOR_NONE
 	end
 	return
-end) -- Prat:AddModuleToLoad
+end) -- EverlookDBChat:AddModuleToLoad

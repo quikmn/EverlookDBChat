@@ -1,0 +1,35 @@
+## Interface: 16001
+## Title: EverlookDB Chat
+## Notes: Chat improvements: timestamps, short channel names, class-coloured names, copy chat, chat history, URL copy and more, each one a module you can turn on or off. /edbchat
+## Author: quikmn
+## X-Credits: A modified version of Prat-3.0 by QartemisT and Sylvanaar (GPL-3.0). See README.md.
+## Version: v0.1.0
+## X-License: GPL-3.0
+
+## Category-enUS: Chat
+## Category-deDE: Chat
+## Category-esES: Chat
+## Category-esMX: Chat
+## Category-frFR: Discussion
+## Category-itIT: Chat
+## Category-koKR: 대화
+## Category-ptBR: Bate-papo
+## Category-ruRU: Чат
+## Category-zhCN: 聊天
+## Category-zhTW: 對話
+
+## OptionalDeps: LibSink-2.0, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, LibDataBroker-1.1, LibDBIcon-1.0, LibAlts-1.0, LibChatAnims
+
+## SavedVariables: EverlookDBChatDB
+## SavedVariablesPerCharacter: EverlookDBChatCharDB, EverlookDBChatHighCPUCharDB
+
+## IconTexture: Interface\AddOns\EverlookDBChat\textures\icon
+## AddonCompartmentFunc: EverlookDBChat_ToggleOptionsWindow
+
+Libs.xml
+
+locales\includes.xml
+fonts\includes.xml
+addon\includes.xml
+services\includes.xml
+modules\includes.xml

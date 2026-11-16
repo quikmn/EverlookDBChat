@@ -27,19 +27,19 @@
 local issecretvalue = issecretvalue or function() return false end
 
 local function GetTargetName(unit)
-	return Prat.IsForever and GetUnitName(unit) or UnitName(unit)
+	return EverlookDBChat.IsForever and GetUnitName(unit) or UnitName(unit)
 end
 
 local function GetTargetServer(unit)
-	if Prat.IsForever then
+	if EverlookDBChat.IsForever then
 		return
 	end
 	local _, realm = UnitName(unit)
 	return realm
 end
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("PlayerNames", "AceHook-3.0", "AceEvent-3.0", "AceTimer-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("PlayerNames", "AceHook-3.0", "AceEvent-3.0", "AceTimer-3.0")
 	local PL = module.PL
 
 	module.Classes = {}
@@ -52,7 +52,7 @@ Prat:AddModuleToLoad(function()
 
 	module.OnPlayerDataChanged = NOP
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		realm = {
 			classes = {},
 			levels = {}
@@ -94,7 +94,7 @@ Prat:AddModuleToLoad(function()
 
 	module.pluginopts = {}
 
-	Prat:SetModuleOptions(module, {
+	EverlookDBChat:SetModuleOptions(module, {
 		name = PL["PlayerNames"],
 		desc = PL["Player name formating options."],
 		type = "group",
@@ -200,7 +200,7 @@ Prat:AddModuleToLoad(function()
 				desc = PL["Toggle showing the raid target icon which is currently on the player."],
 				type = "toggle",
 				order = 142,
-				hidden = Prat.IsModernAPI,
+				hidden = EverlookDBChat.IsModernAPI,
 			},
 			tabcomplete = {
 				name = PL["Enable TabComplete"],
@@ -274,18 +274,18 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:OnModuleEnable()
-		Prat.RegisterChatEvent(self, "Prat_FrameMessage")
-		Prat.RegisterChatEvent(self, "Prat_Ready")
+		EverlookDBChat.RegisterChatEvent(self, "EverlookDBChat_FrameMessage")
+		EverlookDBChat.RegisterChatEvent(self, "EverlookDBChat_Ready")
 
-		Prat.RegisterMessageItem("PREPLAYERDELIM", "PLAYER", "before")
-		Prat.RegisterMessageItem("POSTPLAYERDELIM", "Ss", "after")
-		Prat.RegisterMessageItem("PLAYERTARGETICON", "Ss", "after")
-		Prat.RegisterMessageItem("PLAYERLEVEL", "PREPLAYERDELIM", "before")
-		Prat.RegisterMessageItem("PLAYERGROUP", "POSTPLAYERDELIM", "after")
-		Prat.RegisterMessageItem("PLAYERCLIENTICON", "PLAYERLEVEL", "before")
+		EverlookDBChat.RegisterMessageItem("PREPLAYERDELIM", "PLAYER", "before")
+		EverlookDBChat.RegisterMessageItem("POSTPLAYERDELIM", "Ss", "after")
+		EverlookDBChat.RegisterMessageItem("PLAYERTARGETICON", "Ss", "after")
+		EverlookDBChat.RegisterMessageItem("PLAYERLEVEL", "PREPLAYERDELIM", "before")
+		EverlookDBChat.RegisterMessageItem("PLAYERGROUP", "POSTPLAYERDELIM", "after")
+		EverlookDBChat.RegisterMessageItem("PLAYERCLIENTICON", "PLAYERLEVEL", "before")
 
-		Prat.EnableProcessingForEvent("CHAT_MSG_GUILD_ACHIEVEMENT")
-		Prat.EnableProcessingForEvent("CHAT_MSG_ACHIEVEMENT")
+		EverlookDBChat.EnableProcessingForEvent("CHAT_MSG_GUILD_ACHIEVEMENT")
+		EverlookDBChat.EnableProcessingForEvent("CHAT_MSG_ACHIEVEMENT")
 
 		self:RegisterEvent("FRIENDLIST_UPDATE", "UpdateFriends")
 		self:RegisterEvent("GUILD_ROSTER_UPDATE")
@@ -319,10 +319,10 @@ Prat:AddModuleToLoad(function()
 	function module:OnModuleDisable()
 		self:TabComplete(false)
 		self:UnregisterAllEvents()
-		Prat.UnregisterAllChatEvents(self)
+		EverlookDBChat.UnregisterAllChatEvents(self)
 	end
 
-	function module:Prat_Ready()
+	function module:EverlookDBChat_Ready()
 		self:UpdateAll()
 	end
 
@@ -569,7 +569,7 @@ Prat:AddModuleToLoad(function()
 	--
 	-- Coloring Functions
 	--
-	local CLR = Prat.CLR
+	local CLR = EverlookDBChat.CLR
 	function CLR:Bracket(text)
 		return self:Colorize(module:GetBracketCLR(), text)
 	end
@@ -598,7 +598,7 @@ Prat:AddModuleToLoad(function()
 
 		if name then
 			if class and mode == "CLASS" then
-				local classColor = Prat.GetClassColor(class, true)
+				local classColor = EverlookDBChat.GetClassColor(class, true)
 				if classColor then
 					return classColor:WrapTextInColorCode(text)
 				end
@@ -633,7 +633,7 @@ Prat:AddModuleToLoad(function()
 
 		if Server and Server:len() > 0 then
 			nosave = true
-			servernames = servernames or Prat:GetModule("ServerNames")
+			servernames = servernames or EverlookDBChat:GetModule("ServerNames")
 
 			if servernames then
 				servernames:GetServerKey(Server)
@@ -729,7 +729,7 @@ Prat:AddModuleToLoad(function()
 		end
 
 		-- Add raid target icon
-		if not Prat.IsModernAPI and self.db.profile.showtargeticon then
+		if not EverlookDBChat.IsModernAPI and self.db.profile.showtargeticon then
 			local icon = UnitExists(Name) and GetRaidTargetIndex(Name)
 			if icon then
 				icon = ICON_LIST[icon]
@@ -753,7 +753,7 @@ Prat:AddModuleToLoad(function()
 					end
 				end
 
-				local classColor = Prat.GetClassColor(toonClass, true)
+				local classColor = EverlookDBChat.GetClassColor(toonClass, true)
 				if classColor then
 					message.PLAYER = classColor:WrapTextInColorCode(message.PLAYER)
 				end
@@ -792,7 +792,7 @@ Prat:AddModuleToLoad(function()
 	end
 
 	--
-	-- Prat Event Implementation
+	-- EverlookDBChat Event Implementation
 	--
 	local EVENTS_FOR_RECHECK = {
 		["CHAT_MSG_GUILD"] = module.UpdateGF,
@@ -811,7 +811,7 @@ Prat:AddModuleToLoad(function()
 		CHAT_MSG_INSTANCE_CHAT_LEADER = true,
 	}
 
-	function module:Prat_FrameMessage(_, message, frame, event)
+	function module:EverlookDBChat_FrameMessage(_, message, frame, event)
 		if self.NEEDS_INIT then
 			self:UpdateAll()
 		end
@@ -891,7 +891,7 @@ Prat:AddModuleToLoad(function()
 			return
 		end
 
-		servernames = servernames or Prat:GetModule("ServerNames")
+		servernames = servernames or EverlookDBChat:GetModule("ServerNames")
 
 		if not AceTab:IsTabCompletionRegistered(PL["tabcomplete_name"]) then
 			AceTab:RegisterTabCompletion(
@@ -929,7 +929,7 @@ Prat:AddModuleToLoad(function()
 				end,
 				nil,
 				function(name)
-					return name:gsub(Prat.MULTIBYTE_FIRST_CHAR, string.upper, 1):match("^[^%-]+")
+					return name:gsub(EverlookDBChat.MULTIBYTE_FIRST_CHAR, string.upper, 1):match("^[^%-]+")
 				end
 			)
 		end

@@ -26,11 +26,11 @@
 
 local NUM_CHAT_WINDOWS = NUM_CHAT_WINDOWS or Constants.ChatFrameConstants.MaxChatWindows
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("OriginalButtons", "AceHook-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("OriginalButtons", "AceHook-3.0")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = false,
 			chatmenu = false,
@@ -43,7 +43,7 @@ Prat:AddModuleToLoad(function()
 		}
 	})
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL["Original Buttons"],
 		desc = PL["Chat window button options."],
 		type = "group",
@@ -55,7 +55,7 @@ Prat:AddModuleToLoad(function()
 				get = "GetSubValue",
 				set = "SetSubValue",
 				type = "multiselect",
-				values = Prat.FrameList,
+				values = EverlookDBChat.FrameList,
 			},
 			chatmenu = {
 				type = "toggle",
@@ -142,17 +142,17 @@ Prat:AddModuleToLoad(function()
 
 	-- things to do when the module is enabled
 	function module:OnModuleEnable()
-		local buttons3 = Prat:GetModule("Buttons")
+		local buttons3 = EverlookDBChat:GetModule("Buttons")
 		if buttons3 then
 			self.disabledB3 = true
 			buttons3.db.profile.on = false
 			buttons3:Disable()
-			LibStub("AceConfigRegistry-3.0"):NotifyChange("Prat")
+			LibStub("AceConfigRegistry-3.0"):NotifyChange("EverlookDB Chat")
 		end
 		-- stub variables for frame handling
 		self.frames = {}
 		self.reminders = {}
-		for name, frame in pairs(Prat.Frames) do
+		for name, frame in pairs(EverlookDBChat.Frames) do
 			local i = frame:GetID()
 			table.insert(self.reminders, self:MakeReminder(i))
 			self:chatbutton(i, self.db.profile.chatarrows[name])
@@ -169,7 +169,7 @@ Prat:AddModuleToLoad(function()
 		if _G.ChatFrame_OnUpdate then
 			self:SecureHook("ChatFrame_OnUpdate", "ChatFrame_OnUpdateHook")
 		else
-			for _, v in pairs(Prat.Frames) do
+			for _, v in pairs(EverlookDBChat.Frames) do
 				if v and v.OnUpdate then
 					self:SecureHook(v, "OnUpdate", "ChatFrame_OnUpdateHook")
 				end
@@ -206,7 +206,7 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:ConfigureAllFrames()
-		for name, frame in pairs(Prat.Frames) do
+		for name, frame in pairs(EverlookDBChat.Frames) do
 			local i = frame:GetID()
 			self:chatbutton(i, self.db.profile.chatarrows[name])
 			self:ButtonFrame(i, self.db.profile.buttonframe)
@@ -504,4 +504,4 @@ Prat:AddModuleToLoad(function()
 	end
 
 	return
-end) -- Prat:AddModuleToLoad
+end) -- EverlookDBChat:AddModuleToLoad

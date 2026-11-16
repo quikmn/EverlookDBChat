@@ -26,11 +26,11 @@
 
 local NUM_CHAT_WINDOWS = NUM_CHAT_WINDOWS or Constants.ChatFrameConstants.MaxChatWindows
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("History", "AceHook-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("History", "AceHook-3.0")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 			chatlinesframes = {},
@@ -47,7 +47,7 @@ Prat:AddModuleToLoad(function()
 
 	module.pluginopts = {}
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL["History"],
 		desc = PL["Chat history options."],
 		type = "group",
@@ -57,7 +57,7 @@ Prat:AddModuleToLoad(function()
 				name = PL["Set Chat Lines"],
 				desc = PL["Set the number of lines of chat history for each window."],
 				type = "multiselect",
-				values = Prat.HookedFrameList,
+				values = EverlookDBChat.HookedFrameList,
 				get = "GetSubValue",
 				set = "SetSubValue"
 			},
@@ -125,24 +125,24 @@ Prat:AddModuleToLoad(function()
 	function module:OnModuleEnable()
 
 
-		Prat3CharDB = Prat3CharDB or {}
-		Prat3CharDB.history = Prat3CharDB.history or {}
-		Prat3CharDB.history.cmdhistory = Prat3CharDB.history.cmdhistory or {}
+		EverlookDBChatCharDB = EverlookDBChatCharDB or {}
+		EverlookDBChatCharDB.history = EverlookDBChatCharDB.history or {}
+		EverlookDBChatCharDB.history.cmdhistory = EverlookDBChatCharDB.history.cmdhistory or {}
 
-		for i, v in ipairs(Prat3CharDB.history.cmdhistory) do
+		for i, v in ipairs(EverlookDBChatCharDB.history.cmdhistory) do
 			if (type(v) == "string" and v:sub(1, 9) ~= "ChatFrame") then
-				Prat3CharDB.history.cmdhistory[i] = nil
+				EverlookDBChatCharDB.history.cmdhistory[i] = nil
 			end
 		end
 
 		applyEditBox(function(edit)
 			local name = edit:GetName()
-			Prat3CharDB.history.cmdhistory[name] = Prat3CharDB.history.cmdhistory[name] or {}
+			EverlookDBChatCharDB.history.cmdhistory[name] = EverlookDBChatCharDB.history.cmdhistory[name] or {}
 		end)
 
 		self:ConfigureAllChatFrames()
 
-		for k in pairs(Prat3CharDB.history.cmdhistory) do
+		for k in pairs(EverlookDBChatCharDB.history.cmdhistory) do
 			local edit = _G[k]
 			if (edit) then
 				self:SecureHook(edit, "AddHistoryLine")
@@ -176,12 +176,12 @@ Prat:AddModuleToLoad(function()
 			self:SetHistory(_G[k], lines)
 		end
 
-		for k in pairs(Prat3CharDB.history.cmdhistory) do
+		for k in pairs(EverlookDBChatCharDB.history.cmdhistory) do
 			local edit = _G[k]
 			if (edit) then
 				if self.db.profile.savehistory then
 					edit:SetHistoryLines(self.db.profile.maxlines)
-					edit.history_lines = Prat3CharDB.history.cmdhistory[k]
+					edit.history_lines = EverlookDBChatCharDB.history.cmdhistory[k]
 				else
 					edit.history_lines = {}
 				end
@@ -211,7 +211,7 @@ Prat:AddModuleToLoad(function()
 
 	function module:addSavedHistory(editBox)
 		editBox = editBox or ChatFrame1EditBox
-		local cmdhistory = Prat3CharDB.history.cmdhistory[editBox:GetName()] or {}
+		local cmdhistory = EverlookDBChatCharDB.history.cmdhistory[editBox:GetName()] or {}
 		local cmdindex = #cmdhistory
 
 		-- where there"s a while, there"s a way
@@ -280,4 +280,4 @@ Prat:AddModuleToLoad(function()
 	end
 
 	return
-end) -- Prat:AddModuleToLoad
+end) -- EverlookDBChat:AddModuleToLoad

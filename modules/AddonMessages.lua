@@ -25,18 +25,18 @@
 -------------------------------------------------------------------------------
 
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("AddonMsgs", "AceEvent-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("AddonMsgs", "AceEvent-3.0")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = false,
 			show = {},
 		}
 	})
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL["AddonMsgs"],
 		desc = PL["Addon message options."],
 		type = "group",
@@ -45,7 +45,7 @@ Prat:AddModuleToLoad(function()
 				name = PL["show_name"],
 				desc = PL["show_desc"],
 				type = "multiselect",
-				values = Prat.HookedFrameList,
+				values = EverlookDBChat.HookedFrameList,
 				get = "GetSubValue",
 				set = "SetSubValue"
 			}
@@ -71,7 +71,7 @@ Prat:AddModuleToLoad(function()
 		return PL["Addon message options."]
 	end
 
-	local CLR = Prat.CLR
+	local CLR = EverlookDBChat.CLR
 
 	-- add a splash of color to text
 	local function c1(text)
@@ -92,7 +92,7 @@ Prat:AddModuleToLoad(function()
 
 	-- show hidden addon channel messages
 	function module:CHAT_MSG_ADDON(arg1, arg2, arg3, arg4)
-		for k, v in pairs(Prat.HookedFrames) do
+		for k, v in pairs(EverlookDBChat.HookedFrames) do
 			if self.db.profile.show[k] then
 				v:AddMessage("[" .. c1(arg1) .. "][" .. c2(arg2) .. "][" .. c3(arg3) .. "][" .. c4(arg4) .. "]")
 			end
@@ -100,4 +100,4 @@ Prat:AddModuleToLoad(function()
 	end
 
 	return
-end) -- Prat:AddModuleToLoad
+end) -- EverlookDBChat:AddModuleToLoad

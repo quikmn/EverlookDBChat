@@ -27,17 +27,17 @@
 local ChatFrame_SendTell = _G.ChatFrame_SendTell or _G.ChatFrameUtil.SendTell
 local ChatEdit_UpdateHeader = _G.ChatEdit_UpdateHeader or _G.ChatFrameEditBoxMixin.UpdateHeader
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("TellTarget", "AceHook-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("TellTarget", "AceHook-3.0")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 		}
 	})
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL["TellTarget"],
 		desc = PL["Adds telltarget slash command (/tt)."],
 		type = "group",
@@ -69,11 +69,11 @@ Prat:AddModuleToLoad(function()
 	end
 
 	local function GetTargetName(unit)
-		return Prat.IsForever and GetUnitName(unit) or UnitName(unit)
+		return EverlookDBChat.IsForever and GetUnitName(unit) or UnitName(unit)
 	end
 
 	local function GetTargetServer(unit)
-		if Prat.IsForever then
+		if EverlookDBChat.IsForever then
 			return
 		end
 		local _, realm = UnitName(unit)

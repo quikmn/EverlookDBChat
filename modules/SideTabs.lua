@@ -24,11 +24,11 @@
 --
 -------------------------------------------------------------------------------
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("SideTabs", "AceHook-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("SideTabs", "AceHook-3.0")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module, {
+	EverlookDBChat:SetModuleDefaults(module, {
 		profile = {
 			on = false,
 			side = "LEFT", -- LEFT | RIGHT
@@ -78,7 +78,7 @@ Prat:AddModuleToLoad(function()
 	local function MakeTabLabelOption(order)
 		return {
 			name = function(info)
-				return Prat.FrameList[info[#info]] or info[#info]
+				return EverlookDBChat.FrameList[info[#info]] or info[#info]
 			end,
 			type = "group",
 			order = order,
@@ -176,7 +176,7 @@ Prat:AddModuleToLoad(function()
 		}
 	end
 
-	Prat:SetModuleOptions(module, {
+	EverlookDBChat:SetModuleOptions(module, {
 		name = "SideTabs",
 		desc = "Move chat tabs to the side of the chat frame and stack them vertically.",
 		type = "group",
@@ -420,15 +420,15 @@ Prat:AddModuleToLoad(function()
 		end
 
 		if simple then
-			if not tab.PratSideTabsBG then
+			if not tab.EverlookDBChatSideTabsBG then
 				local bg = tab:CreateTexture(nil, "BACKGROUND")
 				bg:SetAllPoints(tab)
 				bg:SetColorTexture(0, 0, 0, 0.35)
-				tab.PratSideTabsBG = bg
+				tab.EverlookDBChatSideTabsBG = bg
 			end
-			tab.PratSideTabsBG:Show()
-		elseif tab.PratSideTabsBG then
-			tab.PratSideTabsBG:Hide()
+			tab.EverlookDBChatSideTabsBG:Show()
+		elseif tab.EverlookDBChatSideTabsBG then
+			tab.EverlookDBChatSideTabsBG:Hide()
 		end
 	end
 
@@ -442,10 +442,10 @@ Prat:AddModuleToLoad(function()
 			return
 		end
 
-		if not tab.PratSideTabsTextDefaults then
+		if not tab.EverlookDBChatSideTabsTextDefaults then
 			local f, s, m = fs:GetFont()
 			local r, g, b, a = fs:GetTextColor()
-			tab.PratSideTabsTextDefaults = {
+			tab.EverlookDBChatSideTabsTextDefaults = {
 				font = f,
 				size = s,
 				mode = m,
@@ -456,12 +456,12 @@ Prat:AddModuleToLoad(function()
 			}
 		end
 
-		local defaults = tab.PratSideTabsTextDefaults
+		local defaults = tab.EverlookDBChatSideTabsTextDefaults
 		local p = self.db.profile
 
 		local fontfile = defaults.font
 		if p.fontface and p.fontface ~= "" then
-			fontfile = Prat.Media:Fetch(Prat.Media.MediaType.FONT, p.fontface) or defaults.font
+			fontfile = EverlookDBChat.Media:Fetch(EverlookDBChat.Media.MediaType.FONT, p.fontface) or defaults.font
 		end
 
 		local fontsize = defaults.size
@@ -476,7 +476,7 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:RestoreTextStyle(tab)
-		if not tab or not tab.PratSideTabsTextDefaults then
+		if not tab or not tab.EverlookDBChatSideTabsTextDefaults then
 			return
 		end
 
@@ -485,7 +485,7 @@ Prat:AddModuleToLoad(function()
 			return
 		end
 
-		local d = tab.PratSideTabsTextDefaults
+		local d = tab.EverlookDBChatSideTabsTextDefaults
 		fs:SetFont(d.font, d.size, d.mode)
 		fs:SetTextColor(d.r, d.g, d.b, d.a)
 	end
@@ -500,31 +500,31 @@ Prat:AddModuleToLoad(function()
 	}
 
 	local function EnsureShapeTexture(tab)
-		if not tab.PratSideTabsShapeTex then
+		if not tab.EverlookDBChatSideTabsShapeTex then
 			local tex = tab:CreateTexture(nil, "OVERLAY")
 			tex:SetPoint("CENTER", tab, "CENTER", 0, 0)
 			tex:SetTexture("Interface\\Buttons\\WHITE8X8")
-			tab.PratSideTabsShapeTex = tex
+			tab.EverlookDBChatSideTabsShapeTex = tex
 		end
 
-		return tab.PratSideTabsShapeTex
+		return tab.EverlookDBChatSideTabsShapeTex
 	end
 
 	local function EnsureShapeCircleMask(tab)
-		if not tab.PratSideTabsShapeMask then
+		if not tab.EverlookDBChatSideTabsShapeMask then
 			local mask = tab:CreateMaskTexture(nil, "OVERLAY")
 			mask:SetPoint("CENTER", tab, "CENTER", 0, 0)
 			-- This is a built-in circular alpha mask used by Blizzard UI.
 			mask:SetTexture("Interface\\CharacterFrame\\TempPortraitAlphaMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
-			tab.PratSideTabsShapeMask = mask
+			tab.EverlookDBChatSideTabsShapeMask = mask
 		end
 
-		return tab.PratSideTabsShapeMask
+		return tab.EverlookDBChatSideTabsShapeMask
 	end
 
 	local function HideShapeTexture(tab)
-		if tab and tab.PratSideTabsShapeTex then
-			tab.PratSideTabsShapeTex:Hide()
+		if tab and tab.EverlookDBChatSideTabsShapeTex then
+			tab.EverlookDBChatSideTabsShapeTex:Hide()
 		end
 	end
 
@@ -628,13 +628,13 @@ Prat:AddModuleToLoad(function()
 			return
 		end
 
-		if not tab.PratSideTabsDefaultText then
-			tab.PratSideTabsDefaultText = tab:GetText()
+		if not tab.EverlookDBChatSideTabsDefaultText then
+			tab.EverlookDBChatSideTabsDefaultText = tab:GetText()
 		end
 
 		if not self.db.profile.labelsenabled then
 			HideShapeTexture(tab)
-			tab:SetText(frame.name or tab.PratSideTabsDefaultText or "")
+			tab:SetText(frame.name or tab.EverlookDBChatSideTabsDefaultText or "")
 			return
 		end
 
@@ -643,7 +643,7 @@ Prat:AddModuleToLoad(function()
 
 		if mode == "default" then
 			HideShapeTexture(tab)
-			tab:SetText(frame.name or tab.PratSideTabsDefaultText or "")
+			tab:SetText(frame.name or tab.EverlookDBChatSideTabsDefaultText or "")
 			return
 		end
 
@@ -653,7 +653,7 @@ Prat:AddModuleToLoad(function()
 			if custom and custom ~= "" then
 				tab:SetText(custom)
 			else
-				tab:SetText(frame.name or tab.PratSideTabsDefaultText or "")
+				tab:SetText(frame.name or tab.EverlookDBChatSideTabsDefaultText or "")
 			end
 			return
 		end
@@ -674,7 +674,7 @@ Prat:AddModuleToLoad(function()
 		end
 
 		HideShapeTexture(tab)
-		tab:SetText(frame.name or tab.PratSideTabsDefaultText or "")
+		tab:SetText(frame.name or tab.EverlookDBChatSideTabsDefaultText or "")
 	end
 
 	function module:RestoreTabLabel(frame, tab)
@@ -682,7 +682,7 @@ Prat:AddModuleToLoad(function()
 			return
 		end
 		HideShapeTexture(tab)
-		tab:SetText(frame.name or tab.PratSideTabsDefaultText or "")
+		tab:SetText(frame.name or tab.EverlookDBChatSideTabsDefaultText or "")
 	end
 
 	function module:ApplyTextLayout(tab)
@@ -695,8 +695,8 @@ Prat:AddModuleToLoad(function()
 			return
 		end
 
-		if not tab.PratSideTabsTextLayoutDefaults then
-			tab.PratSideTabsTextLayoutDefaults = {
+		if not tab.EverlookDBChatSideTabsTextLayoutDefaults then
+			tab.EverlookDBChatSideTabsTextLayoutDefaults = {
 				points = {},
 				justifyH = fs:GetJustifyH(),
 				justifyV = fs:GetJustifyV(),
@@ -705,7 +705,7 @@ Prat:AddModuleToLoad(function()
 
 			for i = 1, fs:GetNumPoints() do
 				local p, rel, rp, x, y = fs:GetPoint(i)
-				tab.PratSideTabsTextLayoutDefaults.points[i] = { p, rel, rp, x, y }
+				tab.EverlookDBChatSideTabsTextLayoutDefaults.points[i] = { p, rel, rp, x, y }
 			end
 		end
 
@@ -717,7 +717,7 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:RestoreTextLayout(tab)
-		if not tab or not tab.PratSideTabsTextLayoutDefaults then
+		if not tab or not tab.EverlookDBChatSideTabsTextLayoutDefaults then
 			return
 		end
 
@@ -726,7 +726,7 @@ Prat:AddModuleToLoad(function()
 			return
 		end
 
-		local d = tab.PratSideTabsTextLayoutDefaults
+		local d = tab.EverlookDBChatSideTabsTextLayoutDefaults
 		fs:ClearAllPoints()
 		if d.points and #d.points > 0 then
 			for _, point in ipairs(d.points) do
@@ -753,11 +753,11 @@ Prat:AddModuleToLoad(function()
 		local p = self.db.profile
 		local side = p.side
 
-		if tab.PratSideTabsDefaultHeight == nil then
-			tab.PratSideTabsDefaultHeight = tab:GetHeight()
+		if tab.EverlookDBChatSideTabsDefaultHeight == nil then
+			tab.EverlookDBChatSideTabsDefaultHeight = tab:GetHeight()
 		end
-		if tab.PratSideTabsDefaultScale == nil then
-			tab.PratSideTabsDefaultScale = tab:GetScale()
+		if tab.EverlookDBChatSideTabsDefaultScale == nil then
+			tab.EverlookDBChatSideTabsDefaultScale = tab:GetScale()
 		end
 
 		-- Use the chat frame's parent to avoid dock clipping while staying in the
@@ -835,7 +835,7 @@ Prat:AddModuleToLoad(function()
 			return
 		end
 
-		for _, frame in pairs(Prat.Frames) do
+		for _, frame in pairs(EverlookDBChat.Frames) do
 			if frame and not frame.isDocked then
 				local tab = _G[frame:GetName() .. "Tab"]
 				if tab and tab:IsShown() then
@@ -909,17 +909,17 @@ Prat:AddModuleToLoad(function()
 	function module:RestoreDefaults()
 		FCF_DockUpdate()
 
-		for _, frame in pairs(Prat.Frames) do
+		for _, frame in pairs(EverlookDBChat.Frames) do
 			if not frame.isDocked then
 				FCF_SetTabPosition(frame, 0)
 			end
 			local tab = _G[frame:GetName() .. "Tab"]
 			if tab then
-				if tab.PratSideTabsDefaultHeight ~= nil then
-					tab:SetHeight(tab.PratSideTabsDefaultHeight)
+				if tab.EverlookDBChatSideTabsDefaultHeight ~= nil then
+					tab:SetHeight(tab.EverlookDBChatSideTabsDefaultHeight)
 				end
-				if tab.PratSideTabsDefaultScale ~= nil then
-					tab:SetScale(tab.PratSideTabsDefaultScale)
+				if tab.EverlookDBChatSideTabsDefaultScale ~= nil then
+					tab:SetScale(tab.EverlookDBChatSideTabsDefaultScale)
 				end
 				self:RestoreTabLabel(frame, tab)
 				self:RestoreTextLayout(tab)
@@ -937,7 +937,7 @@ Prat:AddModuleToLoad(function()
 		self:SecureHook("FCF_OnUpdate", "FCF_OnUpdate")
 		self:SecureHook("FCF_FadeOutChatFrame", "FCF_FadeOutChatFrame")
 
-		Prat.RegisterChatEvent(self, Prat.Events.FRAMES_UPDATED)
+		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.FRAMES_UPDATED)
 
 		-- Apply immediately and once again on the next frame to catch startup reanchors.
 		self:ApplyAll()
@@ -945,12 +945,12 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:OnModuleDisable()
-		Prat.UnregisterAllChatEvents(self)
+		EverlookDBChat.UnregisterAllChatEvents(self)
 		self:UnhookAll()
 		self:RestoreDefaults()
 	end
 
-	function module:Prat_FramesUpdated()
+	function module:EverlookDBChat_FramesUpdated()
 		self:QueueApply()
 	end
 

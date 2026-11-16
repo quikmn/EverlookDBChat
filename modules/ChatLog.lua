@@ -24,11 +24,11 @@
 --
 -------------------------------------------------------------------------------
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("ChatLog")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("ChatLog")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = false,
 			chat = false,
@@ -37,7 +37,7 @@ Prat:AddModuleToLoad(function()
 		}
 	})
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL["ChatLog"],
 		desc = PL["A module to automaticaly enable chat and combat logging."],
 		type = "group",
@@ -100,6 +100,6 @@ Prat:AddModuleToLoad(function()
 			return
 		end
 
-		Prat:Print(str)
+		EverlookDBChat:Print(str)
 	end
 end)

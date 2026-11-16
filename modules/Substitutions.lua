@@ -26,11 +26,11 @@
 
 local ChatEdit_GetActiveWindow = _G.ChatEdit_GetActiveWindow or _G.ChatFrameUtil.GetActiveWindow
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("Substitutions")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("Substitutions")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = false,
 		}
@@ -38,7 +38,7 @@ Prat:AddModuleToLoad(function()
 
 	local patternPlugins = { patterns = {} }
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL["Substitutions"],
 		desc = PL["A module to provide basic chat substitutions."],
 		type = 'group',
@@ -59,7 +59,7 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:BuildModuleOptions(args)
-		local modulePatterns = Prat:GetModulePatterns(self)
+		local modulePatterns = EverlookDBChat:GetModulePatterns(self)
 
 		self.buildingMenu = true
 
@@ -99,7 +99,7 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:InfoToPattern(info)
-		local modulePatterns = Prat:GetModulePatterns(self)
+		local modulePatterns = EverlookDBChat:GetModulePatterns(self)
 		local name = info[#info] or ""
 
 		if modulePatterns then
@@ -123,22 +123,22 @@ Prat:AddModuleToLoad(function()
 	end
 
 	do
-		local function prat_match(text)
+		local function edbchat_match(text)
 			text = text or ""
 
 			if module.buildingMenu then
 				return text
 			end
 
-			return Prat:RegisterMatch(text, "OUTBOUND")
+			return EverlookDBChat:RegisterMatch(text, "OUTBOUND")
 		end
 
 		local function Zone()
-			return prat_match(GetRealZoneText())
+			return edbchat_match(GetRealZoneText())
 		end
 
 		local function Loc()
-			return prat_match(GetMinimapZoneText())
+			return edbchat_match(GetMinimapZoneText())
 		end
 
 		local function GetPlayerMapPosition(unit)
@@ -148,52 +148,52 @@ Prat:AddModuleToLoad(function()
 		local function Pos()
 			local x, y = GetPlayerMapPosition("player")
 			local str = "(" .. math.floor((x * 100) + 0.5) .. "," .. math.floor((y * 100) + 0.5) .. ")"
-			return prat_match(str)
+			return edbchat_match(str)
 		end
 
 		local function Ypos()
 			local _, y = GetPlayerMapPosition("player")
 			y = tostring(math.floor((y * 100) + 0.5))
-			return prat_match(y)
+			return edbchat_match(y)
 		end
 
 		local function Xpos()
 			local x = GetPlayerMapPosition("player")
 			x = tostring(math.floor((x * 100) + 0.5))
-			return prat_match(x)
+			return edbchat_match(x)
 		end
 
 		local function PlayerHP()
-			return prat_match(UnitHealth("player"))
+			return edbchat_match(UnitHealth("player"))
 		end
 
 		local function PlayerMaxHP()
-			return prat_match(UnitHealthMax("player"))
+			return edbchat_match(UnitHealthMax("player"))
 		end
 
 		local function PlayerPercentHP()
-			return prat_match(floor(100 * (UnitHealth("player") / UnitHealthMax("player"))))
+			return edbchat_match(floor(100 * (UnitHealth("player") / UnitHealthMax("player"))))
 		end
 
 		local function PlayerHealthDeficit()
-			return prat_match(UnitHealthMax("player") - UnitHealth("player"))
+			return edbchat_match(UnitHealthMax("player") - UnitHealth("player"))
 		end
 
 		local function PlayerCurrentMana()
-			return prat_match(UnitPower("player"))
+			return edbchat_match(UnitPower("player"))
 		end
 
 		local function PlayerMaxMana()
-			return prat_match(UnitPowerMax("player"))
+			return edbchat_match(UnitPowerMax("player"))
 		end
 
 		local function PlayerPercentMana()
-			return prat_match(string.format("%.0f%%%%",
+			return edbchat_match(string.format("%.0f%%%%",
 				floor(100 * (UnitPower("player") / UnitPowerMax("player")))))
 		end
 
 		local function PlayerManaDeficit()
-			return prat_match(UnitPowerMax("player") - UnitPower("player"))
+			return edbchat_match(UnitPowerMax("player") - UnitPower("player"))
 		end
 
 		local function TargetPercentHP()
@@ -202,7 +202,7 @@ Prat:AddModuleToLoad(function()
 				str = string.format("%.0f%%%%", floor(100 * (UnitHealth("target") / UnitHealthMax("target"))))
 			end
 
-			return prat_match(str)
+			return edbchat_match(str)
 		end
 
 		local function TargetHealth()
@@ -211,7 +211,7 @@ Prat:AddModuleToLoad(function()
 				str = UnitHealth("target")
 			end
 
-			return prat_match(str)
+			return edbchat_match(str)
 		end
 
 		local function TargetHealthDeficit()
@@ -220,7 +220,7 @@ Prat:AddModuleToLoad(function()
 				str = UnitHealthMax("target") - UnitHealth("target")
 			end
 
-			return prat_match(str)
+			return edbchat_match(str)
 		end
 
 		local function TargetManaDeficit()
@@ -229,7 +229,7 @@ Prat:AddModuleToLoad(function()
 				str = UnitPowerMax("target") - UnitPower("target")
 			end
 
-			return prat_match(str)
+			return edbchat_match(str)
 		end
 
 		local function TargetClass()
@@ -238,14 +238,14 @@ Prat:AddModuleToLoad(function()
 				class = UnitClass("target")
 			end
 
-			return prat_match(class)
+			return edbchat_match(class)
 		end
 
 		local raidiconpfx = ICON_TAG_RAID_TARGET_STAR1:sub(1, -2) or "rt"
 
 		local function TargetIcon()
 			local icon = ""
-			if not Prat.IsModernAPI and UnitExists("target") then
+			if not EverlookDBChat.IsModernAPI and UnitExists("target") then
 				local iconnum = GetRaidTargetIndex("target")
 
 				if type(iconnum) ~= "nil" then
@@ -253,7 +253,7 @@ Prat:AddModuleToLoad(function()
 				end
 			end
 
-			return prat_match(icon)
+			return edbchat_match(icon)
 		end
 
 		local function TargetRace()
@@ -268,7 +268,7 @@ Prat:AddModuleToLoad(function()
 					end
 				end
 			end
-			return prat_match(race)
+			return edbchat_match(race)
 		end
 
 		local function TargetGender()
@@ -284,7 +284,7 @@ Prat:AddModuleToLoad(function()
 				end
 			end
 
-			return prat_match(sex)
+			return edbchat_match(sex)
 		end
 
 		local function TargetLevel()
@@ -292,7 +292,7 @@ Prat:AddModuleToLoad(function()
 			if UnitExists("target") then
 				level = UnitLevel("target")
 			end
-			return prat_match(level)
+			return edbchat_match(level)
 		end
 
 		local function TargetGuild()
@@ -303,7 +303,7 @@ Prat:AddModuleToLoad(function()
 					guild = GetGuildInfo("target") or ""
 				end
 			end
-			return prat_match(guild)
+			return edbchat_match(guild)
 		end
 
 		-- %tps (possesive)
@@ -320,7 +320,7 @@ Prat:AddModuleToLoad(function()
 				end
 			end
 
-			return prat_match(p)
+			return edbchat_match(p)
 		end
 
 		-- %tpn (pronoun)
@@ -336,7 +336,7 @@ Prat:AddModuleToLoad(function()
 					p = PL["it"]
 				end
 			end
-			return prat_match(p)
+			return edbchat_match(p)
 		end
 
 		-- %tn (target)
@@ -347,7 +347,7 @@ Prat:AddModuleToLoad(function()
 				t = UnitName("target")
 			end
 
-			return prat_match(t)
+			return edbchat_match(t)
 		end
 
 		-- %tt (target)
@@ -358,7 +358,7 @@ Prat:AddModuleToLoad(function()
 				t = UnitName("targettarget")
 			end
 
-			return prat_match(t)
+			return edbchat_match(t)
 		end
 
 		-- %mn (mouseover)
@@ -369,24 +369,24 @@ Prat:AddModuleToLoad(function()
 				t = UnitName("mouseover")
 			end
 
-			return prat_match(t)
+			return edbchat_match(t)
 		end
 
 		-- %pn (player)
 		local function PlayerName()
 			local p = GetUnitName("player") or ""
-			return prat_match(p)
+			return edbchat_match(p)
 		end
 
 		local function PlayerAverageItemLevel()
 			local avgItemLevel = GetAverageItemLevel();
 			avgItemLevel = floor(avgItemLevel);
 
-			return prat_match(avgItemLevel)
+			return edbchat_match(avgItemLevel)
 		end
 
 		local function Rand()
-			return prat_match(math.random(1, 100))
+			return edbchat_match(math.random(1, 100))
 		end
 
 		--[[
@@ -427,7 +427,7 @@ Prat:AddModuleToLoad(function()
 		 * %ail = your average item level
 		 --]]
 
-		Prat:SetModulePatterns(module, {
+		EverlookDBChat:SetModulePatterns(module, {
 			{ pattern = "(%%thd)", matchfunc = TargetHealthDeficit, optname = PL["TargetHealthDeficit"], type = "OUTBOUND" },
 			{
 				pattern = "(%%thp)",
@@ -489,4 +489,4 @@ Prat:AddModuleToLoad(function()
 	end
 
 	return
-end) -- Prat:AddModuleToLoad
+end) -- EverlookDBChat:AddModuleToLoad

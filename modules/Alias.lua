@@ -26,11 +26,11 @@
 
 local ChatEdit_ParseText = _G.ChatEdit_ParseText or _G.ChatFrameEditBoxMixin.ParseText
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("Alias", "AceHook-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("Alias", "AceHook-3.0")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = false,
 			aliases = {},
@@ -41,7 +41,7 @@ Prat:AddModuleToLoad(function()
 			wontalias = {
 				unalias = 1,
 				alias = 1,
-				prat = 1,
+				edbchat = 1,
 				script = 1,
 				run = 1,
 				ace = 1,
@@ -54,7 +54,7 @@ Prat:AddModuleToLoad(function()
 		}
 	})
 
-	Prat:SetModuleOptions(module, {
+	EverlookDBChat:SetModuleOptions(module, {
 		name = PL["module_name"],
 		desc = PL["module_desc"],
 		type = "group",
@@ -130,7 +130,7 @@ Prat:AddModuleToLoad(function()
 		}
 	})
 
-	local CLR = Prat.CLR
+	local CLR = EverlookDBChat.CLR
 
 	local function clralias(text)
 		return CLR:Colorize("64ff64", text:lower())
@@ -158,20 +158,20 @@ Prat:AddModuleToLoad(function()
 			self.WontAlias[string.lower(naughtyalias)] = 1
 		end
 
-		if Prat.IsModernAPI then
+		if EverlookDBChat.IsModernAPI then
 			self.RegisteredAliasCommands = {}
 			self:RegisterAllAliasCommands()
 		else
 			self:RawHook('ChatEdit_HandleChatType', true)
 		end
 
-		Prat.RegisterChatCommand("alias", function(argstr)
+		EverlookDBChat.RegisterChatCommand("alias", function(argstr)
 			return self:setAlias(argstr)
 		end)
-		Prat.RegisterChatCommand("unalias", function(argstr)
+		EverlookDBChat.RegisterChatCommand("unalias", function(argstr)
 			return self:delAlias(argstr)
 		end)
-		Prat.RegisterChatCommand("listaliases", function(argstr)
+		EverlookDBChat.RegisterChatCommand("listaliases", function(argstr)
 			return self:listAliases(argstr)
 		end)
 	end
@@ -185,7 +185,7 @@ Prat:AddModuleToLoad(function()
 		Core Functions
 	------------------------------------------------]] --
 	function module:GetAliasCommandKey(alias)
-		return "PRATALIAS_" .. string.upper(alias)
+		return "EDBCHATALIAS_" .. string.upper(alias)
 	end
 
 	function module:RegisterAliasCommand(alias)
@@ -284,11 +284,11 @@ Prat:AddModuleToLoad(function()
 			table.sort(self.db.profile.aliases)
 			table.sort(self.Aliases)
 
-			LibStub("AceConfigRegistry-3.0"):NotifyChange("Prat")
+			LibStub("AceConfigRegistry-3.0"):NotifyChange("EverlookDB Chat")
 
 			self:warnUser(string.format(PL["/%s aliased to: /%s"], clralias(alias['name']), clrexpansion(alias['value'])))
 		end
-		if Prat.IsModernAPI then
+		if EverlookDBChat.IsModernAPI then
 			self:RegisterAliasCommand(alias['name'])
 		end
 	end
@@ -313,7 +313,7 @@ Prat:AddModuleToLoad(function()
 		self.Aliases[aliasname] = nil
 		self.db.profile.aliases[aliasname] = nil
 
-		LibStub("AceConfigRegistry-3.0"):NotifyChange("Prat")
+		LibStub("AceConfigRegistry-3.0"):NotifyChange("EverlookDB Chat")
 
 		return oldalias
 	end
@@ -377,7 +377,7 @@ Prat:AddModuleToLoad(function()
 			str = PL["warnUser() called with zero length string!"]
 		end
 
-		Prat:Print(string.format("%s: %s", clrmodname(self.moduleName), str))
+		EverlookDBChat:Print(string.format("%s: %s", clrmodname(self.moduleName), str))
 	end
 
 	-- Retail logic
@@ -393,7 +393,7 @@ Prat:AddModuleToLoad(function()
 			return
 		end
 
-		alias = Prat:ReplaceMatches(alias, 'OUTBOUND')
+		alias = EverlookDBChat:ReplaceMatches(alias, 'OUTBOUND')
 		msg = msg or ""
 
 		-- Extract target command
@@ -408,7 +408,7 @@ Prat:AddModuleToLoad(function()
 			local fake = {}
 			fake.MESSAGE = msg
 
-			Prat.Addon:ProcessUserEnteredChat(fake)
+			EverlookDBChat.Addon:ProcessUserEnteredChat(fake)
 
 			msg = fake.MESSAGE
 		end
@@ -469,7 +469,7 @@ Prat:AddModuleToLoad(function()
 			return self.hooks["ChatEdit_HandleChatType"](editBox, msg, command, send)
 		end
 
-		alias = Prat:ReplaceMatches(alias, 'OUTBOUND')
+		alias = EverlookDBChat:ReplaceMatches(alias, 'OUTBOUND')
 
 		local newcmd = strmatch(alias, "^/*([^%s]+)") or ""
 		local premsg = strsub(alias, strlen(newcmd) + 2) or ""
@@ -485,7 +485,7 @@ Prat:AddModuleToLoad(function()
 			local fake = {}
 			fake.MESSAGE = msg
 
-			Prat.Addon:ProcessUserEnteredChat(fake)
+			EverlookDBChat.Addon:ProcessUserEnteredChat(fake)
 
 			msg = fake.MESSAGE
 			text = text .. ' ' .. msg

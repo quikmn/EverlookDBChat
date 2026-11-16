@@ -23,15 +23,15 @@
 --
 -------------------------------------------------------------------------------
 
-if not Prat.IsRetail then
+if not EverlookDBChat.IsRetail then
 	return
 end
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("NewcomersChat")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("NewcomersChat")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 			asNewcomer = {
@@ -100,7 +100,7 @@ Prat:AddModuleToLoad(function()
 	end
 
 	module.pluginopts = {}
-	Prat:SetModuleOptions(module, {
+	EverlookDBChat:SetModuleOptions(module, {
 		name = PL["NewcomersChat"],
 		desc = PL["module_desc"],
 		type = "group",
@@ -119,11 +119,11 @@ Prat:AddModuleToLoad(function()
 	})
 
 	function module:OnModuleEnable()
-		Prat.RegisterChatEvent(self, "Prat_FrameMessage")
+		EverlookDBChat.RegisterChatEvent(self, "EverlookDBChat_FrameMessage")
 	end
 
 	function module:OnModuleDisable()
-		Prat.UnregisterAllChatEvents(self)
+		EverlookDBChat.UnregisterAllChatEvents(self)
 	end
 
 	local GUIDE_ICON = "|A:newplayerchat-chaticon-guide:0:0:0:0|a"
@@ -170,7 +170,7 @@ Prat:AddModuleToLoad(function()
 		end
 	end
 
-	function module:Prat_FrameMessage(_, message)
+	function module:EverlookDBChat_FrameMessage(_, message)
 		local arg6 = message.ARGS[6] or ""
 
 		if arg6 ~= "GUIDE" and arg6 ~= "NEWCOMER" then
@@ -185,4 +185,4 @@ Prat:AddModuleToLoad(function()
 	end
 
 	return
-end) -- Prat:AddModuleToLoad
+end) -- EverlookDBChat:AddModuleToLoad

@@ -1,105 +1,105 @@
 <Bindings>
 	<!-- ChannelNames -->
-	<Binding name="officer" header="Prat">
+	<Binding name="EDBCHAT_OFFICER" header="EverlookDBChat">
 		local ChatFrame_OpenChat = _G.ChatFrame_OpenChat or _G.ChatFrameUtil.OpenChat
 		ChatFrame_OpenChat("/o");
 	</Binding>
-	<Binding name="guild">
+	<Binding name="EDBCHAT_GUILD">
 		local ChatFrame_OpenChat = _G.ChatFrame_OpenChat or _G.ChatFrameUtil.OpenChat
 		ChatFrame_OpenChat("/g");
 	</Binding>
- 	<Binding name="party">
+ 	<Binding name="EDBCHAT_PARTY">
 		local ChatFrame_OpenChat = _G.ChatFrame_OpenChat or _G.ChatFrameUtil.OpenChat
 		ChatFrame_OpenChat("/p");
 	</Binding>
-	<Binding name="raid">
+	<Binding name="EDBCHAT_RAID">
 		local ChatFrame_OpenChat = _G.ChatFrame_OpenChat or _G.ChatFrameUtil.OpenChat
 		ChatFrame_OpenChat("/raid");
 	</Binding>
-	<Binding name="raidwarn">
+	<Binding name="EDBCHAT_RAIDWARN">
 		local ChatFrame_OpenChat = _G.ChatFrame_OpenChat or _G.ChatFrameUtil.OpenChat
 		ChatFrame_OpenChat("/rw");
 	</Binding>
-	<Binding name="instance">
+	<Binding name="EDBCHAT_INSTANCE">
 		local ChatFrame_OpenChat = _G.ChatFrame_OpenChat or _G.ChatFrameUtil.OpenChat
 		ChatFrame_OpenChat("/i");
 	</Binding>
-	<Binding name="say">
+	<Binding name="EDBCHAT_SAY">
 		local ChatFrame_OpenChat = _G.ChatFrame_OpenChat or _G.ChatFrameUtil.OpenChat
 		ChatFrame_OpenChat("/say");
 	</Binding>
-	<Binding name="yell">
+	<Binding name="EDBCHAT_YELL">
 		local ChatFrame_OpenChat = _G.ChatFrame_OpenChat or _G.ChatFrameUtil.OpenChat
 		ChatFrame_OpenChat("/yell");
 	</Binding>
-	<Binding name="whisper">
+	<Binding name="EDBCHAT_WHISPER">
 		local ChatFrame_OpenChat = _G.ChatFrame_OpenChat or _G.ChatFrameUtil.OpenChat
 		ChatFrame_OpenChat("/w");
 	</Binding>
-	<Binding name="one">
+	<Binding name="EDBCHAT_CHANNEL1">
 		local ChatFrame_OpenChat = _G.ChatFrame_OpenChat or _G.ChatFrameUtil.OpenChat
 		ChatFrame_OpenChat("/1");
 	</Binding>
-	<Binding name="two">
+	<Binding name="EDBCHAT_CHANNEL2">
 		local ChatFrame_OpenChat = _G.ChatFrame_OpenChat or _G.ChatFrameUtil.OpenChat
 		ChatFrame_OpenChat("/2");
 	</Binding>
-	<Binding name="three">
+	<Binding name="EDBCHAT_CHANNEL3">
 		local ChatFrame_OpenChat = _G.ChatFrame_OpenChat or _G.ChatFrameUtil.OpenChat
 		ChatFrame_OpenChat("/3");
 	</Binding>
-	<Binding name="four">
+	<Binding name="EDBCHAT_CHANNEL4">
 		local ChatFrame_OpenChat = _G.ChatFrame_OpenChat or _G.ChatFrameUtil.OpenChat
 		ChatFrame_OpenChat("/4");
 	</Binding>
-	<Binding name="five">
+	<Binding name="EDBCHAT_CHANNEL5">
 		local ChatFrame_OpenChat = _G.ChatFrame_OpenChat or _G.ChatFrameUtil.OpenChat
 		ChatFrame_OpenChat("/5");
 	</Binding>
-	<Binding name="six">
+	<Binding name="EDBCHAT_CHANNEL6">
 		local ChatFrame_OpenChat = _G.ChatFrame_OpenChat or _G.ChatFrameUtil.OpenChat
 		ChatFrame_OpenChat("/6");
 	</Binding>
-	<Binding name="seven">
+	<Binding name="EDBCHAT_CHANNEL7">
 		local ChatFrame_OpenChat = _G.ChatFrame_OpenChat or _G.ChatFrameUtil.OpenChat
 		ChatFrame_OpenChat("/7");
 	</Binding>
-	<Binding name="eight">
+	<Binding name="EDBCHAT_CHANNEL8">
 		local ChatFrame_OpenChat = _G.ChatFrame_OpenChat or _G.ChatFrameUtil.OpenChat
 		ChatFrame_OpenChat("/8");
 	</Binding>
-	<Binding name="nine">
+	<Binding name="EDBCHAT_CHANNEL9">
 		local ChatFrame_OpenChat = _G.ChatFrame_OpenChat or _G.ChatFrameUtil.OpenChat
 		ChatFrame_OpenChat("/9");
 	</Binding>
-	<Binding name="SmartGroup">
+	<Binding name="EDBCHAT_SMARTGROUP">
 		local ChatFrame_OpenChat = _G.ChatFrame_OpenChat or _G.ChatFrameUtil.OpenChat
 		ChatFrame_OpenChat("/smart");
 	</Binding>
-	<Binding name="NextTab">
-		local mod = Prat:GetModule("KeyBindings")
+	<Binding name="EDBCHAT_NEXTTAB">
+		local mod = EverlookDBChat:GetModule("KeyBindings")
 		if mod then
 			mod:CycleChatTabs()
 		end
 	</Binding>
 	<!-- TellTarget -->
-	<Binding name="TellTarget">
-		local mod = Prat:GetModule("TellTarget")
+	<Binding name="EDBCHAT_TELLTARGET">
+		local mod = EverlookDBChat:GetModule("TellTarget")
 		if mod then
 			mod:SendTellToTarget(SELECTED_CHAT_FRAME, "");
 		end
 	</Binding>
 	<!-- CopyChat -->
-	<Binding name="Copy Selected Chat Frame">
-		local mod = Prat:GetModule("CopyChat")
+	<Binding name="EDBCHAT_COPYCHAT">
+		local mod = EverlookDBChat:GetModule("CopyChat")
 		if mod then
 			mod:CopyChat();
 		end
 	</Binding>
-	<Binding name="Scroll To Bottom">
+	<Binding name="EDBCHAT_SCROLLBOTTOM">
 		SELECTED_CHAT_FRAME:ScrollToBottom()
 	</Binding>
-	<Binding name="Scroll To Top">
+	<Binding name="EDBCHAT_SCROLLTOP">
 		SELECTED_CHAT_FRAME:ScrollToTop()
 	</Binding>
 </Bindings>

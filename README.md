@@ -1,49 +1,51 @@
-# Prat-3.0
+# EverlookDB Chat
 
-Prat-3.0 is a chat enhancement addon for world of warcraft.
+Chat improvements for WoW Forever, from the makers of [EverlookDB.com](https://everlookdb.com).
 
-It is made up of 30+ smaller "modules" which each provide additional functionality, and can be enabled or disabled individually.
+It is made of about 40 small modules. Each one adds one thing to your chat, and you can turn each one on or off.
 
-In game, type /prat for a menu.
+- **Timestamps** on every line, in the format and colour you like.
+- **Player names** coloured by class, with their level, and an alt's main name.
+- **Short channel names**, such as `[G]` for guild and `[1]` for General.
+- **Copy chat:** copy a whole chat window, or one line, as plain text.
+- **URL copy:** links in chat can be clicked and copied.
+- **Chat history:** more lines kept, and the lines you typed are remembered between sessions.
+- **Edit box:** move it and restyle it.
+- **Tabs, buttons, fading, fonts and scrolling** for the chat windows.
+- **Sounds** for incoming whispers and channels.
+- **Search** (`/find`), **highlight words**, **filters**, **aliases**, **tell target** (`/tt`) and more.
 
-**Bug reports: [https://github.com/Legacy-of-Sylvanaar/prat-3-0/issues](https://github.com/Legacy-of-Sylvanaar/prat-3-0/issues)**
+Settings: type `/edbchat`, or open the game's Settings under AddOns.
 
-Prat has just about every feature you can think of, and then some. Really. When I get some more time, I'll try and put together a full list (Even I have lost count)
+## Commands
 
-(Thanks to Dreamsight for this partial list)
+- `/edbchat` opens the settings
+- `/copychat` copies the current chat window
+- `/find <text>` searches the current chat window
+- `/tt <message>` whispers your target
+- `/edbchatblacklist <word>` and `/edbchatunblacklist <word>` stop or start treating a word as a player name (after a reload)
+- Some modules add their own commands when they are turned on, for example `/clear` and `/alias`
 
-*   Change arrows, buttons, mouse scroll for chat scroll, scroll speed
-*   you can add color per channel, color per lvl, color per class
-*   timestamps
-*   timestamp color
-*   whether to show timestamp (what format the timestamp should be in)
-*   whether to show players lvl
-*   you can select the option for channel "stickys" (last channel you used you auto use when hitting enter, that sort of thing – or last thing someone said)
-*   change the looks of the chat's editbox - as well as where it appears (you can even undock it and move it to where you'd like it to be)
-*   chat fading, fading delay
-*   You can change the font to a list of fonts, add an outline to it, monochrome it (if you don’t mind messing with files a bit you could prolly even add other fonts to that list)
-*   change the chat frame/chat box appearance
-*   set Chat history
-*   set channel abbreviations
-*   set brackets and color(or something instead of brackets)round player/lvl
-*   alt invite option (press keyboard “alt” button and click on the player’s name to auto inv them)
-*   raid icon
-*   invite links
-*   info keeping
-*   url copying
-*   full chat copying + copy button
-*   allows pop-up msgs
-*   enables tell target /tt
-*   Alias options
-*   altnames options
-*   you can enable/disable all prat modules - dont have to have the ones you dont use running
-*   change chat sounds (incoming and outgoing as well as per channel)
-*   achievement info and grats
-*   full chat search
-*   fully customizable filers for advanced users/li>
+## Install
 
-Its predecessor, Prat-2.0 has been around since the TBC release in 2006. This new version seeks to improve upon some aspects such as memory use, but still do so without creating 30+ small folders in your addon directory that you have to manage.
+Not released yet.
 
-While trying to reduce resource utilization, it is also important to note that some people prefer the features, and don't care that an addon uses 500k more. I have been trying to isolate the most resource intensive functionality into the Prat\_HighCPUUSageModules folder. You can enable or disable it per your preference.
+By hand: copy the `EverlookDBChat` folder into `World of Warcraft\_forever_\Interface\AddOns`.
 
-![](https://media.forgecdn.net/attachments/293/722/2020-05-24_1-56-57.jpg)
+If Prat-3.0 is also turned on, both change your chat, and the addon says so in chat when you log in. Turn one of them off.
+
+## Credits and license
+
+EverlookDB Chat is a modified version of **Prat-3.0** by QartemisT and Sylvanaar, and the other Prat contributors listed in its repository's history: <https://github.com/Legacy-of-Sylvanaar/prat-3-0>
+
+It was forked from Prat-3.0 version 3.9.117, commit `3b02cf8595ebd1c4c458d8b698ef5e7d042b046e` (2026-11-08). The bundled libraries and translations come unchanged from the official 3.9.117 release package.
+
+It is licensed under the GNU General Public License version 3 (GPL-3.0); the full text is in `LICENSE.txt`. The source files keep their original copyright and license notices. It comes with no warranty.
+
+Changes made to Prat-3.0 (GPL-3.0 section 5a):
+
+- 2026-11-16: Renamed to EverlookDB Chat (folder, title, author, notes, version v0.1.0). The addon object, global names, frame names, saved variables, slash commands, key bindings, chat link types and AceAddon name were renamed, so it can be installed next to Prat-3.0 without clashing. Says so in chat when Prat-3.0 is also turned on. Uses the EverlookDB icon. Removed the Prat logos, the CurseForge/WoWInterface/Wago packaging and upload files, and the project's own contributing and code of conduct files. Only loads on WoW Forever (interface 16001). The libraries are kept in the repository instead of being fetched by the packager. See `CHANGELOG.md` and the git history for every change.
+
+Bundled libraries, each under its own authors' terms: Ace3 (AceAddon, AceConfig, AceConsole, AceDB, AceDBOptions, AceEvent, AceGUI, AceHook, AceTab, AceTimer, CallbackHandler) by the Ace3 team; LibStub (public domain); LibSharedMedia-3.0 (LGPL 2.1); AceGUI-3.0-SharedMediaWidgets; LibSink-2.0; LibDataBroker-1.1; LibDBIcon-1.0; LibAlts-1.0; LibChatAnims. The fonts in `fonts/` are under the licenses in `fonts/font info and licenses`.
+
+Not affiliated with Blizzard Entertainment or with the Prat project.

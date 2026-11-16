@@ -27,7 +27,7 @@
 
 local _, private = ...
 
-Prat = private
+EverlookDBChat = private
 
 --[[ BEGIN STANDARD HEADER ]] --
 
@@ -38,7 +38,7 @@ local tostring = tostring
 local pairs = pairs
 local ipairs = ipairs
 local type = type
-local Prat = Prat
+local EverlookDBChat = EverlookDBChat
 local setmetatable, getmetatable = setmetatable, getmetatable
 local strfind = strfind
 local IsSecureCmd = IsSecureCmd
@@ -48,34 +48,28 @@ local issecretvalue = issecretvalue or function() return false end
 
 --[[ END STANDARD HEADER ]] --
 
---@debug@
-Prat.Version = "Prat |cff8080ff3.0|r (|cff8080ff" .. "DEBUG" .. "|r)"
---@end-debug@
-
---[===[@non-debug@
-Prat.Version = "Prat |cff8080ff3.0|r (|cff8080ff".."@project-version@".."|r)"
---@end-non-debug@]===]
+EverlookDBChat.Version = "EverlookDB Chat v0.1.0"
 
 local am = {}
-local om = getmetatable(Prat)
+local om = getmetatable(EverlookDBChat)
 if om then
 	for k, v in pairs(om) do
 		am[k] = v
 	end
 end
 am.__tostring = function()
-	return "Prat |cff8080ff3.0|r"
+	return "EverlookDB Chat"
 end
-setmetatable(Prat, am)
+setmetatable(EverlookDBChat, am)
 
-Prat.IsClassic = WOW_PROJECT_ID == (WOW_PROJECT_CLASSIC or 2)
-Prat.IsRetail = WOW_PROJECT_ID == (WOW_PROJECT_MAINLINE or 1)
-Prat.IsMop = WOW_PROJECT_ID == (WOW_PROJECT_MISTS_CLASSIC or 19)
-Prat.IsForever = WOW_PROJECT_ID == (WOW_PROJECT_CAMELOT or 18)
+EverlookDBChat.IsClassic = WOW_PROJECT_ID == (WOW_PROJECT_CLASSIC or 2)
+EverlookDBChat.IsRetail = WOW_PROJECT_ID == (WOW_PROJECT_MAINLINE or 1)
+EverlookDBChat.IsMop = WOW_PROJECT_ID == (WOW_PROJECT_MISTS_CLASSIC or 19)
+EverlookDBChat.IsForever = WOW_PROJECT_ID == (WOW_PROJECT_CAMELOT or 18)
 
-Prat.IsModernAPI = Prat.IsRetail or Prat.IsForever
+EverlookDBChat.IsModernAPI = EverlookDBChat.IsRetail or EverlookDBChat.IsForever
 
-Prat.Frames = {
+EverlookDBChat.Frames = {
 	["ChatFrame1"] = ChatFrame1,
 	["ChatFrame2"] = ChatFrame2,
 	["ChatFrame3"] = ChatFrame3,
@@ -87,45 +81,45 @@ Prat.Frames = {
 	["ChatFrame9"] = ChatFrame9,
 	["ChatFrame10"] = ChatFrame10
 }
-Prat.HookedFrames = {}
-Prat.ExternalFrames = {}
+EverlookDBChat.HookedFrames = {}
+EverlookDBChat.ExternalFrames = {}
 
 local builtinSounds = {
-	["Bell"] = "Interface\\AddOns\\Prat-3.0\\sounds\\Bell.ogg",
-	["Chime"] = "Interface\\AddOns\\Prat-3.0\\Sounds\\Chime.ogg",
-	["Heart"] = "Interface\\AddOns\\Prat-3.0\\Sounds\\Heart.ogg",
-	["IM"] = "Interface\\AddOns\\Prat-3.0\\Sounds\\IM.ogg",
-	["Info"] = "Interface\\AddOns\\Prat-3.0\\Sounds\\Info.ogg",
-	["Kachink"] = "Interface\\AddOns\\Prat-3.0\\Sounds\\Kachink.ogg",
-	["popup"] = "Interface\\AddOns\\Prat-3.0\\Sounds\\Link.ogg",
-	["Text1"] = "Interface\\AddOns\\Prat-3.0\\Sounds\\Text1.ogg",
-	["Text2"] = "Interface\\AddOns\\Prat-3.0\\Sounds\\Text2.ogg",
-	["Xylo"] = "Interface\\AddOns\\Prat-3.0\\Sounds\\Xylo.ogg",
+	["Bell"] = "Interface\\AddOns\\EverlookDBChat\\sounds\\Bell.ogg",
+	["Chime"] = "Interface\\AddOns\\EverlookDBChat\\Sounds\\Chime.ogg",
+	["Heart"] = "Interface\\AddOns\\EverlookDBChat\\Sounds\\Heart.ogg",
+	["IM"] = "Interface\\AddOns\\EverlookDBChat\\Sounds\\IM.ogg",
+	["Info"] = "Interface\\AddOns\\EverlookDBChat\\Sounds\\Info.ogg",
+	["Kachink"] = "Interface\\AddOns\\EverlookDBChat\\Sounds\\Kachink.ogg",
+	["popup"] = "Interface\\AddOns\\EverlookDBChat\\Sounds\\Link.ogg",
+	["Text1"] = "Interface\\AddOns\\EverlookDBChat\\Sounds\\Text1.ogg",
+	["Text2"] = "Interface\\AddOns\\EverlookDBChat\\Sounds\\Text2.ogg",
+	["Xylo"] = "Interface\\AddOns\\EverlookDBChat\\Sounds\\Xylo.ogg",
 }
 
--- Symbolic names for all the events which Prat uses
-Prat.Events = {
-	MODULE_ENABLED = "Prat_ModuleCreated",
-	DISABLED = "Prat_Disabled",
-	ENABLING = "Prat_Starting",
-	ENABLED = "Prat_Ready",
-	STARTUP = "Prat_Initialized",
-	DEBUG_UPDATE = "Prat_DebugModeChanged",
-	PRE_OUTBOUND = "Prat_PreOutboundChat",
-	OUTBOUND = "Prat_OutboundChat",
-	PRE_ADDMESSAGE = "Prat_PreAddMessage",
-	POST_ADDMESSAGE = "Prat_PostAddMessage",
-	POST_ADDMESSAGE_BLOCKED = "Prat_PostAddMessageBlocked",
-	FRAME_MESSAGE = "Prat_FrameMessage",
-	SECTIONS_UPDATED = "Prat_ChatSectionsUpdated",
-	FRAMES_UPDATED = "Prat_FramesUpdated",
-	FRAMES_REMOVED = "Prat_FramesRemoved",
+-- Symbolic names for all the events which EverlookDBChat uses
+EverlookDBChat.Events = {
+	MODULE_ENABLED = "EverlookDBChat_ModuleCreated",
+	DISABLED = "EverlookDBChat_Disabled",
+	ENABLING = "EverlookDBChat_Starting",
+	ENABLED = "EverlookDBChat_Ready",
+	STARTUP = "EverlookDBChat_Initialized",
+	DEBUG_UPDATE = "EverlookDBChat_DebugModeChanged",
+	PRE_OUTBOUND = "EverlookDBChat_PreOutboundChat",
+	OUTBOUND = "EverlookDBChat_OutboundChat",
+	PRE_ADDMESSAGE = "EverlookDBChat_PreAddMessage",
+	POST_ADDMESSAGE = "EverlookDBChat_PostAddMessage",
+	POST_ADDMESSAGE_BLOCKED = "EverlookDBChat_PostAddMessageBlocked",
+	FRAME_MESSAGE = "EverlookDBChat_FrameMessage",
+	SECTIONS_UPDATED = "EverlookDBChat_ChatSectionsUpdated",
+	FRAMES_UPDATED = "EverlookDBChat_FramesUpdated",
+	FRAMES_REMOVED = "EverlookDBChat_FramesRemoved",
 }
 
-Prat.EnableTasks = {}
+EverlookDBChat.EnableTasks = {}
 
-local addon = LibStub("AceAddon-3.0"):NewAddon("Prat", "AceEvent-3.0", "AceConsole-3.0", "AceTimer-3.0", "AceHook-3.0")
-Prat.Addon = addon
+local addon = LibStub("AceAddon-3.0"):NewAddon("EverlookDBChat", "AceEvent-3.0", "AceConsole-3.0", "AceTimer-3.0", "AceHook-3.0")
+EverlookDBChat.Addon = addon
 
 -- 2 = disabled, 3 = enabled
 local defaults = {
@@ -152,84 +146,85 @@ local defaults = {
 local SOUND
 function addon:OnInitialize()
 	local IsAddOnLoaded = C_AddOns.IsAddOnLoaded or IsAddOnLoaded
-	if IsAddOnLoaded("Prat") == 1 then
-		Prat:Print("Prat 2.0 was detected, and disabled. Please reload your UI.")
+	-- Prat-3.0 (which this addon is a modified version of) changes the same chat frames.
+	if IsAddOnLoaded("Prat-3.0") then
+		EverlookDBChat:Print("Prat-3.0 is also turned on. Both change your chat, so turn one of them off.")
 	end
 
-	Prat.db = LibStub("AceDB-3.0"):New("Prat3DB", defaults, "Default")
+	EverlookDBChat.db = LibStub("AceDB-3.0"):New("EverlookDBChatDB", defaults, "Default")
 
-	Prat3CharDB = Prat3CharDB or {}
+	EverlookDBChatCharDB = EverlookDBChatCharDB or {}
 
-	Prat.PlayerNameBlackList = Prat.db.realm.PlayerNameBlackList or {}
+	EverlookDBChat.PlayerNameBlackList = EverlookDBChat.db.realm.PlayerNameBlackList or {}
 
-	Prat.callbacks = LibStub("CallbackHandler-1.0"):New(Prat, "RegisterChatEvent", "UnregisterChatEvent", "UnregisterAllChatEvents")
+	EverlookDBChat.callbacks = LibStub("CallbackHandler-1.0"):New(EverlookDBChat, "RegisterChatEvent", "UnregisterChatEvent", "UnregisterAllChatEvents")
 
-	Prat.Options.args.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(Prat.db)
-	Prat.Options.args.profiles.order = tonumber(-1)
+	EverlookDBChat.Options.args.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(EverlookDBChat.db)
+	EverlookDBChat.Options.args.profiles.order = tonumber(-1)
 
-	Prat.Media = LibStub("LibSharedMedia-3.0")
-	SOUND = Prat.Media.MediaType.SOUND
+	EverlookDBChat.Media = LibStub("LibSharedMedia-3.0")
+	SOUND = EverlookDBChat.Media.MediaType.SOUND
 
 	for k, v in pairs(builtinSounds) do
-		Prat.Media:Register(SOUND, k, v)
+		EverlookDBChat.Media:Register(SOUND, k, v)
 	end
 
-	Prat.AddonName = self.baseName
+	EverlookDBChat.AddonName = self.baseName
 
-	Prat.builtinSounds = nil
+	EverlookDBChat.builtinSounds = nil
 
 	-- Build the list of frames which we should hook addmessage on
-	for _, v in pairs(Prat.Frames) do
+	for _, v in pairs(EverlookDBChat.Frames) do
 		if (not IsCombatLog(v)) then
-			Prat.HookedFrames[v:GetName()] = v
+			EverlookDBChat.HookedFrames[v:GetName()] = v
 		end
 	end
 
-	Prat.db.RegisterCallback(self, "OnProfileChanged", "UpdateProfile")
-	Prat.db.RegisterCallback(self, "OnProfileCopied", "UpdateProfile")
-	Prat.db.RegisterCallback(self, "OnProfileReset", "UpdateProfile")
+	EverlookDBChat.db.RegisterCallback(self, "OnProfileChanged", "UpdateProfile")
+	EverlookDBChat.db.RegisterCallback(self, "OnProfileCopied", "UpdateProfile")
+	EverlookDBChat.db.RegisterCallback(self, "OnProfileReset", "UpdateProfile")
 
-	Prat:LoadModules()
+	EverlookDBChat:LoadModules()
 
 	self.OnInitalize = nil
 end
 
--- Used for Prat/WIM integration
-function Prat.Format(smf, event, color, ...)
-	local PRE_ADDMESSAGE = "Prat_PreAddMessage"
-	local POST_ADDMESSAGE = "Prat_PostAddMessage"
-	local FRAME_MESSAGE = "Prat_FrameMessage"
+-- Used for EverlookDBChat/WIM integration
+function EverlookDBChat.Format(smf, event, color, ...)
+	local PRE_ADDMESSAGE = "EverlookDBChat_PreAddMessage"
+	local POST_ADDMESSAGE = "EverlookDBChat_PostAddMessage"
+	local FRAME_MESSAGE = "EverlookDBChat_FrameMessage"
 	local this = smf
 	local formattedText = ""
-	local m, info = Prat.SplitChatMessage(smf, event, ...)
+	local m, info = EverlookDBChat.SplitChatMessage(smf, event, ...)
 
 	if type(m) == "boolean" and m == true then
 		return ""
 	end
 
-	Prat.CurrentMessage = m
+	EverlookDBChat.CurrentMessage = m
 
 	m.DONOTPROCESS = nil
-	local process = Prat.EventProcessingType.Full
+	local process = EverlookDBChat.EventProcessingType.Full
 
-	Prat.callbacks:Fire(FRAME_MESSAGE, m, this, event)
+	EverlookDBChat.callbacks:Fire(FRAME_MESSAGE, m, this, event)
 
 	if not m.DONOTPROCESS then
 		color = color or info
 		local r, g, b, id = color.r or 1, color.g or 1, color.b or 1, 1
 
 		-- Remove all the pattern matches ahead of time
-		m.MESSAGE = Prat:MatchPatterns(m)
+		m.MESSAGE = EverlookDBChat:MatchPatterns(m)
 
-		Prat.callbacks:Fire(PRE_ADDMESSAGE, m, this, event, Prat.BuildChatText(m), r, g, b, id)
+		EverlookDBChat.callbacks:Fire(PRE_ADDMESSAGE, m, this, event, EverlookDBChat.BuildChatText(m), r, g, b, id)
 
 		-- Pattern Matches Put Back IN
-		m.MESSAGE = Prat:ReplaceMatches(m)
+		m.MESSAGE = EverlookDBChat:ReplaceMatches(m)
 
-		if process == Prat.EventProcessingType.Full then
+		if process == EverlookDBChat.EventProcessingType.Full then
 			-- We are about to send the message
-			m.OUTPUT = Prat.BuildChatText(m) -- Combine all the chat sections
-		elseif process == Prat.EventProcessingType.PatternsOnly then
+			m.OUTPUT = EverlookDBChat.BuildChatText(m) -- Combine all the chat sections
+		elseif process == EverlookDBChat.EventProcessingType.PatternsOnly then
 			m.OUTPUT = (m.PRE or "") .. m.MESSAGE .. (m.POST or "")
 		else
 			if type(m.OUTPUT) == "string" then
@@ -249,31 +244,31 @@ function Prat.Format(smf, event, color, ...)
 		-- for more flexibility in the customfilters module, speficially
 		-- it allows for replacements to occur in blocked messages
 
-		Prat.callbacks:Fire(POST_ADDMESSAGE, m, this, event, m.OUTPUT, r, g, b, id)
+		EverlookDBChat.callbacks:Fire(POST_ADDMESSAGE, m, this, event, m.OUTPUT, r, g, b, id)
 	end
 
 	m.CAPTUREOUTPUT = nil
 	m.OUTPUT = nil
 	m.INFO = nil
 
-	Prat.CurrentMessage = nil
+	EverlookDBChat.CurrentMessage = nil
 
 	return formattedText
 end
 
 function addon:OnEnable()
-	for _, v in ipairs(Prat.EnableTasks) do
+	for _, v in ipairs(EverlookDBChat.EnableTasks) do
 		v(self)
 	end
-	Prat.EnableTasks = nil
+	EverlookDBChat.EnableTasks = nil
 
-	Prat.RegisterLinkType({
+	EverlookDBChat.RegisterLinkType({
 		linkid = "rldui",
 		linkfunc = function()
 			ReloadUI()
 			return false
 		end
-	}, "Prat")
+	}, "EverlookDBChat")
 
 	self:PostEnable()
 end
@@ -296,16 +291,16 @@ function addon:UpdateProfileDelayed()
 		end
 	end
 
-	Prat:UpdateOptions()
+	EverlookDBChat:UpdateOptions()
 end
 
 do
 	local org_GetChannelName = GetChannelName
 	local chanTable
-	Prat.EnableTasks[#Prat.EnableTasks + 1] = function()
-		chanTable = Prat.GetChannelTable()
+	EverlookDBChat.EnableTasks[#EverlookDBChat.EnableTasks + 1] = function()
+		chanTable = EverlookDBChat.GetChannelTable()
 	end
-	function Prat.GetChannelName(n)
+	function EverlookDBChat.GetChannelName(n)
 		local a, b, c = org_GetChannelName(n)
 
 		if b == nil and chanTable then
@@ -323,8 +318,8 @@ end
 function addon:FCF_SetTemporaryWindowType(chatFrame, chatType, chatTarget)
 	local name = chatFrame:GetName()
 
-	Prat.Frames[name] = chatFrame
-	Prat.HookedFrames[name] = chatFrame
+	EverlookDBChat.Frames[name] = chatFrame
+	EverlookDBChat.HookedFrames[name] = chatFrame
 
 	if ChatFrameMixin and ChatFrameMixin.MessageEventHandler then
 		chatFrame.MessageEventHandler = function(frame, event, ...)
@@ -332,29 +327,29 @@ function addon:FCF_SetTemporaryWindowType(chatFrame, chatType, chatTarget)
 		end
 	end
 
-	Prat.callbacks:Fire(Prat.Events.FRAMES_UPDATED, name, chatFrame, chatType, chatTarget)
+	EverlookDBChat.callbacks:Fire(EverlookDBChat.Events.FRAMES_UPDATED, name, chatFrame, chatType, chatTarget)
 end
 
 function addon:FCF_Close(frame)
 	local name = frame:GetName()
 
-	Prat.Frames[name] = nil
-	Prat.HookedFrames[name] = nil
+	EverlookDBChat.Frames[name] = nil
+	EverlookDBChat.HookedFrames[name] = nil
 	if ChatFrameMixin and ChatFrameMixin.MessageEventHandler then
 		frame.MessageEventHandler = ChatFrameMixin.MessageEventHandler
 	end
 
-	Prat.callbacks:Fire(Prat.Events.FRAMES_REMOVED, name, frame)
+	EverlookDBChat.callbacks:Fire(EverlookDBChat.Events.FRAMES_REMOVED, name, frame)
 end
 
 function addon:FCF_CopyChatSettings(chatFrame)
 	if not chatFrame.isTemporary then
 		local name = chatFrame:GetName()
 
-		Prat.Frames[name] = chatFrame
+		EverlookDBChat.Frames[name] = chatFrame
 
 		if not IsCombatLog(chatFrame) then
-			Prat.HookedFrames[name] = chatFrame
+			EverlookDBChat.HookedFrames[name] = chatFrame
 
 			if ChatFrameMixin and ChatFrameMixin.MessageEventHandler then
 				chatFrame.MessageEventHandler = function(frame, event, ...)
@@ -363,7 +358,7 @@ function addon:FCF_CopyChatSettings(chatFrame)
 			end
 		end
 
-		Prat.callbacks:Fire(Prat.Events.FRAMES_UPDATED, name, chatFrame)
+		EverlookDBChat.callbacks:Fire(EverlookDBChat.Events.FRAMES_UPDATED, name, chatFrame)
 	end
 end
 
@@ -373,10 +368,10 @@ function addon:FloatingChatFrame_Update(id)
 	if not chatFrame.isTemporary then
 		local name = chatFrame:GetName()
 
-		Prat.Frames[name] = chatFrame
+		EverlookDBChat.Frames[name] = chatFrame
 
 		if not IsCombatLog(chatFrame) then
-			Prat.HookedFrames[name] = chatFrame
+			EverlookDBChat.HookedFrames[name] = chatFrame
 
 			if ChatFrameMixin and ChatFrameMixin.MessageEventHandler then
 				chatFrame.MessageEventHandler = function(frame, event, ...)
@@ -385,15 +380,15 @@ function addon:FloatingChatFrame_Update(id)
 			end
 		end
 
-		Prat.callbacks:Fire(Prat.Events.FRAMES_UPDATED, name, chatFrame)
+		EverlookDBChat.callbacks:Fire(EverlookDBChat.Events.FRAMES_UPDATED, name, chatFrame)
 	end
 end
 
 function addon:PostEnable()
-	Prat.AddPrintMethods()
+	EverlookDBChat.AddPrintMethods()
 
 	-- TEMP: Gamepad hacks
-	for _, v in pairs(Prat.HookedFrames) do
+	for _, v in pairs(EverlookDBChat.HookedFrames) do
 		v.SetGamepadFocus = function() end
 		v.ClearGamepadFocus = function() end
 		v.HasGamepadFocus = function() return false end
@@ -405,14 +400,14 @@ function addon:PostEnable()
 		end)
 	end
 
-	if Prat.PrintSlashCommand then
-		self:RegisterChatCommand("print", Prat.PrintSlashCommand)
+	if EverlookDBChat.PrintSlashCommand then
+		self:RegisterChatCommand("print", EverlookDBChat.PrintSlashCommand)
 	end
 	-- Inbound Hooking
 	if ChatFrame_MessageEventHandler then
 		self:RawHook("ChatFrame_MessageEventHandler", true)
 	elseif ChatFrameMixin and ChatFrameMixin.MessageEventHandler then
-		for _, v in pairs(Prat.HookedFrames) do
+		for _, v in pairs(EverlookDBChat.HookedFrames) do
 			v.MessageEventHandler = function(frame, event, ...)
 				return addon:ChatFrame_MessageEventHandler(frame, event, ...)
 			end
@@ -434,11 +429,11 @@ function addon:PostEnable()
 	end
 
 	-- Display Hooking
-	Prat.DummyFrame = CreateFrame("ScrollingMessageFrame")
+	EverlookDBChat.DummyFrame = CreateFrame("ScrollingMessageFrame")
 	if Mixin and ChatFrameMixin then
-		Mixin(Prat.DummyFrame, ChatFrameMixin)
+		Mixin(EverlookDBChat.DummyFrame, ChatFrameMixin)
 	end
-	self:RawHook(Prat.DummyFrame, "AddMessage", true)
+	self:RawHook(EverlookDBChat.DummyFrame, "AddMessage", true)
 
 	-- ItemRef Hooking
 	self:RawHook(ItemRefTooltip, "SetHyperlink", true)
@@ -450,18 +445,18 @@ function addon:PostEnable()
 	-- Combat hooking
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 
-	-- This event fires after Prat's hooks are installed
-	-- Prat's core wont operate until after this event
-	Prat.callbacks:Fire(Prat.Events.SECTIONS_UPDATED)
-	Prat.callbacks:Fire(Prat.Events.ENABLED)
+	-- This event fires after EverlookDBChat's hooks are installed
+	-- EverlookDBChat's core wont operate until after this event
+	EverlookDBChat.callbacks:Fire(EverlookDBChat.Events.SECTIONS_UPDATED)
+	EverlookDBChat.callbacks:Fire(EverlookDBChat.Events.ENABLED)
 end
 
 function addon:PLAYER_REGEN_ENABLED()
-	Prat.RebuildChannelTable()
+	EverlookDBChat.RebuildChannelTable()
 end
 
 function addon:SetHyperlink(frame, ...)
-	return Prat.SetHyperlinkHook(self.hooks[frame], frame, ...)
+	return EverlookDBChat.SetHyperlinkHook(self.hooks[frame], frame, ...)
 end
 
 function addon:ChatEdit_ParseText(editBox, send)
@@ -482,9 +477,9 @@ function addon:ChatEdit_ParseText(editBox, send)
 		return
 	end
 
-	local m = Prat.SplitMessageOut
+	local m = EverlookDBChat.SplitMessageOut
 	wipe(m)
-	Prat.CurrentMessage = m
+	EverlookDBChat.CurrentMessage = m
 
 	if issecretvalue(command) then
 		m.MESSAGE = command
@@ -504,8 +499,8 @@ function addon:ChatEdit_ParseText(editBox, send)
 
 	self:ProcessUserEnteredChat(m)
 
-	if Prat.IsModernAPI and InCombatLockdown() then
-		Prat.CurrentMessage = nil
+	if EverlookDBChat.IsModernAPI and InCombatLockdown() then
+		EverlookDBChat.CurrentMessage = nil
 		return
 	end
 
@@ -520,7 +515,7 @@ function addon:ChatEdit_ParseText(editBox, send)
 		editBox:SetText(m.MESSAGE)
 	end
 
-	Prat.CurrentMessage = nil
+	EverlookDBChat.CurrentMessage = nil
 end
 
 function addon:ProcessUserEnteredChat(m)
@@ -528,15 +523,15 @@ function addon:ProcessUserEnteredChat(m)
 		return
 	end
 
-	Prat.callbacks:Fire(Prat.Events.PRE_OUTBOUND, m)
+	EverlookDBChat.callbacks:Fire(EverlookDBChat.Events.PRE_OUTBOUND, m)
 
 	-- Remove all the pattern matches ahead of time
-	m.MESSAGE = Prat:MatchPatterns(m, "OUTBOUND")
+	m.MESSAGE = EverlookDBChat:MatchPatterns(m, "OUTBOUND")
 
-	Prat.callbacks:Fire(Prat.Events.OUTBOUND, m)
+	EverlookDBChat.callbacks:Fire(EverlookDBChat.Events.OUTBOUND, m)
 
 	-- Pattern Matches Put Back IN
-	m.MESSAGE = Prat:ReplaceMatches(m, "OUTBOUND")
+	m.MESSAGE = EverlookDBChat:ReplaceMatches(m, "OUTBOUND")
 end
 
 local fieldBlacklist = {
@@ -552,45 +547,45 @@ local fieldBlacklist = {
 	fontStringPool = true,
 }
 local savedFrame = {}
-function Prat.CreateProxy(frame)
+function EverlookDBChat.CreateProxy(frame)
 	for k, v in pairs(frame) do
 		if type(v) ~= "function" and not fieldBlacklist[k] then
-			savedFrame[k] = Prat.DummyFrame[k]
-			Prat.DummyFrame[k] = v
+			savedFrame[k] = EverlookDBChat.DummyFrame[k]
+			EverlookDBChat.DummyFrame[k] = v
 		end
 	end
-	Prat.DummyFrame.IsShown = function()
+	EverlookDBChat.DummyFrame.IsShown = function()
 		return true
 	end
-	return Prat.DummyFrame
+	return EverlookDBChat.DummyFrame
 end
 
-function Prat.RestoreProxy()
+function EverlookDBChat.RestoreProxy()
 	for k, v in pairs(savedFrame) do
-		Prat.DummyFrame[k] = v
+		EverlookDBChat.DummyFrame[k] = v
 	end
-	for k, v in pairs(Prat.DummyFrame) do
+	for k, v in pairs(EverlookDBChat.DummyFrame) do
 		if type(v) ~= "function" and not fieldBlacklist[k] then
 			if savedFrame[k] == nil then
-				Prat.DummyFrame[k] = nil
+				EverlookDBChat.DummyFrame[k] = nil
 			end
 		end
 	end
 end
 
 function addon:ChatFrame_MessageEventHandler(this, event, ...)
-	local PRE_ADDMESSAGE = "Prat_PreAddMessage"
-	local POST_ADDMESSAGE = "Prat_PostAddMessage"
-	local FRAME_MESSAGE = "Prat_FrameMessage"
-	local POST_ADDMESSAGE_BLOCKED = "Prat_PostAddMessageBlocked"
+	local PRE_ADDMESSAGE = "EverlookDBChat_PreAddMessage"
+	local POST_ADDMESSAGE = "EverlookDBChat_PostAddMessage"
+	local FRAME_MESSAGE = "EverlookDBChat_FrameMessage"
+	local POST_ADDMESSAGE_BLOCKED = "EverlookDBChat_PostAddMessageBlocked"
 
 	local arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18 = ...
 	local isSecret = issecretvalue(arg1)
 
-	Prat.loading = nil -- clear any batch message loading that may be happening
+	EverlookDBChat.loading = nil -- clear any batch message loading that may be happening
 
 	-- This is only ever called on classic
-	if not Prat.HookedFrames[this:GetName()] then
+	if not EverlookDBChat.HookedFrames[this:GetName()] then
 		if ChatFrame_MessageEventHandler then
 			return self.hooks["ChatFrame_MessageEventHandler"](this, event, ...)
 		else
@@ -598,7 +593,7 @@ function addon:ChatFrame_MessageEventHandler(this, event, ...)
 		end
 	end
 
-	local process = Prat.EventIsProcessed(event)
+	local process = EverlookDBChat.EventIsProcessed(event)
 
 	if not isSecret and type(arg1) == "string" and (arg1):find("\r") then
 		-- Stupid exploit. Protect our users.
@@ -607,10 +602,10 @@ function addon:ChatFrame_MessageEventHandler(this, event, ...)
 
 	-- Create a message table. This table contains the chat message in a non-concatenated form
 	-- so that it can be modified easily without lots of complex gsub's
-	local message, info = Prat.SplitChatMessage(this, event, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18)
+	local message, info = EverlookDBChat.SplitChatMessage(this, event, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18)
 
 	-- Handle Default-UI filtering: Since the default UI now provides filtering functions
-	-- similar to the way Prat's pattern registry works, we need to be sure not to call the
+	-- similar to the way EverlookDBChat's pattern registry works, we need to be sure not to call the
 	-- filtering functions twice by calling back into the hook chain - otherwise you could
 	-- have side effects of the handler functions being called more than once for a given event.
 	-- I don't see any way around this.
@@ -629,59 +624,59 @@ function addon:ChatFrame_MessageEventHandler(this, event, ...)
 	local m = message --SplitMessage
 
 
-	-- Prat_FrameMessage is fired for every message going to the
+	-- EverlookDBChat_FrameMessage is fired for every message going to the
 	-- chatframe which is displayable (has a chat infotype)
 	-- It may not be displayed, in which case no Pre/Post Addmessage
 	-- events will fire
 	-- Any addons which hook things will operate following this event
-	-- but before Prat_PreAddMessage, OUTPUT will contain the chat line
+	-- but before EverlookDBChat_PreAddMessage, OUTPUT will contain the chat line
 	-- it may be modified by other addons.
 	--
-	-- Right now, prat will discard the chat line for chat types that
+	-- Right now, edbchat will discard the chat line for chat types that
 	-- it is handling
 	--
 	m.OUTPUT = nil
 	m.DONOTPROCESS = nil
 
-	Prat.callbacks:Fire(FRAME_MESSAGE, message, this, message.EVENT)
+	EverlookDBChat.callbacks:Fire(FRAME_MESSAGE, message, this, message.EVENT)
 
 	-- A return value of true means that the message was processed
 	-- normally this would result in the OnEvent returning
 	-- for that chatframe
-	local proxy = Prat.CreateProxy(this)
+	local proxy = EverlookDBChat.CreateProxy(this)
 	local CMEResult
 	m.CAPTUREOUTPUT = proxy
 	if isSecret or issecretvalue(this.chatTarget) then
-		CMEResult = Prat.MessageEventHandler(proxy, event, ...)
+		CMEResult = EverlookDBChat.MessageEventHandler(proxy, event, ...)
 	elseif ChatFrame_MessageEventHandler then
 		CMEResult = self.hooks["ChatFrame_MessageEventHandler"](proxy, event, ...)
 	else
 		CMEResult = ChatFrameMixin.MessageEventHandler(proxy, event, ...)
 	end
-	Prat.RestoreProxy()
+	EverlookDBChat.RestoreProxy()
 
 	m.CAPTUREOUTPUT = false
 
 	if type(m.OUTPUT) == "string" and not m.DONOTPROCESS then
-		Prat.CurrentMessage = m
+		EverlookDBChat.CurrentMessage = m
 		local r, g, b, id = m.INFO.r, m.INFO.g, m.INFO.b, m.INFO.id
 
-		if not isSecret and process == Prat.EventProcessingType.Full or process == Prat.EventProcessingType.PatternsOnly then
+		if not isSecret and process == EverlookDBChat.EventProcessingType.Full or process == EverlookDBChat.EventProcessingType.PatternsOnly then
 			-- Remove all the pattern matches ahead of time
-			m.MESSAGE = Prat:MatchPatterns(m, "FRAME")
+			m.MESSAGE = EverlookDBChat:MatchPatterns(m, "FRAME")
 		end
 
-		Prat.callbacks:Fire(PRE_ADDMESSAGE, message, this, message.EVENT, Prat.BuildChatText(message), r, g, b, id)
+		EverlookDBChat.callbacks:Fire(PRE_ADDMESSAGE, message, this, message.EVENT, EverlookDBChat.BuildChatText(message), r, g, b, id)
 
-		if not isSecret and process == Prat.EventProcessingType.Full or process == Prat.EventProcessingType.PatternsOnly then
+		if not isSecret and process == EverlookDBChat.EventProcessingType.Full or process == EverlookDBChat.EventProcessingType.PatternsOnly then
 			-- Pattern Matches Put Back IN
-			m.MESSAGE = Prat:ReplaceMatches(m, "FRAME")
+			m.MESSAGE = EverlookDBChat:ReplaceMatches(m, "FRAME")
 		end
 
-		if process == Prat.EventProcessingType.Full then
+		if process == EverlookDBChat.EventProcessingType.Full then
 			-- We are about to send the message
-			m.OUTPUT = Prat.BuildChatText(message) -- Combine all the chat sections
-		elseif process == Prat.EventProcessingType.PatternsOnly then
+			m.OUTPUT = EverlookDBChat.BuildChatText(message) -- Combine all the chat sections
+		elseif process == EverlookDBChat.EventProcessingType.PatternsOnly then
 			m.OUTPUT = (m.PRE or "") .. m.MESSAGE .. (m.POST or "")
 		else
 			-- Now we have the chatstring that the client was planning to output
@@ -691,11 +686,11 @@ function addon:ChatFrame_MessageEventHandler(this, event, ...)
 
 		-- Allow for message blocking during the patern match phase
 		if m.DONOTPROCESS then
-			Prat.callbacks:Fire(POST_ADDMESSAGE_BLOCKED, m, this, message.EVENT, m.OUTPUT, r, g, b, id)
+			EverlookDBChat.callbacks:Fire(POST_ADDMESSAGE_BLOCKED, m, this, message.EVENT, m.OUTPUT, r, g, b, id)
 		elseif isSecret then
 			this:AddMessage(m.OUTPUT, r, g, b, id, m.ACCESSID, m.TYPEID)
 		elseif m.OUTPUT:len() > 0 then
-			-- Hack to get the censored message display working with Prat
+			-- Hack to get the censored message display working with EverlookDBChat
 			local isChatLineCensored = arg11 and C_ChatInfo.IsChatLineCensored(arg11);
 			local msg = isChatLineCensored and arg1 or m.OUTPUT
 
@@ -715,7 +710,7 @@ function addon:ChatFrame_MessageEventHandler(this, event, ...)
 			-- for more flexibility in the customfilters module, speficially
 			-- it allows for replacements to occur in blocked messages
 
-			Prat.callbacks:Fire(POST_ADDMESSAGE, m, this, message.EVENT, m.OUTPUT, r, g, b, id, m.ACCESSID, m.TYPEID)
+			EverlookDBChat.callbacks:Fire(POST_ADDMESSAGE, m, this, message.EVENT, m.OUTPUT, r, g, b, id, m.ACCESSID, m.TYPEID)
 
 			if (not this:IsShown()) then
 				if ((this == DEFAULT_CHAT_FRAME and m.INFO.flashTabOnGeneral) or (this ~= DEFAULT_CHAT_FRAME and m.INFO.flashTab)) then
@@ -727,7 +722,7 @@ function addon:ChatFrame_MessageEventHandler(this, event, ...)
 				end
 			end
 
-			Prat.LastMessage = m
+			EverlookDBChat.LastMessage = m
 			if not ChatFrame_MessageEventHandler then
 				CMEResult = true
 			end
@@ -736,13 +731,13 @@ function addon:ChatFrame_MessageEventHandler(this, event, ...)
 
 	m.CAPTUREOUTPUT = nil
 
-	Prat.CurrentMessage = nil
+	EverlookDBChat.CurrentMessage = nil
 
 	return CMEResult
 end
 
 function addon:AddMessage(frame, text, r, g, b, id, ...)
-	local s = Prat.SplitMessage
+	local s = EverlookDBChat.SplitMessage
 	if s.OUTPUT == nil and s.CAPTUREOUTPUT == frame then
 		s.ORG.OUTPUT = text
 	else
@@ -750,12 +745,12 @@ function addon:AddMessage(frame, text, r, g, b, id, ...)
 	end
 end
 
-function Prat.PlaySound(_, sound)
+function EverlookDBChat.PlaySound(_, sound)
 	if not sound then
 		return
 	end
 
-	local play = Prat.Media:Fetch(SOUND, sound)
+	local play = EverlookDBChat.Media:Fetch(SOUND, sound)
 	if play == nil then
 		return
 	end
@@ -763,8 +758,8 @@ function Prat.PlaySound(_, sound)
 	PlaySoundFile(play, "Master")
 end
 
-function Prat.CanSendChatMessage(chatType)
-	if Prat.IsModernAPI and InCombatLockdown() then
+function EverlookDBChat.CanSendChatMessage(chatType)
+	if EverlookDBChat.IsModernAPI and InCombatLockdown() then
 		return false
 	end
 	if chatType == "SAY" or chatType == "YELL" then
@@ -776,14 +771,14 @@ function Prat.CanSendChatMessage(chatType)
 	return false
 end
 
-Prat.MULTIBYTE_FIRST_CHAR = "^([%a\192-\255]?[\128-\191]*)"
-Prat.AnyNamePattern = "%f[%a\128-\255]([%a\128-\255]+)%f[^%a\128-\255]"
+EverlookDBChat.MULTIBYTE_FIRST_CHAR = "^([%a\192-\255]?[\128-\191]*)"
+EverlookDBChat.AnyNamePattern = "%f[%a\128-\255]([%a\128-\255]+)%f[^%a\128-\255]"
 
-function Prat.GetNamePattern(name)
-	local u = name:match(Prat.MULTIBYTE_FIRST_CHAR):upper()
+function EverlookDBChat.GetNamePattern(name)
+	local u = name:match(EverlookDBChat.MULTIBYTE_FIRST_CHAR):upper()
 
 	if not u or u:len() == 0 then
-		Prat:Print("GetNamePattern: name error ", name)
+		EverlookDBChat:Print("GetNamePattern: name error ", name)
 		return
 	end
 
@@ -804,50 +799,50 @@ function Prat.GetNamePattern(name)
 	return "%f[%a\128-\255]" .. namepat .. "%f[^%a\128-\255]"
 end
 
-function Prat.RegisterChatCommand(cmd, func)
+function EverlookDBChat.RegisterChatCommand(cmd, func)
 	addon:RegisterChatCommand(cmd, func)
 end
 
-Prat.RegisterChatCommand("pratblacklist", function(name)
+EverlookDBChat.RegisterChatCommand("edbchatblacklist", function(name)
 	if name and #name > 0 then
-		Prat:Print("Blacklisting: '" .. tostring(name) .. "'. Reload to activate.")
-		Prat.db.realm.PlayerNameBlackList[tostring(name):lower()] = true
+		EverlookDBChat:Print("Blacklisting: '" .. tostring(name) .. "'. Reload to activate.")
+		EverlookDBChat.db.realm.PlayerNameBlackList[tostring(name):lower()] = true
 	end
 end)
 
-Prat.RegisterChatCommand("pratunblacklist", function(name)
+EverlookDBChat.RegisterChatCommand("edbchatunblacklist", function(name)
 	if name and #name > 0 then
-		Prat:Print("Un-Blacklisting: '" .. tostring(name) .. "'. Reload to activate")
-		Prat.db.realm.PlayerNameBlackList[tostring(name):lower()] = nil
+		EverlookDBChat:Print("Un-Blacklisting: '" .. tostring(name) .. "'. Reload to activate")
+		EverlookDBChat.db.realm.PlayerNameBlackList[tostring(name):lower()] = nil
 	end
 end)
 
-Prat.RegisterChatCommand("pratdebugmsg", function()
-	if Prat.LastMessage then
-		Prat:PrintLiteral(Prat.LastMessage)
+EverlookDBChat.RegisterChatCommand("edbchatdebugmsg", function()
+	if EverlookDBChat.LastMessage then
+		EverlookDBChat:PrintLiteral(EverlookDBChat.LastMessage)
 	end
 
-	local cc = Prat:GetModule("CopyChat")
+	local cc = EverlookDBChat:GetModule("CopyChat")
 	if cc then
 		cc:DoCopyChat(DEFAULT_CHAT_FRAME, true)
 	end
 end)
 
-tinsert(Prat.EnableTasks, function()
+tinsert(EverlookDBChat.EnableTasks, function()
 	local ldb = LibStub:GetLibrary("LibDataBroker-1.1", true)
 	if not ldb then
 		return
 	end
 
-	ldb:NewDataObject("Prat", {
+	ldb:NewDataObject("EverlookDB Chat", {
 		type = "launcher",
-		text = "Prat |cff8080ff3.0|r",
-		icon = "Interface\\Addons\\Prat-3.0\\textures\\prat-logo-dark-small",
+		text = "EverlookDB Chat",
+		icon = "Interface\\Addons\\EverlookDBChat\\textures\\icon",
 		OnClick = function()
-			Prat:ToggleOptionsWindow()
+			EverlookDBChat:ToggleOptionsWindow()
 		end,
 		OnTooltipShow = function(tooltip)
-			tooltip:AddLine(Prat.Version)
+			tooltip:AddLine(EverlookDBChat.Version)
 		end,
 	})
 end)

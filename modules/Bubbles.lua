@@ -24,11 +24,11 @@
 --
 -------------------------------------------------------------------------------
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("Bubbles")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("Bubbles")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 			shorten = false,
@@ -51,7 +51,7 @@ Prat:AddModuleToLoad(function()
 		type = "toggle",
 	}
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL["module_name"],
 		desc = PL["module_desc"],
 		type = "group",
@@ -191,8 +191,8 @@ Prat:AddModuleToLoad(function()
 
 		if self.format then
 			if not fontstring.lastText or text ~= fontstring.lastText then
-				text = Prat:MatchPatterns(text)
-				text = Prat:ReplaceMatches(text)
+				text = EverlookDBChat:MatchPatterns(text)
+				text = EverlookDBChat:ReplaceMatches(text)
 			end
 		end
 

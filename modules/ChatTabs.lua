@@ -24,13 +24,13 @@
 --
 -------------------------------------------------------------------------------
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("ChatTabs", "AceHook-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("ChatTabs", "AceHook-3.0")
 	local PL = module.PL
 
 	module.HighlightTabsPlugin = {}
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = false,
 			displaymode = {},
@@ -66,7 +66,7 @@ Prat:AddModuleToLoad(function()
 
 	--module.toggleOptions = { sep115_sep = 115, disableflash = 120, preventdrag = 125 }
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL["Tabs"],
 		desc = PL["Chat window tab options."],
 		type = "group",
@@ -83,7 +83,7 @@ Prat:AddModuleToLoad(function()
 						type = "multiselect",
 						tristate = true,
 						order = 110,
-						values = Prat.FrameList,
+						values = EverlookDBChat.FrameList,
 						get = "GetSubValue",
 						set = "SetSubValue",
 					},
@@ -181,8 +181,8 @@ Prat:AddModuleToLoad(function()
 		self.chatAlertTimers = {}
 		self.chatAlertCleanupActions = {}
 
-		Prat.RegisterChatEvent(self, Prat.Events.FRAMES_UPDATED)
-		Prat.RegisterChatEvent(self, Prat.Events.FRAMES_REMOVED)
+		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.FRAMES_UPDATED)
+		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.FRAMES_REMOVED)
 		self:UpdateAllTabs()
 		self:UpdateHighlightTabsConfig()
 	end
@@ -192,14 +192,14 @@ Prat:AddModuleToLoad(function()
 		self:RemoveHooks()
 	end
 
-	function module:Prat_FramesUpdated()
+	function module:EverlookDBChat_FramesUpdated()
 		self:UpdateHighlightTabsConfig()
-		for _, v in pairs(Prat.Frames) do
+		for _, v in pairs(EverlookDBChat.Frames) do
 			self:ShowHideTabTextures(v)
 		end
 	end
 
-	function module:Prat_FramesRemoved()
+	function module:EverlookDBChat_FramesRemoved()
 		self:UpdateHighlightTabsConfig()
 	end
 	--[[------------------------------------------------
@@ -226,7 +226,7 @@ Prat:AddModuleToLoad(function()
 			}
 		end
 		local orderedFrames = {}
-		for _, frame in pairs(Prat.Frames) do
+		for _, frame in pairs(EverlookDBChat.Frames) do
 			if (frame.isDocked == 1) or frame:IsShown() then
 				table.insert(orderedFrames, frame)
 			end
@@ -294,7 +294,7 @@ Prat:AddModuleToLoad(function()
 	local needToHook = {}
 
 	function module:InstallHooks()
-		for frameName, chatFrame in pairs(Prat.Frames) do
+		for frameName, chatFrame in pairs(EverlookDBChat.Frames) do
 			local tabButton = _G[frameName .. "Tab"]
 			self:HookScript(tabButton, "OnShow", "OnTabShow")
 			self:SecureHook(chatFrame, "AddMessage")
@@ -309,7 +309,7 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:RemoveHooks()
-		for k, _ in pairs(Prat.Frames) do
+		for k, _ in pairs(EverlookDBChat.Frames) do
 			local cftab = _G[k .. "Tab"]
 			cftab:SetScript("OnShow", function()
 				return
@@ -350,7 +350,7 @@ Prat:AddModuleToLoad(function()
 	function module:ShowHideTabTextures(tab)
 		local tabButton = _G[tab:GetName() .. "Tab"]
 		local alpha = self.db.profile.showtabtextures and 1 or 0
-		if Prat.IsModernAPI then
+		if EverlookDBChat.IsModernAPI then
 			for _, field in ipairs(ChatTabTexturesRetail) do
 				tabButton[field]:SetShown(self.db.profile.showtabtextures)
 			end
@@ -370,7 +370,7 @@ Prat:AddModuleToLoad(function()
 	function module:UpdateAllTabs()
 		CHAT_FRAME_TAB_SELECTED_NOMOUSE_ALPHA = self.db.profile.activealpha;
 		CHAT_FRAME_TAB_NORMAL_NOMOUSE_ALPHA = self.db.profile.notactivealpha;
-		for k, v in pairs(Prat.Frames) do
+		for k, v in pairs(EverlookDBChat.Frames) do
 			local tabButton = _G[k .. "Tab"]
 			if FCF_IsValidChatFrame(v) then
 				tabButton:Show()
@@ -533,7 +533,7 @@ Prat:AddModuleToLoad(function()
 		if not self.chatTabTexture[chatFrame:GetName()] then
 			self.chatTabTexture[chatFrame:GetName()] = tabButton:CreateTexture()
 			local texture = self.chatTabTexture[chatFrame:GetName()]
-			texture:SetTexture([[Interface\AddOns\Prat-3.0\textures\button-flash]])
+			texture:SetTexture([[Interface\AddOns\EverlookDBChat\textures\button-flash]])
 			texture:SetPoint("BOTTOM", 0, -8)
 			texture:SetHeight(32)
 			texture:SetWidth(tabButton:GetWidth())
@@ -584,7 +584,7 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:UpdateTabFontSizes()
-		for k, _ in pairs(Prat.Frames) do
+		for k, _ in pairs(EverlookDBChat.Frames) do
 			local tabButton = _G[k .. "Tab"]
 			if tabButton and tabButton:GetFontString() then
 				local fontString = tabButton:GetFontString()
@@ -595,4 +595,4 @@ Prat:AddModuleToLoad(function()
 	end
 
 	return
-end) -- Prat:AddModuleToLoad
+end) -- EverlookDBChat:AddModuleToLoad

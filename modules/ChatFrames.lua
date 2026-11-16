@@ -26,8 +26,8 @@
 
 local NUM_CHAT_WINDOWS = NUM_CHAT_WINDOWS or Constants.ChatFrameConstants.MaxChatWindows
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("Frames", "AceHook-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("Frames", "AceHook-3.0")
 	local PL = module.PL
 
 	-- We have to set the insets here before blizzard has a chance to move them
@@ -36,7 +36,7 @@ Prat:AddModuleToLoad(function()
 		f:SetClampRectInsets(0, 0, 0, 0)
 	end
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 			minchatwidth = 160,
@@ -74,7 +74,7 @@ Prat:AddModuleToLoad(function()
 			step = 1
 		}
 
-		Prat:SetModuleOptions(module.name, {
+		EverlookDBChat:SetModuleOptions(module.name, {
 			name = PL["Frames"],
 			desc = PL["Chat window frame parameter options"],
 			type = "group",
@@ -113,7 +113,7 @@ Prat:AddModuleToLoad(function()
 		Module Event Functions
 	------------------------------------------------]] --
 
-	Prat:SetModuleInit(module, function()
+	EverlookDBChat:SetModuleInit(module, function()
 		module:GetDefaults()
 	end)
 
@@ -153,8 +153,8 @@ Prat:AddModuleToLoad(function()
 		if self.db.profile.removeclamp then
 			frame:SetClampRectInsets(0, 0, 0, 0)
 		end
-		Prat.Frames[frame:GetName()] = frame
-		local m = Prat:GetModule("Font")
+		EverlookDBChat.Frames[frame:GetName()] = frame
+		local m = EverlookDBChat:GetModule("Font")
 		if m then
 			m:ConfigureAllChatFrames()
 		end
@@ -164,8 +164,8 @@ Prat:AddModuleToLoad(function()
 		if self.db.profile.removeclamp then
 			frame:SetClampRectInsets(0, 0, 0, 0)
 		end
-		Prat.Frames[frame:GetName()] = frame
-		local m = Prat:GetModule("Font")
+		EverlookDBChat.Frames[frame:GetName()] = frame
+		local m = EverlookDBChat:GetModule("Font")
 		if m then
 			m:ConfigureAllChatFrames()
 		end
@@ -175,8 +175,8 @@ Prat:AddModuleToLoad(function()
 		if self.db.profile.removeclamp then
 			frame:SetClampRectInsets(0, 0, 0, 0)
 		end
-		Prat.Frames[frame:GetName()] = frame
-		local m = Prat:GetModule("Font")
+		EverlookDBChat.Frames[frame:GetName()] = frame
+		local m = EverlookDBChat:GetModule("Font")
 		if m then
 			m:ConfigureAllChatFrames()
 		end
@@ -187,16 +187,16 @@ Prat:AddModuleToLoad(function()
 	------------------------------------------------]] --
 	-- set parameters for each chatframe
 	function module:ConfigureAllChatFrames(enabled)
-		for _, v in pairs(Prat.Frames) do
+		for _, v in pairs(EverlookDBChat.Frames) do
 			self:SetParameters(v, enabled)
 		end
 	end
 
 	function module:RecreateBackgroundTextures(frame)
-		if frame.PratTextures then
+		if frame.EverlookDBChatTextures then
 			return
 		end
-		frame.PratTextures = {}
+		frame.EverlookDBChatTextures = {}
 		for _, name in ipairs(CHAT_FRAME_TEXTURES) do
 			local texture = _G[frame:GetName() .. name]
 			local layer, sublevel = texture:GetDrawLayer()
@@ -211,25 +211,25 @@ Prat:AddModuleToLoad(function()
 
 			newTexture:SetSize(texture:GetSize())
 
-			table.insert(frame.PratTextures, newTexture)
+			table.insert(frame.EverlookDBChatTextures, newTexture)
 			texture:Hide()
 		end
 	end
 
-	function module:HidePratTextures(frame)
-		if frame.PratTextures then
+	function module:HideEverlookDBChatTextures(frame)
+		if frame.EverlookDBChatTextures then
 			for _, name in ipairs(CHAT_FRAME_TEXTURES) do
 				local texture = _G[frame:GetName() .. name]
 				texture:Show()
 			end
-			for _, texture in ipairs(frame.PratTextures) do
+			for _, texture in ipairs(frame.EverlookDBChatTextures) do
 				texture:Hide()
 			end
 		end
 	end
 
-	function module:RestorePratTextures(frame)
-		if not frame.PratTextures then
+	function module:RestoreEverlookDBChatTextures(frame)
+		if not frame.EverlookDBChatTextures then
 			self:RecreateBackgroundTextures(frame)
 		end
 
@@ -238,7 +238,7 @@ Prat:AddModuleToLoad(function()
 			texture:Hide()
 		end
 		local _, _, r, g, b, a = FCF_GetChatWindowInfo(frame:GetID())
-		for _, texture in ipairs(frame.PratTextures) do
+		for _, texture in ipairs(frame.EverlookDBChatTextures) do
 			texture:Show()
 			texture:SetVertexColor(r, g, b)
 			texture:SetAlpha(a)
@@ -267,8 +267,8 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:FCF_SetWindowColor(frame, r, g, b)
-		if frame.PratTextures then
-			for _, texture in ipairs(frame.PratTextures) do
+		if frame.EverlookDBChatTextures then
+			for _, texture in ipairs(frame.EverlookDBChatTextures) do
 				texture:SetVertexColor(r, g, b)
 			end
 		end
@@ -276,8 +276,8 @@ Prat:AddModuleToLoad(function()
 
 	function module:FCF_SetWindowAlpha(frame)
 		local _, _, _, _, _, a = FCF_GetChatWindowInfo(frame:GetID())
-		if frame.PratTextures then
-			for _, texture in ipairs(frame.PratTextures) do
+		if frame.EverlookDBChatTextures then
+			for _, texture in ipairs(frame.EverlookDBChatTextures) do
 				texture:SetAlpha(a)
 			end
 		end
@@ -289,9 +289,9 @@ Prat:AddModuleToLoad(function()
 		local minWidth, minHeight, maxWidth, maxHeight
 		if enabled then
 			if prof.framealphastatic then
-				self:RestorePratTextures(cf)
+				self:RestoreEverlookDBChatTextures(cf)
 			else
-				self:HidePratTextures(cf)
+				self:HideEverlookDBChatTextures(cf)
 			end
 
 			DEFAULT_CHATFRAME_ALPHA = prof.defaultframealpha
@@ -312,7 +312,7 @@ Prat:AddModuleToLoad(function()
 				cf.ScrollBar:SetAlpha(0)
 			end
 		else
-			self:HidePratTextures(cf)
+			self:HideEverlookDBChatTextures(cf)
 			DEFAULT_CHATFRAME_ALPHA = 0.25
 
 			minWidth, minHeight = prof.minchatwidthdefault, prof.minchatheightdefault
@@ -332,4 +332,4 @@ Prat:AddModuleToLoad(function()
 	end
 
 	return
-end) -- Prat:AddModuleToLoad
+end) -- EverlookDBChat:AddModuleToLoad

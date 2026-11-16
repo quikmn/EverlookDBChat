@@ -54,21 +54,21 @@ private.Options = {
 }
 
 private.EnableTasks[#private.EnableTasks + 1] = function(self)
-	acr:RegisterOptionsTable(PL.prat, private.Options)
-	acr:RegisterOptionsTable(PL.prat .. ": " .. private.Options.args.display.name, private.Options.args.display)
-	acr:RegisterOptionsTable(PL.prat .. ": " .. private.Options.args.formatting.name, private.Options.args.formatting)
-	acr:RegisterOptionsTable(PL.prat .. ": " .. private.Options.args.extras.name, private.Options.args.extras)
-	acr:RegisterOptionsTable(PL.prat .. ": " .. private.Options.args.modulecontrol.name, private.Options.args.modulecontrol)
-	acr:RegisterOptionsTable("Prat: " .. private.Options.args.profiles.name, private.Options.args.profiles)
+	acr:RegisterOptionsTable(PL.edbchat, private.Options)
+	acr:RegisterOptionsTable(PL.edbchat .. ": " .. private.Options.args.display.name, private.Options.args.display)
+	acr:RegisterOptionsTable(PL.edbchat .. ": " .. private.Options.args.formatting.name, private.Options.args.formatting)
+	acr:RegisterOptionsTable(PL.edbchat .. ": " .. private.Options.args.extras.name, private.Options.args.extras)
+	acr:RegisterOptionsTable(PL.edbchat .. ": " .. private.Options.args.modulecontrol.name, private.Options.args.modulecontrol)
+	acr:RegisterOptionsTable("EverlookDB Chat: " .. private.Options.args.profiles.name, private.Options.args.profiles)
 
-	acd:AddToBlizOptions(PL.prat, PL.prat)
-	acd:AddToBlizOptions(PL.prat .. ": " .. private.Options.args.display.name, private.Options.args.display.name, PL.prat)
-	acd:AddToBlizOptions(PL.prat .. ": " .. private.Options.args.formatting.name, private.Options.args.formatting.name, PL.prat)
-	acd:AddToBlizOptions(PL.prat .. ": " .. private.Options.args.extras.name, private.Options.args.extras.name, PL.prat)
-	acd:AddToBlizOptions(PL.prat .. ": " .. private.Options.args.modulecontrol.name, private.Options.args.modulecontrol.name, PL.prat)
-	acd:AddToBlizOptions(PL.prat .. ": " .. private.Options.args.profiles.name, private.Options.args.profiles.name, PL.prat)
+	acd:AddToBlizOptions(PL.edbchat, PL.edbchat)
+	acd:AddToBlizOptions(PL.edbchat .. ": " .. private.Options.args.display.name, private.Options.args.display.name, PL.edbchat)
+	acd:AddToBlizOptions(PL.edbchat .. ": " .. private.Options.args.formatting.name, private.Options.args.formatting.name, PL.edbchat)
+	acd:AddToBlizOptions(PL.edbchat .. ": " .. private.Options.args.extras.name, private.Options.args.extras.name, PL.edbchat)
+	acd:AddToBlizOptions(PL.edbchat .. ": " .. private.Options.args.modulecontrol.name, private.Options.args.modulecontrol.name, PL.edbchat)
+	acd:AddToBlizOptions(PL.edbchat .. ": " .. private.Options.args.profiles.name, private.Options.args.profiles.name, PL.edbchat)
 
-	self:RegisterChatCommand(PL.prat, function()
+	self:RegisterChatCommand("edbchat", function()
 		private:ToggleOptionsWindow()
 	end)
 end
@@ -158,7 +158,7 @@ local function updateFrameNames()
 end
 
 function private:UpdateOptions()
-	acr:NotifyChange("Prat")
+	acr:NotifyChange("EverlookDB Chat")
 end
 
 private.EnableTasks[#private.EnableTasks + 1] = function(self)
@@ -168,11 +168,11 @@ private.EnableTasks[#private.EnableTasks + 1] = function(self)
 end
 
 function private:ToggleOptionsWindow()
-	if acd.OpenFrames["Prat"] then
-		acd:Close("Prat")
+	if acd.OpenFrames["EverlookDB Chat"] then
+		acd:Close("EverlookDB Chat")
 	else
-		acd:Open("Prat")
+		acd:Open("EverlookDB Chat")
 	end
 end
 
-Prat_ToggleOptionsWindow = private.ToggleOptionsWindow
+EverlookDBChat_ToggleOptionsWindow = private.ToggleOptionsWindow

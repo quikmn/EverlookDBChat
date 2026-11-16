@@ -1,8 +1,8 @@
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("Search")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("Search")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 			searchactivealpha = 1.0,
@@ -10,7 +10,7 @@ Prat:AddModuleToLoad(function()
 		}
 	})
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL.module_name,
 		desc = PL.module_desc,
 		type = "group",
@@ -106,20 +106,20 @@ Prat:AddModuleToLoad(function()
 		return f
 	end
 
-	Prat:SetModuleInit(module, function(self)
+	EverlookDBChat:SetModuleInit(module, function(self)
 		self.searchBoxes = {}
 	end)
 
-	function module:Prat_FramesUpdated(_, name, chatFrame)
+	function module:EverlookDBChat_FramesUpdated(_, name, chatFrame)
 		if not self.searchBoxes[name] then
 			self.searchBoxes[name] = self:CreateSearchBox(chatFrame)
 		end
 	end
 
 	function module:OnModuleEnable()
-		Prat.RegisterChatEvent(self, Prat.Events.FRAMES_UPDATED)
+		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.FRAMES_UPDATED)
 
-		for name, frame in pairs(Prat.HookedFrames) do
+		for name, frame in pairs(EverlookDBChat.HookedFrames) do
 			if not self.searchBoxes[name] then
 				self.searchBoxes[name] = self:CreateSearchBox(frame)
 			end
@@ -136,15 +136,15 @@ Prat:AddModuleToLoad(function()
 		end
 	end
 
-	SLASH_FIND1 = "/find"
-	SlashCmdList["FIND"] = function(msg)
+	SLASH_EDBCHAT_FIND1 = "/find"
+	SlashCmdList["EDBCHAT_FIND"] = function(msg)
 		module:Find(msg, true)
 	end
 
 	local foundlines = {}
 	local scrapelines = {}
 
-	local CLR = Prat.CLR
+	local CLR = EverlookDBChat.CLR
 	local function SearchTerm(term)
 		return CLR:Colorize("ffff40", term)
 	end
@@ -179,7 +179,7 @@ Prat:AddModuleToLoad(function()
 		self:ScrapeFrame(frame, nil, true)
 
 		for _, v in ipairs(scrapelines) do
-			if v.message and v.message:find(Prat:CaseInsensitveWordPattern(word)) then
+			if v.message and v.message:find(EverlookDBChat:CaseInsensitveWordPattern(word)) then
 				if all then
 					table.insert(foundlines, v)
 				else
@@ -196,11 +196,11 @@ Prat:AddModuleToLoad(function()
 			self:Output(frame, "-------------------------------------------------------------")
 			self:Output(frame, PL.find_results .. ": " .. SearchTerm(word))
 
-			Prat.loading = true -- prevent double timestamp
+			EverlookDBChat.loading = true -- prevent double timestamp
 			for _, v in ipairs(foundlines) do
 				frame:AddMessage(v.message:gsub("|K.-|k", PL.bnet_removed), v.r, v.g, v.b)
 			end
-			Prat.loading = nil
+			EverlookDBChat.loading = nil
 			self:Output(frame, "-------------------------------------------------------------")
 		else
 			self:Output(frame, PL.err_notfound)
@@ -223,4 +223,4 @@ Prat:AddModuleToLoad(function()
 	end
 
 	return
-end) -- Prat:AddModuleToLoad
+end) -- EverlookDBChat:AddModuleToLoad

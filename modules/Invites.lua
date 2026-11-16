@@ -29,11 +29,11 @@ local ChatEdit_GetActiveWindow = ChatEdit_GetActiveWindow or ChatFrameUtil.GetAc
 local CanInvite = CanGroupInvite or C_PartyInfo.CanInvite
 local InviteUnit = InviteUnit or C_PartyInfo.InviteUnit
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("Invites", "AceHook-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("Invites", "AceHook-3.0")
 	local PL = module.PL
 
-	Prat:SetModuleOptions(module, {
+	EverlookDBChat:SetModuleOptions(module, {
 		name = PL.module_name,
 		desc = PL.module_desc,
 		type = "group",
@@ -53,7 +53,7 @@ Prat:AddModuleToLoad(function()
 		}
 	})
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 			altinvite = true,
@@ -64,8 +64,8 @@ Prat:AddModuleToLoad(function()
 	function module:OnModuleEnable()
 		self:SetAltInvite()
 
-		Prat.RegisterLinkType({ linkid = "invplr", linkfunc = self.Invite_Link, handler = self }, self.name)
-		Prat.RegisterLinkType({ linkid = "player", linkfunc = self.Player_Link, handler = self }, self.name)
+		EverlookDBChat.RegisterLinkType({ linkid = "invplr", linkfunc = self.Invite_Link, handler = self }, self.name)
+		EverlookDBChat.RegisterLinkType({ linkid = "player", linkfunc = self.Player_Link, handler = self }, self.name)
 	end
 
 	function module:OnValueChanged(info)
@@ -98,7 +98,7 @@ Prat:AddModuleToLoad(function()
 
 	local function Invite(text)
 		if module.db.profile.linkinvite then
-			return module:ScanForLinks(text, Prat.SplitMessage.PLAYERLINKRAW)
+			return module:ScanForLinks(text, EverlookDBChat.SplitMessage.PLAYERLINKRAW)
 		end
 	end
 
@@ -126,7 +126,7 @@ Prat:AddModuleToLoad(function()
 			name = name:lower()
 			if name:len() > 2 and not INVALID_NAMES[name] then
 				if INVALID_NAME_REFERENCE[name] then
-					return Prat:RegisterMatch(text)
+					return EverlookDBChat:RegisterMatch(text)
 				else
 					return module:ScanForLinks(text, name)
 				end
@@ -134,11 +134,11 @@ Prat:AddModuleToLoad(function()
 		end
 	end
 
-	Prat:SetModulePatterns(module, {
-		{ pattern = "(send%s+invite%s+to%s+" .. Prat.AnyNamePattern .. ")", matchfunc = InviteSomone },
-		{ pattern = "(invi?t?e?%s+" .. Prat.AnyNamePattern .. ")", matchfunc = InviteSomone },
-		{ pattern = "(" .. Prat.GetNamePattern("invites?%??") .. ")", matchfunc = Invite },
-		{ pattern = "(" .. Prat.GetNamePattern("inv%??") .. ")", matchfunc = Invite },
+	EverlookDBChat:SetModulePatterns(module, {
+		{ pattern = "(send%s+invite%s+to%s+" .. EverlookDBChat.AnyNamePattern .. ")", matchfunc = InviteSomone },
+		{ pattern = "(invi?t?e?%s+" .. EverlookDBChat.AnyNamePattern .. ")", matchfunc = InviteSomone },
+		{ pattern = "(" .. EverlookDBChat.GetNamePattern("invites?%??") .. ")", matchfunc = Invite },
+		{ pattern = "(" .. EverlookDBChat.GetNamePattern("inv%??") .. ")", matchfunc = Invite },
 		{ pattern = "(초대)", matchfunc = Invite },
 		{ pattern = "(組%??)$", matchfunc = Invite },
 		{ pattern = "(組我%??)$", matchfunc = Invite },
@@ -195,7 +195,7 @@ Prat:AddModuleToLoad(function()
 
 		local enabled = self.db.profile.linkinvite
 
-		if enabled and CanInvite() and Prat.CurrentMessage and EVENTS_FOR_INVITE[Prat.CurrentMessage.EVENT] then
+		if enabled and CanInvite() and EverlookDBChat.CurrentMessage and EVENTS_FOR_INVITE[EverlookDBChat.CurrentMessage.EVENT] then
 			return self:InviteLink(text, name)
 		end
 
@@ -203,6 +203,6 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:InviteLink(link, name)
-		return Prat:RegisterMatch(("|cff%s|Hinvplr:%s|h[%s]|h|r"):format("ffff00", name, link))
+		return EverlookDBChat:RegisterMatch(("|cff%s|Hinvplr:%s|h[%s]|h|r"):format("ffff00", name, link))
 	end
 end)

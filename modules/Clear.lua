@@ -26,17 +26,17 @@
 
 local NUM_CHAT_WINDOWS = NUM_CHAT_WINDOWS or Constants.ChatFrameConstants.MaxChatWindows
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("Clear")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("Clear")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = false,
 		}
 	})
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL["Clear"],
 		desc = PL["Adds clear text slash commands (/clear)(/cls)(/clearall)(/clsall)."],
 		type = "group",
@@ -44,16 +44,16 @@ Prat:AddModuleToLoad(function()
 	})
 
 	function module:OnModuleEnable()
-		Prat.RegisterChatCommand("clear", function()
+		EverlookDBChat.RegisterChatCommand("clear", function()
 			module:clear(SELECTED_CHAT_FRAME)
 		end)
-		Prat.RegisterChatCommand("cls", function()
+		EverlookDBChat.RegisterChatCommand("cls", function()
 			module:clear(SELECTED_CHAT_FRAME)
 		end)
-		Prat.RegisterChatCommand("clearall", function()
+		EverlookDBChat.RegisterChatCommand("clearall", function()
 			module:clearAll()
 		end)
-		Prat.RegisterChatCommand("clsall", function()
+		EverlookDBChat.RegisterChatCommand("clsall", function()
 			module:clearAll()
 		end)
 	end

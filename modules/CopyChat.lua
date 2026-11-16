@@ -32,11 +32,11 @@ local ChatEdit_ChooseBoxForSend = _G.ChatEdit_ChooseBoxForSend or _G.ChatFrameUt
 local ChatFrame_OpenChat = _G.ChatFrame_OpenChat or _G.ChatFrameUtil.OpenChat
 local StripHyperlinks = _G.StripHyperlinks or _G.C_StringUtil.StripHyperlinks
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("CopyChat", "AceHook-3.0", "AceTimer-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("CopyChat", "AceHook-3.0", "AceTimer-3.0")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 			showbutton = { ["*"] = true },
@@ -48,7 +48,7 @@ Prat:AddModuleToLoad(function()
 		}
 	})
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL["CopyChat"],
 		desc = PL["Copy text from the active chat window."],
 		type = "group",
@@ -57,7 +57,7 @@ Prat:AddModuleToLoad(function()
 				name = PL["showbutton_name"],
 				desc = PL["showbutton_desc"],
 				type = "multiselect",
-				values = Prat.FrameList,
+				values = EverlookDBChat.FrameList,
 				get = "GetSubValue",
 				set = "SetSubValue"
 			},
@@ -118,28 +118,28 @@ Prat:AddModuleToLoad(function()
 		}
 	})
 
-	local PratCCFrame, PratCCText, PratCCFrameScrollText
-	Prat:SetModuleInit(module.name, function(self)
+	local EverlookDBChatCCFrame, EverlookDBChatCCText, EverlookDBChatCCFrameScrollText
+	EverlookDBChat:SetModuleInit(module.name, function(self)
 		self:CreateCopyFrame()
 
-		PratCCFrameScrollText:SetScript("OnTextChanged", function(this)
+		EverlookDBChatCCFrameScrollText:SetScript("OnTextChanged", function(this)
 			self:OnTextChanged(this)
 		end)
-		PratCCFrameScrollText:SetScript("OnEscapePressed", function()
-			PratCCFrame:Hide()
+		EverlookDBChatCCFrameScrollText:SetScript("OnEscapePressed", function()
+			EverlookDBChatCCFrame:Hide()
 			self.str = nil
 		end)
 
-		Prat.RegisterChatCommand("copychat", function()
+		EverlookDBChat.RegisterChatCommand("copychat", function()
 			local frame = SELECTED_CHAT_FRAME
 			if frame then
 				self:DoCopyChat(frame)
 			end
 		end)
 
-		Prat.RegisterLinkType({ linkid = "pratcopy", linkfunc = self.CopyLink, handler = module }, self.name)
+		EverlookDBChat.RegisterLinkType({ linkid = "edbchatcopy", linkfunc = self.CopyLink, handler = module }, self.name)
 
-		module.timestamps = Prat:GetModule("Timestamps")
+		module.timestamps = EverlookDBChat:GetModule("Timestamps")
 
 		if self.timestamps then
 			self:RawHook(self.timestamps, "GetTime")
@@ -148,28 +148,28 @@ Prat:AddModuleToLoad(function()
 
 	function module:OnModuleEnable()
 		self.buttons = {}
-		for k, v in pairs(Prat.Frames) do
+		for k, v in pairs(EverlookDBChat.Frames) do
 			self.buttons[k] = self:MakeReminder(v:GetID())
 			self:showbutton(k, self.db.profile.showbutton[k])
 		end
 
-		Prat.RegisterChatEvent(self, Prat.Events.FRAMES_UPDATED)
+		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.FRAMES_UPDATED)
 	end
 
 	function module:GetDescription()
 		return PL["Copy text from the active chat window."]
 	end
 
-	function module:Prat_FramesUpdated(_, _, chatFrame)
+	function module:EverlookDBChat_FramesUpdated(_, _, chatFrame)
 		local id = chatFrame:GetID()
 		self.buttons[id] = self:MakeReminder(id)
 		self:showbutton(id, self.db.profile.showbutton[1])
 	end
 
 	function module:OnModuleDisable()
-		Prat.UnregisterAllChatEvents(self)
+		EverlookDBChat.UnregisterAllChatEvents(self)
 		self:hidebuttons()
-		PratCCFrame:Hide()
+		EverlookDBChatCCFrame:Hide()
 	end
 
 	local function CleanText(text)
@@ -207,7 +207,7 @@ Prat:AddModuleToLoad(function()
 	function module:GetTime(...)
 		local stamp = self.hooks[self.timestamps].GetTime(...)
 		if module.db.profile.on and module.db.profile.copytimestamps then
-			return "|Hpratcopy|h" .. stamp .. "|h"
+			return "|Hedbchatcopy|h" .. stamp .. "|h"
 		end
 
 		return stamp
@@ -217,7 +217,7 @@ Prat:AddModuleToLoad(function()
 
 	function module:GetFormattedLine(line, r, g, b)
 		local fmt = self.db.profile.copyformat
-		local CLR = Prat.CLR
+		local CLR = EverlookDBChat.CLR
 
 		line = line:gsub("|c00000000|r", "")
 
@@ -255,9 +255,9 @@ Prat:AddModuleToLoad(function()
 			str = "[bgcolor=black]" .. str .. "[/bgcolor]"
 		end
 		self.str = str
-		PratCCFrameScrollText:SetText(str or "")
-		PratCCText:SetText(PL["ChatFrame"] .. frame:GetName():gsub("ChatFrame", "") .. PL[" Text"])
-		PratCCFrame:Show()
+		EverlookDBChatCCFrameScrollText:SetText(str or "")
+		EverlookDBChatCCText:SetText(PL["ChatFrame"] .. frame:GetName():gsub("ChatFrame", "") .. PL[" Text"])
+		EverlookDBChatCCFrame:Show()
 	end
 
 	function module:CopyChat() -- Used by bindings
@@ -269,10 +269,10 @@ Prat:AddModuleToLoad(function()
 			this:SetText(self.str)
 		end
 		this:GetParent():UpdateScrollChildRect()
-		local _, m = PratCCFrameScrollScrollBar:GetMinMaxValues()
+		local _, m = EverlookDBChatCCFrameScrollScrollBar:GetMinMaxValues()
 		if m > 0 and this.max ~= m then
 			this.max = m
-			PratCCFrameScrollScrollBar:SetValue(m)
+			EverlookDBChatCCFrameScrollScrollBar:SetValue(m)
 		end
 	end
 
@@ -307,15 +307,15 @@ Prat:AddModuleToLoad(function()
 
 		function module:MakeReminder(id)
 			local cf = _G["ChatFrame" .. id]
-			local name = "ChatFrame" .. id .. "PratCCReminder"
+			local name = "ChatFrame" .. id .. "EverlookDBChatCCReminder"
 			local b = _G[name]
 			if not b then
 				b = CreateFrame("Button", name, cf)
 				b:SetFrameStrata("MEDIUM")
 				b:SetWidth(24)
 				b:SetHeight(24)
-				b:SetNormalTexture("Interface\\Addons\\Prat-3.0\\textures\\prat-chatcopy2")
-				b:SetPushedTexture("Interface\\Addons\\Prat-3.0\\textures\\prat-chatcopy")
+				b:SetNormalTexture("Interface\\Addons\\EverlookDBChat\\textures\\edbchat-chatcopy2")
+				b:SetPushedTexture("Interface\\Addons\\EverlookDBChat\\textures\\edbchat-chatcopy")
 				b:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight")
 				b:SetPoint(self.db.profile.buttonpos, cf, self.db.profile.buttonpos, 0, 0)
 				b:SetScript("OnClick", reminderOnClick)
@@ -331,7 +331,7 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:OnValueChanged()
-		for k, v in pairs(Prat.Frames) do
+		for k, v in pairs(EverlookDBChat.Frames) do
 			local cf = _G["ChatFrame" .. v:GetID()]
 			local btn = self.buttons[k]
 			btn:ClearAllPoints()
@@ -341,43 +341,43 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:CreateCopyFrame()
-		PratCCFrame = CreateFrame("Frame", "PratCCFrame", UIParent, "DialogBoxFrame,BackdropTemplate")
-		PratCCFrame:SetSize(500, 400)
-		PratCCFrame:SetMovable(true)
-		PratCCFrame:EnableMouse(true)
-		PratCCFrame:SetClampedToScreen(true)
-		PratCCFrame:RegisterForDrag("LeftButton")
-		PratCCFrame:SetBackdrop({
+		EverlookDBChatCCFrame = CreateFrame("Frame", "EverlookDBChatCCFrame", UIParent, "DialogBoxFrame,BackdropTemplate")
+		EverlookDBChatCCFrame:SetSize(500, 400)
+		EverlookDBChatCCFrame:SetMovable(true)
+		EverlookDBChatCCFrame:EnableMouse(true)
+		EverlookDBChatCCFrame:SetClampedToScreen(true)
+		EverlookDBChatCCFrame:RegisterForDrag("LeftButton")
+		EverlookDBChatCCFrame:SetBackdrop({
 			bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
 			edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
 			tileSize = 16,
 			edgeSize = 16,
 			insets = { left = 5, right = 5, top = 5, bottom = 5 },
 		})
-		PratCCFrame:SetScript("OnDragStart", function(frame)
+		EverlookDBChatCCFrame:SetScript("OnDragStart", function(frame)
 			frame:StartMoving()
 		end)
-		PratCCFrame:SetScript("OnDragStop", function(frame)
+		EverlookDBChatCCFrame:SetScript("OnDragStop", function(frame)
 			frame:StopMovingOrSizing()
 		end)
 
-		PratCCText = PratCCFrame:CreateFontString("PratCCText", "ARTWORK", "GameFontHighlight")
-		PratCCText:SetPoint("TOPLEFT", PratCCFrame, "TOPLEFT", 5, -5)
+		EverlookDBChatCCText = EverlookDBChatCCFrame:CreateFontString("EverlookDBChatCCText", "ARTWORK", "GameFontHighlight")
+		EverlookDBChatCCText:SetPoint("TOPLEFT", EverlookDBChatCCFrame, "TOPLEFT", 5, -5)
 
-		local PratCCFrameScroll = CreateFrame("ScrollFrame", "PratCCFrameScroll", PratCCFrame, "UIPanelScrollFrameTemplate")
-		PratCCFrameScroll:SetToplevel(true)
-		PratCCFrameScroll:SetSize(455, 330)
-		PratCCFrameScroll:SetPoint("TOP", PratCCFrame, "TOP", -10, -30)
-		PratCCFrameScroll:SetPoint("BOTTOM", _G["PratCCFrameButton"], "TOP", 0, 5)
+		local EverlookDBChatCCFrameScroll = CreateFrame("ScrollFrame", "EverlookDBChatCCFrameScroll", EverlookDBChatCCFrame, "UIPanelScrollFrameTemplate")
+		EverlookDBChatCCFrameScroll:SetToplevel(true)
+		EverlookDBChatCCFrameScroll:SetSize(455, 330)
+		EverlookDBChatCCFrameScroll:SetPoint("TOP", EverlookDBChatCCFrame, "TOP", -10, -30)
+		EverlookDBChatCCFrameScroll:SetPoint("BOTTOM", _G["EverlookDBChatCCFrameButton"], "TOP", 0, 5)
 
-		PratCCFrameScrollText = CreateFrame("EditBox", "PratCCFrameScrollText", PratCCFrameScroll)
-		PratCCFrameScrollText:SetSize(450, 344)
-		PratCCFrameScrollText:SetMultiLine(true)
-		PratCCFrameScrollText:SetAutoFocus(true)
-		PratCCFrameScrollText:EnableMouse(true)
-		PratCCFrameScrollText:SetMaxLetters(999999)
-		PratCCFrameScrollText:SetFontObject("ChatFontNormal")
+		EverlookDBChatCCFrameScrollText = CreateFrame("EditBox", "EverlookDBChatCCFrameScrollText", EverlookDBChatCCFrameScroll)
+		EverlookDBChatCCFrameScrollText:SetSize(450, 344)
+		EverlookDBChatCCFrameScrollText:SetMultiLine(true)
+		EverlookDBChatCCFrameScrollText:SetAutoFocus(true)
+		EverlookDBChatCCFrameScrollText:EnableMouse(true)
+		EverlookDBChatCCFrameScrollText:SetMaxLetters(999999)
+		EverlookDBChatCCFrameScrollText:SetFontObject("ChatFontNormal")
 
-		PratCCFrameScroll:SetScrollChild(PratCCFrameScrollText)
+		EverlookDBChatCCFrameScroll:SetScrollChild(EverlookDBChatCCFrameScrollText)
 	end
 end)

@@ -26,17 +26,17 @@
 
 local SendChatMessage = C_ChatInfo.SendChatMessage or SendChatMessage
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("Mentions", "AceHook-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("Mentions", "AceHook-3.0")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = false,
 		}
 	})
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL.module_name,
 		desc = PL.module_desc,
 		type = "group",
@@ -49,7 +49,7 @@ Prat:AddModuleToLoad(function()
 	})
 
 	local function handleMention(match, m)
-		if Prat.IsModernAPI and InCombatLockdown() then
+		if EverlookDBChat.IsModernAPI and InCombatLockdown() then
 			return
 		end
 		if m == nil then
@@ -62,7 +62,7 @@ Prat:AddModuleToLoad(function()
 		SendChatMessage(from .. m.MESSAGE, "WHISPER", GetDefaultLanguage("player"), name);
 	end
 
-	Prat:SetModulePatterns(module, {
+	EverlookDBChat:SetModulePatterns(module, {
 		{ pattern = "@%S+", matchfunc = handleMention, priority = 47, type = "OUTBOUND" }
 	})
 
@@ -71,11 +71,11 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:RegisterTabComplete()
-		local CLR = Prat.CLR
+		local CLR = EverlookDBChat.CLR
 		local AceTab = LibStub("AceTab-3.0")
 		local tabcompleteName = "mentions-tab-complete"
-		local servernames = Prat:GetModule("ServerNames")
-		local playernames = Prat:GetModule("PlayerNames")
+		local servernames = EverlookDBChat:GetModule("ServerNames")
+		local playernames = EverlookDBChat:GetModule("PlayerNames")
 
 		if not AceTab:IsTabCompletionRegistered(tabcompleteName) then
 			AceTab:RegisterTabCompletion(tabcompleteName, "@",
@@ -111,7 +111,7 @@ Prat:AddModuleToLoad(function()
 				end,
 				nil,
 				function(name)
-					return name:gsub(Prat.MULTIBYTE_FIRST_CHAR, string.upper, 1):match("^[^%-]+")
+					return name:gsub(EverlookDBChat.MULTIBYTE_FIRST_CHAR, string.upper, 1):match("^[^%-]+")
 				end)
 		end
 	end

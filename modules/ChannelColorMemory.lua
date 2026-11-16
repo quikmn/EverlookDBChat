@@ -24,18 +24,18 @@
 --
 -------------------------------------------------------------------------------
 
-Prat:AddModuleToLoad(function()
-	local module = Prat:NewModule("ChannelColorMemory", "AceEvent-3.0")
+EverlookDBChat:AddModuleToLoad(function()
+	local module = EverlookDBChat:NewModule("ChannelColorMemory", "AceEvent-3.0")
 	local PL = module.PL
 
-	Prat:SetModuleDefaults(module.name, {
+	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 			colors = {},
 		}
 	})
 
-	Prat:SetModuleOptions(module.name, {
+	EverlookDBChat:SetModuleOptions(module.name, {
 		name = PL["ChannelColorMemory"],
 		desc = PL["Remembers the colors of each channel name."],
 		type = "group",
@@ -71,7 +71,7 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:IndexServerChannels()
-		for _, v in pairs(Prat.HookedFrames) do
+		for _, v in pairs(EverlookDBChat.HookedFrames) do
 			local t = { GetChatWindowChannels(v:GetID()) }
 			for i = 1, #t, 2 do
 				local chan, num = t[i], t[i + 1]
@@ -83,7 +83,7 @@ Prat:AddModuleToLoad(function()
 	end
 
 	function module:RestoreAllChatColors()
-		for _, v in pairs(Prat.HookedFrames) do
+		for _, v in pairs(EverlookDBChat.HookedFrames) do
 			local t = { GetChatWindowChannels(v:GetID()) }
 			for i = 1, #t, 2 do
 				local chan, num = t[i], t[i + 1]
@@ -93,7 +93,7 @@ Prat:AddModuleToLoad(function()
 				if chan and chan:len() > 0 then
 					local color = self.db.profile.colors[chan:lower()];
 					if color then
-						local number = Prat.GetChannelName(chan);
+						local number = EverlookDBChat.GetChannelName(chan);
 						if number then
 							ChangeChatColor("CHANNEL" .. number, color.r, color.g, color.b);
 						end
@@ -121,7 +121,7 @@ Prat:AddModuleToLoad(function()
 		if (ChatType) then
 			local number = ChatType:match("CHANNEL(%d+)")
 			if (number) then
-				local _, name = Prat.GetChannelName(number);
+				local _, name = EverlookDBChat.GetChannelName(number);
 				if (name) then
 					local zoneSuffix
 					name, zoneSuffix = name:match(PL["(%w+)%s?(.*)"]);
@@ -183,4 +183,4 @@ Prat:AddModuleToLoad(function()
 	end
 
 	return
-end) -- Prat:AddModuleToLoad
+end) -- EverlookDBChat:AddModuleToLoad
