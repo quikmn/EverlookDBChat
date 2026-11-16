@@ -13,6 +13,7 @@ It is made of about 40 small modules. Each one adds one thing to your chat, and 
 - **Edit box:** move it and restyle it.
 - **Tabs, buttons, fading, fonts and scrolling** for the chat windows.
 - **Sounds** for incoming whispers and channels.
+- **Commands first:** a line that starts with `/` is a command in every chat mode, also while you whisper a Battle.net friend.
 - **Search** (`/find`), **highlight words**, **filters**, **aliases**, **tell target** (`/tt`) and more.
 
 Settings: type `/edbchat`, or open the game's Settings under AddOns.
@@ -45,6 +46,7 @@ It is licensed under the GNU General Public License version 3 (GPL-3.0); the ful
 Changes made to Prat-3.0 (GPL-3.0 section 5a):
 
 - 2026-11-16: Renamed to EverlookDB Chat (folder, title, author, notes, version v0.1.0). The addon object, global names, frame names, saved variables, slash commands, key bindings, chat link types and AceAddon name were renamed, so it can be installed next to Prat-3.0 without clashing. Says so in chat when Prat-3.0 is also turned on. Uses the EverlookDB icon. Removed the Prat logos, the CurseForge/WoWInterface/Wago packaging and upload files, and the project's own contributing and code of conduct files. Only loads on WoW Forever (interface 16001). The libraries are kept in the repository instead of being fetched by the packager. See `CHANGELOG.md` and the git history for every change.
+- 2026-11-17: New module Commands first (`modules/CommandsFirst.lua`): in whisper modes, a line whose first character is `/` is switched to Say so the game's own parser runs it as a command; the whisper target is left as it is.
 
 Bundled libraries, each under its own authors' terms: Ace3 (AceAddon, AceConfig, AceConsole, AceDB, AceDBOptions, AceEvent, AceGUI, AceHook, AceTab, AceTimer, CallbackHandler) by the Ace3 team; LibStub (public domain); LibSharedMedia-3.0 (LGPL 2.1); AceGUI-3.0-SharedMediaWidgets; LibSink-2.0; LibDataBroker-1.1; LibDBIcon-1.0; LibAlts-1.0; LibChatAnims. The fonts in `fonts/` are under the licenses in `fonts/font info and licenses`.
 

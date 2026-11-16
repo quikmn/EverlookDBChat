@@ -1,5 +1,9 @@
 # EverlookDB Chat
 
+## Unreleased
+
+- New module Commands first (on by default): a line that starts with `/` runs as a command in every chat mode, also while you whisper a Battle.net friend. That line is switched to Say for the command only; the friend stays the whisper target and the next line goes to them. If the `/` is erased, the line goes to the friend as usual. A setting writes what it did in chat, for testing.
+
 ## v0.1.0 (2026-11-16)
 
 - First version. Forked from Prat-3.0 3.9.117 (commit 3b02cf8595ebd1c4c458d8b698ef5e7d042b046e) by QartemisT and Sylvanaar, GPL-3.0. See Credits and license in the README.

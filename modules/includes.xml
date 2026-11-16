@@ -40,6 +40,7 @@
 	<Script file="Sounds.lua"/>
 	<Script file="Substitutions.lua"/>
 	<Script file="TellTarget.lua"/>
+	<Script file="CommandsFirst.lua"/>
 	<Script file="Timestamps.lua"/>
 	<Script file="UrlCopy.lua"/>
 	<Script file="PlayerNameGlobalPatterns.lua"/>
