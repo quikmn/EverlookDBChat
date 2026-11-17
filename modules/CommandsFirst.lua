@@ -225,8 +225,25 @@ EverlookDBChat:AddModuleToLoad(function()
 	-- Blizzard has then cut the command off the text. If the text still starts
 	-- with "/", nothing was switched yet (for example "/w" before the name is
 	-- complete), so keep watching.
-	function module:OnProcessChatType(editBox)
-		if saved[editBox] and slashGone(editBox) and not issecretvalue(editBox:GetText()) then
+	function module:OnProcessChatType(editBox, msg, index)
+		if not saved[editBox] then
+			return
+		end
+		local current = getChatType(editBox)
+		if current and current ~= "SAY" then
+			saved[editBox] = nil -- Blizzard set another mode (/g, /w name ...)
+			return
+		end
+		if index == "SAY" then
+			-- /s or /say on purpose: Say is what the player asked for, so it must stay
+			-- Say at Enter even when the text is hidden from addons.
+			local info = ChatTypeInfo and ChatTypeInfo.SAY
+			if not (info and info.ignoreChatTypeProcessing) then
+				saved[editBox] = nil
+			end
+			return
+		end
+		if slashGone(editBox) and not issecretvalue(editBox:GetText()) then
 			saved[editBox] = nil
 		end
 	end
