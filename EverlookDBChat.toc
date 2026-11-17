@@ -1,6 +1,6 @@
 ## Interface: 16001
 ## Title: EverlookDB Chat
-## Notes: Chat improvements: timestamps, short channel names, class-coloured names, copy chat, chat history, URL copy and more, each one a module you can turn on or off. /edbchat
+## Notes: Chat improvements: timestamps, short channel names, class-coloured names, copy chat, chat history, URL copy and more, each one a module you can turn on or off. /echat
 ## Author: quikmn
 ## X-Credits: A modified version of Prat-3.0 by QartemisT and Sylvanaar (GPL-3.0). See README.md.
 ## Version: v0.1.0

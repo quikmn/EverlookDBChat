@@ -67,10 +67,6 @@ private.EnableTasks[#private.EnableTasks + 1] = function(self)
 	acd:AddToBlizOptions(PL.edbchat .. ": " .. private.Options.args.extras.name, private.Options.args.extras.name, PL.edbchat)
 	acd:AddToBlizOptions(PL.edbchat .. ": " .. private.Options.args.modulecontrol.name, private.Options.args.modulecontrol.name, PL.edbchat)
 	acd:AddToBlizOptions(PL.edbchat .. ": " .. private.Options.args.profiles.name, private.Options.args.profiles.name, PL.edbchat)
-
-	self:RegisterChatCommand("edbchat", function()
-		private:ToggleOptionsWindow()
-	end)
 end
 
 do
@@ -173,6 +169,10 @@ function private:ToggleOptionsWindow()
 	else
 		acd:Open("EverlookDB Chat")
 	end
+end
+
+function private:IsOptionsWindowShown()
+	return acd.OpenFrames["EverlookDB Chat"] ~= nil
 end
 
 EverlookDBChat_ToggleOptionsWindow = private.ToggleOptionsWindow

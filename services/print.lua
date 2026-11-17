@@ -3,7 +3,7 @@ local _, private = ...
 local NUM_CHAT_WINDOWS = NUM_CHAT_WINDOWS or Constants.ChatFrameConstants.MaxChatWindows
 
 local function buildText(...)
-	local text = "|cffffff78" .. tostring(private) .. ":|r "
+	local text = "|cffffd200" .. tostring(private) .. "|r: "
 
 	for i = 1, select("#", ...) do
 		local parm = select(i, ...)

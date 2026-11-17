@@ -803,29 +803,17 @@ function EverlookDBChat.RegisterChatCommand(cmd, func)
 	addon:RegisterChatCommand(cmd, func)
 end
 
+-- The old names of /echat blacklist, unblacklist and debugmsg (addon/commands.lua).
 EverlookDBChat.RegisterChatCommand("edbchatblacklist", function(name)
-	if name and #name > 0 then
-		EverlookDBChat:Print("Blacklisting: '" .. tostring(name) .. "'. Reload to activate.")
-		EverlookDBChat.db.realm.PlayerNameBlackList[tostring(name):lower()] = true
-	end
+	EverlookDBChat.Blacklist(name, true)
 end)
 
 EverlookDBChat.RegisterChatCommand("edbchatunblacklist", function(name)
-	if name and #name > 0 then
-		EverlookDBChat:Print("Un-Blacklisting: '" .. tostring(name) .. "'. Reload to activate")
-		EverlookDBChat.db.realm.PlayerNameBlackList[tostring(name):lower()] = nil
-	end
+	EverlookDBChat.Blacklist(name, false)
 end)
 
 EverlookDBChat.RegisterChatCommand("edbchatdebugmsg", function()
-	if EverlookDBChat.LastMessage then
-		EverlookDBChat:PrintLiteral(EverlookDBChat.LastMessage)
-	end
-
-	local cc = EverlookDBChat:GetModule("CopyChat")
-	if cc then
-		cc:DoCopyChat(DEFAULT_CHAT_FRAME, true)
-	end
+	EverlookDBChat.DebugMessage()
 end)
 
 tinsert(EverlookDBChat.EnableTasks, function()

@@ -16,16 +16,21 @@ It is made of about 40 small modules. Each one adds one thing to your chat, and 
 - **Commands first:** a line that starts with `/` is a command in every chat mode, also while you whisper a Battle.net friend.
 - **Search** (`/find`), **highlight words**, **filters**, **aliases**, **tell target** (`/tt`) and more.
 
-Settings: type `/edbchat`, or open the game's Settings under AddOns.
+Settings: type `/echat`, or open the game's Settings under AddOns.
 
 ## Commands
 
-- `/edbchat` opens the settings
-- `/copychat` copies the current chat window
-- `/find <text>` searches the current chat window
-- `/tt <message>` whispers your target
-- `/edbchatblacklist <word>` and `/edbchatunblacklist <word>` stop or start treating a word as a player name (after a reload)
-- Some modules add their own commands when they are turned on, for example `/clear` and `/alias`
+`/echat` (also `/edbchat`) follows the same pattern as every EverlookDB addon:
+
+- `/echat` opens the settings window; it's also under Settings > AddOns.
+- Every module switches from chat: `/echat timestamps off`, `/echat off timestamps`, `/echat calm on`. `/echat get` lists the modules and whether each is on.
+- `/echat find <words>` searches the current chat window; `/echat clear` (or `clear all`) clears it; `/echat copy` copies it; `/echat focus` hides the numbered channels (Calm). These work even when another addon (Prat-3.0) owns `/find` or `/clear`.
+- `/echat blacklist <word>` and `/echat unblacklist <word>` stop or start treating a word as a player name (after a reload).
+- `/echat aliases` lists your `/alias` commands.
+- `/echat reset` puts every setting in this profile back (type it twice within 10 seconds).
+- `/echat status`, `/echat version`; `/echat help` (or `?`) lists every command, and a mistyped one suggests the nearest.
+
+The standalone commands stay as they were: `/find <text>`, `/copychat`, `/chatfocus` (or `/chat focus`), `/tt <message>` (whisper your target), `/edbchatblacklist` and `/edbchatunblacklist`, and, while their modules are on, `/clear`, `/cls`, `/clearall`, `/alias`, `/unalias`, `/listaliases` and `/smart`.
 
 ## Install
 
