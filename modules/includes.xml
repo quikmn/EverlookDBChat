@@ -41,6 +41,7 @@
 	<Script file="Search.lua"/>
 	<Script file="SideTabs.lua"/>
 	<Script file="Sounds.lua"/>
+	<Script file="TabStyle.lua"/>
 	<Script file="Substitutions.lua"/>
 	<Script file="TellTarget.lua"/>
 	<Script file="CommandsFirst.lua"/>

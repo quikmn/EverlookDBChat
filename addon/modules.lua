@@ -81,6 +81,7 @@ do
 		["EverlookDBChat_Clear"] = "display",
 		["EverlookDBChat_Font"] = "display",
 		["EverlookDBChat_ChatTabs"] = "display",
+		["EverlookDBChat_TabStyle"] = "display",
 		["EverlookDBChat_Buttons"] = "display",
 		["EverlookDBChat_SideTabs"] = "display",
 

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- New module Flat tabs (on by default): the chat tabs are plain text instead of the game's gold-edged parchment tabs. The selected tab is white with a thin blue line under it, the others grey, a little lighter under the mouse. A tab with something new (like a whisper) gets a small blue dot instead of the glow. The tabs fade in together while the mouse is over the chat or the chat box is open, and fade out together shortly after it leaves; Idle fade and Calm still hide them. Click, drag, right-click and new whisper tabs work as before. Setting: only with the mouse over the chat (on). Turn the module off for the game's own tabs.
 - Alt names on unit tooltips (Main and Alts, when turned on) now share one tidy layout with the other EverlookDB addons: "Main" left with the name right, "Alts" with the list, grouped with the other EverlookDB lines after a blank line, before a Player Notes note.
 - The scroll bar, its arrows, the jump-to-bottom button and the search box beside the chat are hidden for good (Buttons › Show Arrows brings them back). The mouse wheel still scrolls and Ctrl+F still searches.
 

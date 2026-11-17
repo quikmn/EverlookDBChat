@@ -15,6 +15,10 @@
 --   * "is the chat in use" checks: mouse over a chat window, keyboard focus in a
 --     chat edit box (or a box inside the chat, like the search box), scrolled up.
 --   * holds: a module can keep the chat awake (an unread whisper).
+--   * tabs: with flat tabs on, each chat tab shows at full alpha x the "tabs"
+--     factor (hover) instead of Blizzard's per-tab alphas, so the tabs come and
+--     go together with one smooth fade. Blizzard's own tab alpha tables
+--     (ChatFrameUtil.SetTabAlphas) are never written, so nothing is tainted.
 ---------------------------------------------------------------------------------
 
 local _, private = ...
@@ -29,6 +33,7 @@ private.ChatUI = ChatUI
 local FADE_TIMES = {
 	idle = { out = 1.0, ["in"] = 0.2 },
 	chrome = { out = 0.3, ["in"] = 0.15 },
+	tabs = { out = 0.35, ["in"] = 0.12 },
 }
 
 -- Frames outside the chat frames that belong to the chat's chrome. Absent ones
@@ -52,11 +57,14 @@ local OWN_CHROME_SUFFIXES = {
 	"ScrollDownReminder",
 }
 
-local factors = { idle = 1, chrome = 1 }
-local targets = { idle = 1, chrome = 1 }
+local factors = { idle = 1, chrome = 1, tabs = 1 }
+local targets = { idle = 1, chrome = 1, tabs = 1 }
 local managed = {} -- [frame] = the alpha its owner wants
 local chrome = {} -- [frame] = true for chrome frames
 local applied = {} -- [frame] = true while it carries a faded alpha
+local tabbed = {} -- [frame] = true: the "tabs" factor applies
+local fixed = {} -- [frame] = alpha to show instead of the one its owner wants
+local tabsOn = false
 local hooked = {}
 local holds = {}
 local applying = false
@@ -83,6 +91,9 @@ local function frameFactor(frame)
 	if chrome[frame] and not hasAncestor(frame, chrome) then
 		f = f * factors.chrome
 	end
+	if tabbed[frame] then
+		f = f * factors.tabs
+	end
 	return f
 end
 
@@ -98,7 +109,11 @@ local function onSetAlpha(frame, alpha)
 	end
 	managed[frame] = alpha
 	local f = frameFactor(frame)
-	if f < 1 then
+	local base = fixed[frame]
+	if base then
+		setAlpha(frame, base * f)
+		applied[frame] = true
+	elseif f < 1 then
 		setAlpha(frame, alpha * f)
 		applied[frame] = true
 	else
@@ -125,7 +140,10 @@ end
 function ChatUI:Apply()
 	for frame, base in pairs(managed) do
 		local f = frameFactor(frame)
-		if f < 1 then
+		if fixed[frame] then
+			setAlpha(frame, fixed[frame] * f)
+			applied[frame] = true
+		elseif f < 1 then
 			setAlpha(frame, base * f)
 			applied[frame] = true
 		elseif applied[frame] then
@@ -141,7 +159,11 @@ function ChatUI:Collect()
 		if cf then
 			manage(cf, false)
 			manage(cf.buttonFrame or _G[name .. "ButtonFrame"], true)
-			manage(_G[name .. "Tab"], true)
+			local tab = _G[name .. "Tab"]
+			manage(tab, true)
+			if tabsOn and tab then
+				tabbed[tab], fixed[tab] = true, 1
+			end
 			for _, suffix in ipairs(OWN_CHROME_SUFFIXES) do
 				manage(_G[name .. suffix], true)
 			end
@@ -150,6 +172,23 @@ function ChatUI:Collect()
 	for _, name in ipairs(LOOSE_CHROME) do
 		manage(_G[name], true)
 	end
+	local overflow = _G.GeneralDockManagerOverflowButton
+	if tabsOn and overflow and managed[overflow] ~= nil then
+		tabbed[overflow] = true
+	end
+end
+
+-- Flat tabs on or off: tabs show at full alpha x the "tabs" factor, or go back
+-- to the alpha Blizzard wants for them.
+function ChatUI:SetTabsMode(on)
+	tabsOn = on and true or false
+	if not tabsOn then
+		wipe(tabbed)
+		wipe(fixed)
+		factors.tabs, targets.tabs = 1, 1
+	end
+	self:Collect()
+	self:Apply()
 end
 
 -- The chat windows that are on screen.
@@ -280,6 +319,8 @@ function ChatUI:RemoveUser(kind)
 		wipe(managed)
 		wipe(chrome)
 		wipe(applied)
+		wipe(tabbed)
+		wipe(fixed)
 		if driver then
 			driver:SetScript("OnUpdate", nil)
 		end
