@@ -16,6 +16,8 @@
 --     pipeline makes. Lines whose text is a secret value are never held back.
 --   * Focus: in combat (and optionally in dungeons and raids, or by hand with
 --     /chat focus or a key) numbered channels are not shown at all.
+--   * Whispers: an incoming whisper keeps the chat awake and every line on
+--     screen until you have seen it, with a small marker to reply.
 --
 -- Only event types, channel base names and message text that is not a secret
 -- value are read. Nothing protected is touched, so all of it is combat-safe.
@@ -41,6 +43,9 @@ EverlookDBChat:AddModuleToLoad(function()
 			pacesecs = 2,
 			focuscombat = true,
 			focusinstance = false,
+			whisperpin = true,
+			whispermarker = true,
+			whispersound = false,
 		}
 	})
 
@@ -130,6 +135,24 @@ EverlookDBChat:AddModuleToLoad(function()
 				type = "toggle",
 				order = 43,
 			},
+			whisperpin = {
+				name = PL["whisperpin_name"],
+				desc = PL["whisperpin_desc"],
+				type = "toggle",
+				order = 50,
+			},
+			whispermarker = {
+				name = PL["whispermarker_name"],
+				desc = PL["whispermarker_desc"],
+				type = "toggle",
+				order = 51,
+			},
+			whispersound = {
+				name = PL["whispersound_name"],
+				desc = PL["whispersound_desc"],
+				type = "toggle",
+				order = 52,
+			},
 		}
 	})
 
@@ -141,6 +164,7 @@ EverlookDBChat:AddModuleToLoad(function()
 	local manualFocus = false
 	local inCombat = false
 	local inInstance = false
+	local unread = 0
 
 	local function chatInUse()
 		return ChatUI:IsChatFocus() or ChatUI:IsMouseOverChat()
@@ -423,6 +447,99 @@ EverlookDBChat:AddModuleToLoad(function()
 	end
 
 	--[[------------------------------------------------
+		Whispers
+	------------------------------------------------]] --
+
+	local fadingSaved -- [chatFrame] = its line fading before a whisper held it
+
+	-- While a whisper is unread every line stays on screen: the frames' own line
+	-- fading is paused and put back as it was once the whisper is seen.
+	function module:HoldLines(hold)
+		if hold then
+			if fadingSaved then
+				return
+			end
+			fadingSaved = {}
+			for _, name in ipairs(CHAT_FRAMES or {}) do
+				local cf = _G[name]
+				if cf and cf.GetFading and cf.SetFading then
+					fadingSaved[cf] = cf:GetFading() and true or false
+					cf:SetFading(false)
+				end
+			end
+		elseif fadingSaved then
+			for cf, was in pairs(fadingSaved) do
+				cf:SetFading(was)
+			end
+			fadingSaved = nil
+		end
+	end
+
+	function module:GetMarker()
+		if self.marker then
+			return self.marker
+		end
+		local b = CreateFrame("Button", nil, UIParent)
+		b:SetSize(80, 16)
+		b:SetFrameStrata("MEDIUM")
+		b.text = b:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+		b.text:SetPoint("LEFT")
+		b.text:SetTextColor(1, 0.5, 1)
+		b:SetAlpha(0.8)
+		b:SetScript("OnClick", function()
+			module:ReplyToWhisper()
+		end)
+		b:SetScript("OnEnter", function(self)
+			self:SetAlpha(1)
+			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
+			GameTooltip:SetText(PL["marker_tip"])
+			GameTooltip:Show()
+		end)
+		b:SetScript("OnLeave", function(self)
+			self:SetAlpha(0.8)
+			GameTooltip:Hide()
+		end)
+		b:Hide()
+		self.marker = b
+		return b
+	end
+
+	function module:UpdateMarker()
+		local show = enabled and unread > 0 and self.db.profile.whispermarker
+		if not show then
+			if self.marker then
+				self.marker:Hide()
+			end
+			return
+		end
+		local b = self:GetMarker()
+		local anchor = DEFAULT_CHAT_FRAME or ChatFrame1
+		b:ClearAllPoints()
+		b:SetPoint("BOTTOMLEFT", anchor, "TOPLEFT", 0, 28)
+		b.text:SetText(unread == 1 and PL["marker_one"] or PL["marker_many"]:format(unread))
+		b:SetWidth(b.text:GetStringWidth() + 4)
+		b:Show()
+	end
+
+	-- Blizzard's own reply (as the R key does): this addon never sees the name.
+	function module:ReplyToWhisper()
+		unread = 0
+		self:UpdateMarker()
+		local reply = (ChatFrameUtil and ChatFrameUtil.ReplyTell) or ChatFrame_ReplyTell
+		if reply then
+			pcall(reply, DEFAULT_CHAT_FRAME)
+		end
+	end
+
+	function module:OnWhisper()
+		unread = unread + 1
+		if self.db.profile.whispersound then
+			PlaySound(SOUNDKIT and SOUNDKIT.TELL_MESSAGE or 3081, "Master")
+		end
+		self:UpdateMarker()
+	end
+
+	--[[------------------------------------------------
 		Tick
 	------------------------------------------------]] --
 
@@ -437,7 +554,15 @@ EverlookDBChat:AddModuleToLoad(function()
 		local p = module.db.profile
 		local now = GetTime()
 		local inUse = chatInUse()
+		if unread > 0 and inUse then
+			unread = 0
+			module:UpdateMarker()
+		end
+		local pinned = unread > 0 and p.whisperpin
+		ChatUI:Hold("calm-whisper", pinned)
+		module:HoldLines(pinned)
 		full = inUse or ChatUI:IsScrolledUp()
+		full = full or pinned
 		module:ReleaseDue(now)
 		if sincePrune >= 30 then
 			sincePrune = 0
@@ -456,6 +581,9 @@ EverlookDBChat:AddModuleToLoad(function()
 			updateInstance()
 			module:UpdateFocus()
 		end
+		if event == "CHAT_MSG_WHISPER" or event == "CHAT_MSG_BN_WHISPER" then
+			module:OnWhisper()
+		end
 	end
 
 	function module:OnValueChanged()
@@ -463,6 +591,7 @@ EverlookDBChat:AddModuleToLoad(function()
 			self:FlushQueues()
 		end
 		self:UpdateFocus()
+		self:UpdateMarker()
 	end
 
 	function module:OnModuleEnable()
@@ -473,6 +602,8 @@ EverlookDBChat:AddModuleToLoad(function()
 			driver:RegisterEvent("PLAYER_REGEN_ENABLED")
 			driver:RegisterEvent("PLAYER_ENTERING_WORLD")
 			driver:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+			driver:RegisterEvent("CHAT_MSG_WHISPER")
+			pcall(driver.RegisterEvent, driver, "CHAT_MSG_BN_WHISPER")
 		end
 		driver:SetScript("OnEvent", onEvent)
 		driver:SetScript("OnUpdate", onUpdate)
@@ -498,6 +629,10 @@ EverlookDBChat:AddModuleToLoad(function()
 		self:FlushQueues()
 		manualFocus = false
 		focusActive = false
+		unread = 0
+		self:UpdateMarker()
+		self:HoldLines(false)
+		ChatUI:Hold("calm-whisper", false)
 		full = true
 		for _, name in ipairs(CHAT_FRAMES or {}) do
 			local cf = _G[name]
