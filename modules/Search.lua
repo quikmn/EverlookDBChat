@@ -1,12 +1,34 @@
+---------------------------------------------------------------------------------
+-- Search: a search box on each chat window, and /find.
+--
+-- EverlookDB Chat changes (GPL-3.0): Ctrl+F opens the box (while typing in the
+-- chat, or with the mouse over a chat window); typing jumps to the newest match;
+-- Enter, Shift+Enter and the arrow keys step through matches; Esc closes it.
+-- Lines whose text is hidden from addons (secret values) are skipped.
+--
+-- Ctrl+F is only taken where it is meant for the chat:
+--   * in a chat edit box: a post-hook of its OnKeyDown, nothing else changes;
+--   * with the mouse over the chat: a keyboard frame that passes every key on
+--     (SetPropagateKeyboardInput) and keeps only Ctrl+F while the mouse is over a
+--     chat window. That call is not allowed in combat, so this frame is hidden in
+--     combat and Ctrl+F then works as it does without this addon.
+---------------------------------------------------------------------------------
+
+local issecretvalue = issecretvalue or function()
+	return false
+end
+
 EverlookDBChat:AddModuleToLoad(function()
-	local module = EverlookDBChat:NewModule("Search")
+	local module = EverlookDBChat:NewModule("Search", "AceHook-3.0")
 	local PL = module.PL
+	local ChatUI = EverlookDBChat.ChatUI
 
 	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
 			searchactivealpha = 1.0,
-			searchinactivealpha = 0.1
+			searchinactivealpha = 0.1,
+			ctrlf = true,
 		}
 	})
 
@@ -19,6 +41,12 @@ EverlookDBChat:AddModuleToLoad(function()
 				name = PL.module_info,
 				type = "description",
 				order = 10,
+			},
+			ctrlf = {
+				name = PL["ctrlf_name"],
+				desc = PL["ctrlf_desc"],
+				type = "toggle",
+				order = 15,
 			},
 			searchinactivealpha = {
 				name = PL["unused_alpha"],
@@ -78,13 +106,25 @@ EverlookDBChat:AddModuleToLoad(function()
 		f:SetScript("OnEditFocusGained", function()
 			self:UnstashSearch(f)
 		end)
+		f.count = f:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+		f.count:SetPoint("RIGHT", f, "RIGHT", -18, 0)
 		f:SetScript("OnEscapePressed", function()
-			f:ClearFocus()
+			module:CloseSearch(f)
 		end)
-		f:SetScript("OnEnterPressed", function(frame)
-			local query = f:GetText()
-			if query and query:len() > 0 then
-				module:Find(query, true, frame:GetParent())
+		f:SetScript("OnEnterPressed", function()
+			module:Step(f, IsShiftKeyDown() and -1 or 1)
+		end)
+		f:SetScript("OnArrowPressed", function(_, key)
+			if key == "UP" then
+				module:Step(f, 1)
+			elseif key == "DOWN" then
+				module:Step(f, -1)
+			end
+		end)
+		f:HookScript("OnTextChanged", function(_, userInput)
+			if userInput then
+				module:UpdateMatches(f)
+				module:Step(f, 0)
 			end
 		end)
 		f.anim = f:CreateAnimationGroup()
@@ -116,8 +156,183 @@ EverlookDBChat:AddModuleToLoad(function()
 		end
 	end
 
+	--[[------------------------------------------------
+		Search box: matches and jumping
+	------------------------------------------------]] --
+
+	-- Plain text of a chat line: colours, links and icons removed.
+	local function plain(text)
+		text = text:gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "")
+		text = text:gsub("|H.-|h(.-)|h", "%1"):gsub("|T.-|t", ""):gsub("|A.-|a", ""):gsub("|K.-|k", "")
+		return text:lower()
+	end
+
+	-- f.matches = history indices (1 = newest line) of the lines that contain the text.
+	function module:UpdateMatches(f)
+		local chatFrame = f:GetParent()
+		f.matches = {}
+		f.pos = 0
+		local query = f:GetText()
+		if not query or issecretvalue(query) or query == "" or not chatFrame.historyBuffer then
+			f.count:SetText("")
+			return
+		end
+		query = query:lower()
+		for i = 1, chatFrame:GetNumMessages() do
+			local entry = chatFrame.historyBuffer:GetEntryAtIndex(i)
+			local text = entry and entry.message
+			if type(text) == "string" and not issecretvalue(text) and plain(text):find(query, 1, true) then
+				f.matches[#f.matches + 1] = i
+			end
+		end
+	end
+
+	-- step 1 = older match, -1 = newer, 0 = the newest (after typing).
+	function module:Step(f, step)
+		local chatFrame = f:GetParent()
+		if not f.matches then
+			self:UpdateMatches(f)
+		end
+		local total = #f.matches
+		if total == 0 then
+			local text = f:GetText()
+			f.count:SetText((text and not issecretvalue(text) and text ~= "") and "0" or "")
+			return
+		end
+		if step == 0 then
+			f.pos = 1
+		else
+			f.pos = ((f.pos or 0) - 1 + step) % total + 1
+		end
+		f.count:SetText(("%d/%d"):format(f.pos, total))
+		local index = f.matches[f.pos]
+		local visible = type(chatFrame.visibleLines) == "table" and #chatFrame.visibleLines or 0
+		local offset = math.max(0, index - 1 - math.floor(visible / 2))
+		if chatFrame.ResetAllFadeTimes then
+			chatFrame:ResetAllFadeTimes()
+		end
+		chatFrame:SetScrollOffset(offset)
+	end
+
+	function module:OpenSearch(chatFrame)
+		chatFrame = chatFrame or SELECTED_CHAT_FRAME
+		if not (chatFrame and self:IsEnabled()) then
+			return
+		end
+		local name = chatFrame:GetName()
+		local f = self.searchBoxes[name]
+		if not f and EverlookDBChat.HookedFrames[name] then
+			f = self:CreateSearchBox(chatFrame)
+			self.searchBoxes[name] = f
+		end
+		if not f then
+			return
+		end
+		f:Show()
+		self:UnstashSearch(f)
+		f:SetFocus()
+		f:HighlightText()
+		f.matches = nil
+	end
+
+	function module:CloseSearch(f)
+		f:SetText("")
+		f.count:SetText("")
+		f.matches = nil
+		f:ClearFocus()
+		f:GetParent():ScrollToBottom()
+	end
+
+	--[[------------------------------------------------
+		Ctrl+F
+	------------------------------------------------]] --
+
+	local function isCtrlF(key)
+		return key == "F" and IsControlKeyDown() and not IsAltKeyDown() and module.db.profile.ctrlf
+	end
+
+	-- Typing in a chat edit box: open the search of that window.
+	function module:OnChatEditKeyDown(editBox, key)
+		if issecretvalue(key) or not isCtrlF(key) then
+			return
+		end
+		local chatFrame = editBox.chatFrame or SELECTED_CHAT_FRAME
+		C_Timer.After(0, function()
+			module:OpenSearch(chatFrame)
+		end)
+	end
+
+	function module:HookEditBoxes()
+		for _, frameName in ipairs(CHAT_FRAMES or {}) do
+			local editBox = _G[frameName .. "EditBox"]
+			if editBox and not self:IsHooked(editBox, "OnKeyDown") then
+				self:SecureHookScript(editBox, "OnKeyDown", "OnChatEditKeyDown")
+			end
+		end
+	end
+
+	-- Mouse over the chat: a frame that sees keys first and passes all of them on,
+	-- except Ctrl+F while the mouse is over a chat window. Out of combat only.
+	function module:CreateKeyCatcher()
+		if self.keyCatcher or InCombatLockdown() then
+			return
+		end
+		local catcher = CreateFrame("Frame", nil, UIParent)
+		self.keyCatcher = catcher
+		catcher:SetPropagateKeyboardInput(true)
+		catcher:EnableKeyboard(true)
+		catcher:SetScript("OnKeyDown", function(frame, key)
+			if InCombatLockdown() or issecretvalue(key) or not isCtrlF(key) then
+				return
+			end
+			local over, chatFrame = ChatUI:IsMouseOverChat()
+			if not over then
+				return
+			end
+			frame:SetPropagateKeyboardInput(false) -- keep this one key
+			C_Timer.After(0, function()
+				if not InCombatLockdown() then
+					frame:SetPropagateKeyboardInput(true)
+				end
+			end)
+			module:OpenSearch(chatFrame or SELECTED_CHAT_FRAME)
+		end)
+		catcher:RegisterEvent("PLAYER_REGEN_DISABLED")
+		catcher:RegisterEvent("PLAYER_REGEN_ENABLED")
+		catcher:SetScript("OnEvent", function(frame, event)
+			if event == "PLAYER_REGEN_DISABLED" then
+				frame:Hide()
+			elseif module:IsEnabled() then
+				frame:SetPropagateKeyboardInput(true)
+				frame:Show()
+			end
+		end)
+	end
+
 	function module:OnModuleEnable()
 		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.FRAMES_UPDATED)
+
+		self:HookEditBoxes()
+		if FCF_OpenTemporaryWindow and not self:IsHooked("FCF_OpenTemporaryWindow") then
+			self:SecureHook("FCF_OpenTemporaryWindow", "HookEditBoxes")
+		end
+		if self.keyCatcher then
+			if not InCombatLockdown() then
+				self.keyCatcher:SetPropagateKeyboardInput(true)
+				self.keyCatcher:Show()
+			end
+		elseif InCombatLockdown() then
+			self.waitFrame = self.waitFrame or CreateFrame("Frame")
+			self.waitFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+			self.waitFrame:SetScript("OnEvent", function(frame)
+				frame:UnregisterAllEvents()
+				if module:IsEnabled() then
+					module:CreateKeyCatcher()
+				end
+			end)
+		else
+			self:CreateKeyCatcher()
+		end
 
 		for name, frame in pairs(EverlookDBChat.HookedFrames) do
 			if not self.searchBoxes[name] then
@@ -134,6 +349,10 @@ EverlookDBChat:AddModuleToLoad(function()
 		for _, f in pairs(self.searchBoxes) do
 			f:Hide()
 		end
+		if self.keyCatcher then
+			self.keyCatcher:Hide()
+		end
+		self:UnhookAll()
 	end
 
 	SLASH_EDBCHAT_FIND1 = "/find"
