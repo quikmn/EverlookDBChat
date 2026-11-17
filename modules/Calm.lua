@@ -18,6 +18,8 @@
 --     /chat focus or a key) numbered channels are not shown at all.
 --   * Whispers: an incoming whisper keeps the chat awake and every line on
 --     screen until you have seen it, with a small marker to reply.
+--   * Mentions: a channel line with your character's name shows even in focus
+--     and is never held back.
 --
 -- Only event types, channel base names and message text that is not a secret
 -- value are read. Nothing protected is touched, so all of it is combat-safe.
@@ -46,6 +48,7 @@ EverlookDBChat:AddModuleToLoad(function()
 			whisperpin = true,
 			whispermarker = true,
 			whispersound = false,
+			mentions = true,
 		}
 	})
 
@@ -152,6 +155,12 @@ EverlookDBChat:AddModuleToLoad(function()
 				desc = PL["whispersound_desc"],
 				type = "toggle",
 				order = 52,
+			},
+			mentions = {
+				name = PL["mentions_name"],
+				desc = PL["mentions_desc"],
+				type = "toggle",
+				order = 60,
 			},
 		}
 	})
@@ -260,6 +269,18 @@ EverlookDBChat:AddModuleToLoad(function()
 	end
 
 	--[[------------------------------------------------
+		Mentions
+	------------------------------------------------]] --
+
+	local function isMention(text)
+		local me = UnitName("player")
+		if type(me) ~= "string" or issecretvalue(me) or me == "" then
+			return false
+		end
+		return text:lower():find(me:lower(), 1, true) ~= nil
+	end
+
+	--[[------------------------------------------------
 		Paced channel chat
 	------------------------------------------------]] --
 
@@ -331,6 +352,9 @@ EverlookDBChat:AddModuleToLoad(function()
 		local body = message.MESSAGE
 		if issecretvalue(text) or issecretvalue(body) or type(body) ~= "string" then
 			return -- hidden from addons: shown as usual
+		end
+		if self.db.profile.mentions and isMention(body) then
+			return
 		end
 		if focusActive then
 			message.DONOTPROCESS = true
