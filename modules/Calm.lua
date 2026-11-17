@@ -9,6 +9,11 @@
 --     open, not scrolled up), only the newest lines show. The older lines on
 --     screen get alpha 0 after the chat frame's own update each frame, and their
 --     own alpha back when the chat is in use. Nothing is deleted.
+--   * Paced channel chat: lines from numbered channels (General, Trade, ...) come
+--     out one at a time. This uses this addon's own message pipeline: a channel
+--     line is blocked (DONOTPROCESS) before it is added, and the finished line
+--     (links, colours, names) is added later with AddMessage, the same call the
+--     pipeline makes. Lines whose text is a secret value are never held back.
 --
 -- Only event types, channel base names and message text that is not a secret
 -- value are read. Nothing protected is touched, so all of it is combat-safe.
@@ -28,6 +33,8 @@ EverlookDBChat:AddModuleToLoad(function()
 			on = true,
 			fewlines = true,
 			fewlinescount = 6,
+			pace = true,
+			pacesecs = 2,
 		}
 	})
 
@@ -62,6 +69,22 @@ EverlookDBChat:AddModuleToLoad(function()
 				max = 30,
 				step = 1,
 				disabled = isOff("fewlines"),
+			},
+			pace = {
+				name = PL["pace_name"],
+				desc = PL["pace_desc"],
+				type = "toggle",
+				order = 20,
+			},
+			pacesecs = {
+				name = PL["pacesecs_name"],
+				desc = PL["pacesecs_desc"],
+				type = "range",
+				order = 21,
+				min = 0.5,
+				max = 10,
+				step = 0.5,
+				disabled = isOff("pace"),
 			},
 		}
 	})
@@ -165,6 +188,51 @@ EverlookDBChat:AddModuleToLoad(function()
 	end
 
 	--[[------------------------------------------------
+		Paced channel chat
+	------------------------------------------------]] --
+
+	local DEDUPE_SECONDS = 60
+	local QUEUE_MAX = 10
+	local queues = {} -- [chatFrame] = lines waiting, oldest first
+	local lastRelease = {} -- [chatFrame] = GetTime() of the last channel line shown
+	local recent = {} -- [frame + channel + text] = GetTime() it was last seen
+
+	local function keepText(text)
+		return text
+	end
+
+	function module:Release(frame, entry)
+		lastRelease[frame] = GetTime()
+		frame:AddMessage(entry.text, entry.r, entry.g, entry.b, entry.id, entry.accessID, entry.typeID, entry.event, entry.args, keepText)
+	end
+
+	function module:FlushQueues()
+		for frame, q in pairs(queues) do
+			for _, entry in ipairs(q) do
+				self:Release(frame, entry)
+			end
+		end
+		wipe(queues)
+	end
+
+	function module:ReleaseDue(now)
+		local pace = self.db.profile.pacesecs
+		for frame, q in pairs(queues) do
+			if #q > 0 and now - (lastRelease[frame] or 0) >= pace then
+				self:Release(frame, table.remove(q, 1))
+			end
+		end
+	end
+
+	function module:PruneRecent(now)
+		for key, seen in pairs(recent) do
+			if now - seen >= DEDUPE_SECONDS then
+				recent[key] = nil
+			end
+		end
+	end
+
+	--[[------------------------------------------------
 		Channel lines in this addon's message pipeline
 	------------------------------------------------]] --
 
@@ -192,6 +260,57 @@ EverlookDBChat:AddModuleToLoad(function()
 		if issecretvalue(text) or issecretvalue(body) or type(body) ~= "string" then
 			return -- hidden from addons: shown as usual
 		end
+		if not self.db.profile.pace then
+			return
+		end
+		local now = GetTime()
+		local key = frame:GetName() .. "\001" .. tostring(message.CHANNELNUM or message.CHANNEL or "") .. "\001" .. body
+		local seen = recent[key]
+		recent[key] = now
+		if seen and now - seen < DEDUPE_SECONDS then
+			message.DONOTPROCESS = true -- the same line again within a minute
+			return
+		end
+		local q = queues[frame]
+		if (not q or #q == 0) and now - (lastRelease[frame] or 0) >= self.db.profile.pacesecs then
+			lastRelease[frame] = now -- quiet channel: show it now
+			return
+		end
+		message.DONOTPROCESS = true
+		message.EDB_CALM_QUEUE = true
+	end
+
+	-- The pipeline has built the finished line and skipped adding it: queue it.
+	function module:EverlookDBChat_PostAddMessageBlocked(_, message, frame, event, text, r, g, b, id)
+		if not message.EDB_CALM_QUEUE then
+			return
+		end
+		message.EDB_CALM_QUEUE = nil
+		if type(text) ~= "string" or issecretvalue(text) or text == "" then
+			return
+		end
+		-- the same clean-up the pipeline does before AddMessage
+		local fmt = ChatFrameUtil and ChatFrameUtil.GetTimestampFormat and ChatFrameUtil.GetTimestampFormat()
+		if fmt and TimeUtil and TimeUtil.BetterDate then
+			text = text:gsub(TimeUtil.BetterDate(fmt, time()), "")
+		end
+		local args = { n = 0 }
+		if type(message.ARGS) == "table" then
+			args.n = table.maxn(message.ARGS)
+			for i = 1, args.n do
+				args[i] = message.ARGS[i]
+			end
+		end
+		local q = queues[frame] or {}
+		queues[frame] = q
+		q[#q + 1] = {
+			text = text, r = r, g = g, b = b, id = id,
+			accessID = message.ACCESSID, typeID = message.TYPEID,
+			event = event, args = args,
+		}
+		while #q > QUEUE_MAX do
+			table.remove(q, 1)
+		end
 	end
 
 	--[[------------------------------------------------
@@ -210,12 +329,20 @@ EverlookDBChat:AddModuleToLoad(function()
 		local now = GetTime()
 		local inUse = chatInUse()
 		full = inUse or ChatUI:IsScrolledUp()
+		module:ReleaseDue(now)
+		if sincePrune >= 30 then
+			sincePrune = 0
+			module:PruneRecent(now)
+		end
 	end
 
 	local function onEvent(_, event)
 	end
 
 	function module:OnValueChanged()
+		if not self.db.profile.pace then
+			self:FlushQueues()
+		end
 	end
 
 	function module:OnModuleEnable()
@@ -227,6 +354,7 @@ EverlookDBChat:AddModuleToLoad(function()
 		driver:SetScript("OnUpdate", onUpdate)
 		ChatUI:AddUser()
 		EverlookDBChat.RegisterChatEvent(self, "EverlookDBChat_PreAddMessage")
+		EverlookDBChat.RegisterChatEvent(self, "EverlookDBChat_PostAddMessageBlocked")
 		self:HookChatFrames()
 		if FCF_OpenTemporaryWindow and not self:IsHooked("FCF_OpenTemporaryWindow") then
 			self:SecureHook("FCF_OpenTemporaryWindow", "HookChatFrames")
@@ -239,6 +367,7 @@ EverlookDBChat:AddModuleToLoad(function()
 			driver:SetScript("OnUpdate", nil)
 			driver:SetScript("OnEvent", nil)
 		end
+		self:FlushQueues()
 		full = true
 		for _, name in ipairs(CHAT_FRAMES or {}) do
 			local cf = _G[name]
