@@ -316,11 +316,10 @@ EverlookDBChat:AddModuleToLoad(function()
 		end
 	end
 
+	-- The tab's right-click menu is open: keep the tabs while it is.
 	local function menuOpen()
-		local ok, open = pcall(function()
-			return Menu and Menu.GetManager and Menu.GetManager():GetOpenMenu()
-		end)
-		return ok and open and true or false
+		local manager = Menu and Menu.GetManager and Menu.GetManager()
+		return manager and manager.GetOpenMenu and manager:GetOpenMenu() and true or false
 	end
 
 	local function overflowOpen()
