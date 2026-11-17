@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- The scroll bar, its arrows, the jump-to-bottom button and the search box beside the chat are hidden for good (Buttons › Show Arrows brings them back). The mouse wheel still scrolls and Ctrl+F still searches.
+
 - Calm, Tabs and buttons only on hover (on by default): the chat tabs and buttons are hidden unless the mouse is over the chat or the chat box is open. Works with or without Idle fade.
 - Calm, Your name always shows: a channel line with your character's name in it shows even in focus and is never held back by paced channel chat.
 - Calm, Whispers are never missed: an incoming whisper (character or Battle.net) keeps the chat visible with every line, not faded or cut down, until you've seen it (mouse over the chat or the chat box opened). A small "1 whisper" note above the chat shows meanwhile; click it to reply. An extra whisper sound can be turned on (off by default).

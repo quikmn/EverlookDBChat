@@ -31,7 +31,7 @@ EverlookDBChat:AddModuleToLoad(function()
 		profile = {
 			on = true,
 			scrollReminder = true,
-			showButtons = true,
+			showButtons = false,
 			showBnet = true,
 			showMenu = true,
 			showminimize = true,
@@ -220,6 +220,54 @@ EverlookDBChat:AddModuleToLoad(function()
 		end
 	end
 
+
+	-- The modern chat frame has a scroll bar (arrows, track, jump-to-bottom) and a
+	-- search box beside the text. Arrows off means all of that is gone for good:
+	-- the mouse wheel still scrolls, and Ctrl+F still searches.
+	local chromeKeys = { "ScrollBar", "ScrollToBottomButton", "SearchBox", "SearchButton", "Search" }
+	local function keepHidden(f)
+		if f.everlookHidden then return end
+		f.everlookHidden = true
+		hooksecurefunc(f, "Show", function(self) if self.everlookHidden then self:Hide() end end)
+		f:Hide()
+	end
+	local function isChrome(child)
+		local n = (child.GetName and child:GetName()) or ""
+		local key = (child.GetParentKey and child:GetParentKey()) or ""
+		local s = (n .. " " .. key):lower()
+		return s:find("scroll") or s:find("search")
+	end
+	function module:HideModernChrome(frame)
+		for _, key in ipairs(chromeKeys) do
+			local f = frame[key]
+			if type(f) == "table" and f.Hide then keepHidden(f) end
+		end
+		local bf = _G[frame:GetName() .. "ButtonFrame"]
+		for _, parent in ipairs({ frame, bf }) do
+			if parent and parent.GetChildren then
+				for _, child in ipairs({ parent:GetChildren() }) do
+					if isChrome(child) then keepHidden(child) end
+				end
+			end
+		end
+	end
+
+	function module:ShowModernChrome(frame)
+		local function undo(f) if f.everlookHidden then f.everlookHidden = false; f:Show() end end
+		for _, key in ipairs(chromeKeys) do
+			local f = frame[key]
+			if type(f) == "table" and f.everlookHidden ~= nil then undo(f) end
+		end
+		local bf = _G[frame:GetName() .. "ButtonFrame"]
+		for _, parent in ipairs({ frame, bf }) do
+			if parent and parent.GetChildren then
+				for _, child in ipairs({ parent:GetChildren() }) do
+					if child.everlookHidden then undo(child) end
+				end
+			end
+		end
+	end
+
 	function module:HideButtons()
 		self:UpdateMenuButtons()
 
@@ -241,6 +289,9 @@ EverlookDBChat:AddModuleToLoad(function()
 				bottomButton:SetScript("OnClick", function()
 					frame:ScrollToBottom()
 				end)
+			end
+			if EverlookDBChat.IsModernAPI then
+				module:HideModernChrome(frame)
 			end
 			self:FCF_SetButtonSide(frame)
 		end
@@ -324,6 +375,8 @@ EverlookDBChat:AddModuleToLoad(function()
 				bottomButton:SetScript("OnShow", nil)
 				bottomButton:SetShown(self.showButtons)
 				bottomButton:SetParent(_G[name .. "ButtonFrame"])
+			else
+				module:ShowModernChrome(frame)
 			end
 
 			self:FCF_SetButtonSide(frame)
