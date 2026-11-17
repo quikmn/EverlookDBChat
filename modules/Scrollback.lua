@@ -84,7 +84,20 @@ EverlookDBChat:AddModuleExtension(function()
 			disabled = function()
 				return not module.db.profile.scrollback
 			end
-		}
+		},
+		divider = {
+			name = PL.divider_name,
+			desc = PL.divider_desc,
+			type = "select",
+			order = 128,
+			values = {
+				line = PL.divider_line,
+				none = PL.divider_none,
+			},
+			disabled = function()
+				return not module.db.profile.scrollback
+			end
+		},
 	}
 
 	local orgOME = module.OnModuleEnable
@@ -221,6 +234,50 @@ EverlookDBChat:AddModuleExtension(function()
 		return message.extraData and message.extraData.n >= #message.extraData
 	end
 
+	-- "X has come online." / "X has gone offline." (friends and Battle.net
+	-- friends): stale after a logout, and a Battle.net friend's name can't be
+	-- shown again (it is a per-session token; the old line would read "[???]").
+	-- The endings come from the game's own strings, so other languages work too.
+	local presenceEndings
+	local function isPresenceLine(text)
+		if not presenceEndings then
+			presenceEndings = {}
+			for _, key in ipairs({ "BN_INLINE_TOAST_FRIEND_ONLINE", "BN_INLINE_TOAST_FRIEND_OFFLINE", "ERR_FRIEND_ONLINE_SS", "ERR_FRIEND_OFFLINE_S" }) do
+				local fmt = _G[key]
+				local ending = type(fmt) == "string" and fmt:match(".*%%s(.*)$")
+				if ending and #ending >= 4 then
+					presenceEndings[#presenceEndings + 1] = ending
+				end
+			end
+		end
+		local plain = text:gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", ""):gsub("%s+$", "")
+		for _, ending in ipairs(presenceEndings) do
+			if plain:sub(-#ending) == ending then
+				return true
+			end
+		end
+		return false
+	end
+	module.IsPresenceLine = isPresenceLine
+
+	-- How long ago, short: "2 min", "3 h", "2 days".
+	local function ago(seconds)
+		seconds = math.max(0, math.floor(seconds or 0))
+		if seconds < 60 then
+			return PL.ago_now
+		elseif seconds < 3600 then
+			return PL.ago_min:format(math.floor(seconds / 60))
+		elseif seconds < 86400 then
+			return PL.ago_hours:format(math.floor(seconds / 3600))
+		end
+		return PL.ago_days:format(math.floor(seconds / 86400))
+	end
+
+	-- One quiet line between the last session and this one (or nothing).
+	function module:DividerText(seconds)
+		return "|cff5f6b7a\226\128\148  " .. PL.divider_text:format(ago(seconds)) .. "  \226\128\148|r"
+	end
+
 	local function getBattlettagLookupTable()
 		local lookup = {}
 		local numBNet = BNGetNumFriends();
@@ -280,14 +337,17 @@ EverlookDBChat:AddModuleExtension(function()
 
 							if maxTime == 0 or (now - line.serverTime) <= maxTime then
 								if not timeShown then
-									f:BackFillMessage(PL.divider)
-									f:BackFillMessage(format(TIME_DAYHOURMINUTESECOND, ChatFrame_TimeBreakDown(now - line.serverTime)))
+									if self.db.profile.divider ~= "none" then
+										f:BackFillMessage(self:DividerText(now - line.serverTime))
+									end
 									timeShown = true
 								end
 
-								line.message = line.message:gsub("|K.-|k", "???")
-								line.message = line.message:gsub([[|HBNplayer:(.-)|h(.-)|h]], updateBnet)
-								f.historyBuffer:PushBack(line)
+								if not (self.db.profile.removespam and isPresenceLine(line.message)) then
+									line.message = line.message:gsub("|K.-|k", "???")
+									line.message = line.message:gsub([[|HBNplayer:(.-)|h(.-)|h]], updateBnet)
+									f.historyBuffer:PushBack(line)
+								end
 							end
 						end
 					end

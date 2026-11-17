@@ -41,6 +41,7 @@ EverlookDBChat:AddModuleToLoad(function()
 			savehistory = false,
 			scrollback = true,
 			removespam = true,
+			divider = "line",
 			colorgmotd = true,
 			delaygmotd = true,
 		}
