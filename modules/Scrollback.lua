@@ -24,6 +24,10 @@
 --
 -------------------------------------------------------------------------------
 
+local issecretvalue = issecretvalue or function()
+	return false
+end
+
 local ChatFrame_TimeBreakDown = _G.ChatFrame_TimeBreakDown or _G.ChatFrameUtil.TimeBreakDown
 
 EverlookDBChat:AddModuleExtension(function()
@@ -55,6 +59,19 @@ EverlookDBChat:AddModuleExtension(function()
 			max = 168,
 			step = 1,
 			bigStep = 24,
+			disabled = function()
+				return not module.db.profile.scrollback
+			end
+		},
+		scrollbacklines = {
+			name = PL.scrollbacklines_name,
+			desc = PL.scrollbacklines_desc,
+			type = "range",
+			order = 126.5,
+			min = 100,
+			max = 5000,
+			step = 50,
+			bigStep = 100,
 			disabled = function()
 				return not module.db.profile.scrollback
 			end
@@ -94,6 +111,49 @@ EverlookDBChat:AddModuleExtension(function()
 
 		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.FRAMES_UPDATED)
 		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.FRAMES_REMOVED)
+
+		if not self.logoutFrame then
+			self.logoutFrame = CreateFrame("Frame")
+			self.logoutFrame:RegisterEvent("PLAYER_LOGOUT")
+			self.logoutFrame:SetScript("OnEvent", function()
+				module:TrimScrollback()
+			end)
+		end
+	end
+
+	-- The windows keep thousands of lines now; only the newest few are worth
+	-- saving between sessions. At logout each saved window is replaced by a copy
+	-- holding its newest lines (in the same layout RestoreLastSession reads), so
+	-- the saved file stays small. Lines whose text is hidden from addons are left out.
+	function module:TrimScrollback()
+		if not (self.scrollback and self.db.profile.on and self.db.profile.scrollback) then
+			return
+		end
+		local keep = self.db.profile.scrollbacklines or 1000
+		for name, buffer in pairs(self.scrollback) do
+			if type(buffer) == "table" and buffer.elements and buffer.headIndex and buffer.maxElements then
+				local lines = {}
+				for i = 1, #buffer.elements do
+					if #lines >= keep then
+						break
+					end
+					local line = self:GetEntryAtIndex(buffer, i)
+					if line and type(line.message) == "string" and not issecretvalue(line.message) then
+						lines[#lines + 1] = line
+					end
+				end
+				local count = #lines
+				local elements = {}
+				for i = 1, count do
+					elements[count - i + 1] = lines[i]
+				end
+				self.scrollback[name] = {
+					elements = elements,
+					headIndex = count,
+					maxElements = math.max(count, 1),
+				}
+			end
+		end
 	end
 
 	local orgOMD = module.OnModuleDisable

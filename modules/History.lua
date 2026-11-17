@@ -33,8 +33,9 @@ EverlookDBChat:AddModuleToLoad(function()
 	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
-			chatlinesframes = {},
-			chatlines = 384,
+			chatlinesframes = { ["*"] = true },
+			chatlines = 3000,
+			scrollbacklines = 1000,
 			maxlines = 50,
 			scrollbackduration = 24,
 			savehistory = false,
@@ -67,9 +68,9 @@ EverlookDBChat:AddModuleToLoad(function()
 				type = "range",
 				order = 120,
 				min = 300,
-				max = 5000,
+				max = 10000,
 				step = 10,
-				bigStep = 50,
+				bigStep = 100,
 			},
 			cmdhistheader = {
 				name = PL["Command History Options"],
@@ -169,11 +170,17 @@ EverlookDBChat:AddModuleToLoad(function()
 		self:ConfigureAllChatFrames(384)
 	end
 
+	-- Every chat window gets the longer history unless it was turned off for it.
+	-- SetMaxLines only sets the size of the window's ring buffer of lines: the
+	-- memory is spent as lines come in (a few hundred bytes per line), and only the
+	-- lines on screen are drawn, so a long history does not slow scrolling.
 	function module:ConfigureAllChatFrames(lines)
 		lines = lines or self.db.profile.chatlines
 
-		for k, _ in pairs(self.db.profile.chatlinesframes) do
-			self:SetHistory(_G[k], lines)
+		for k in pairs(EverlookDBChat.HookedFrames) do
+			if self.db.profile.chatlinesframes[k] then
+				self:SetHistory(_G[k], lines)
+			end
 		end
 
 		for k in pairs(EverlookDBChatCharDB.history.cmdhistory) do
@@ -190,7 +197,7 @@ EverlookDBChat:AddModuleToLoad(function()
 		end
 	end
 
-	function module:OnSubvalueChanged()
+	function module:OnSubValueChanged()
 		self:ConfigureAllChatFrames()
 	end
 
