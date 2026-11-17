@@ -7,7 +7,7 @@
 -- (text, background, tabs, button bar, this addon's buttons) fades out to fully
 -- invisible. Activity brings it back.
 --
--- How it stays out of Blizzard's way:
+-- How it stays out of Blizzard's way (the fading itself is services/chatui.lua):
 --   * it only calls SetAlpha on the containers (ChatFrameN, GeneralDockManager,
 --     undocked tabs, the button frames, loose buttons). Nothing is protected, no
 --     Blizzard function is replaced, so it is safe in combat;
@@ -51,23 +51,7 @@ local ACTIVITY_EVENTS = {
 	CHAT_MSG_COMMUNITIES_CHANNEL = true,
 }
 
--- Seconds for a full fade.
-local FADE_OUT_TIME = 1.0
-local FADE_IN_TIME = 0.2
 local TICK = 0.1
-
--- Blizzard frames that may sit outside the chat frames (absent ones are skipped).
-local LOOSE_FRAMES = {
-	"GeneralDockManager",
-	"GeneralDockManagerOverflowButton",
-	"ChatFrameMenuButton",
-	"ChatFrameChannelButton",
-	"ChatFrameToggleVoiceDeafenButton",
-	"ChatFrameToggleVoiceMuteButton",
-	"QuickJoinToastButton",
-	"TextToSpeechButtonFrame",
-	"CombatLogQuickButtonFrame_Custom",
-}
 
 -- Is this chat event activity? Reads the event name and, for a numbered
 -- channel, only the channel base name (9th argument) when it is not secret.
@@ -129,160 +113,49 @@ EverlookDBChat:AddModuleToLoad(function()
 		}
 	})
 
-	local factor = 1 -- the fade now: 1 = fully shown, 0 = invisible
-	local target = 1
+	local ChatUI = EverlookDBChat.ChatUI
 	local lastActivity = 0
-	local managed = {} -- [frame] = the alpha the frame's owner wants
-	local applied = {} -- [frame] = true while it carries a faded alpha
-	local hooked = {}
-	local applying = false
 	local driver
-
-	local function hasManagedAncestor(frame)
-		local parent = frame:GetParent()
-		while parent do
-			if managed[parent] then
-				return true
-			end
-			parent = parent:GetParent()
-		end
-		return false
-	end
-
-	local function setAlpha(frame, alpha)
-		applying = true
-		frame:SetAlpha(alpha)
-		applying = false
-	end
-
-	-- Post-hook of SetAlpha: someone (Blizzard's FCF code, UIFrameFade, a module)
-	-- set the alpha it wants. Remember it, and while faded put the faded one back.
-	local function onSetAlpha(frame, alpha)
-		if applying or managed[frame] == nil or type(alpha) ~= "number" or issecretvalue(alpha) then
-			return
-		end
-		managed[frame] = alpha
-		if factor < 1 and not hasManagedAncestor(frame) then
-			setAlpha(frame, alpha * factor)
-			applied[frame] = true
-		end
-	end
-
-	local function manage(frame)
-		if not frame or managed[frame] ~= nil or type(frame.SetAlpha) ~= "function" then
-			return
-		end
-		managed[frame] = frame:GetAlpha()
-		if not hooked[frame] then
-			hooked[frame] = true
-			hooksecurefunc(frame, "SetAlpha", onSetAlpha)
-		end
-	end
-
-	local function apply()
-		for frame, base in pairs(managed) do
-			if hasManagedAncestor(frame) then
-				if applied[frame] then
-					setAlpha(frame, base)
-					applied[frame] = nil
-				end
-			elseif factor < 1 then
-				setAlpha(frame, base * factor)
-				applied[frame] = true
-			elseif applied[frame] then
-				setAlpha(frame, base)
-				applied[frame] = nil
-			end
-		end
-	end
 
 	function module:Wake()
 		lastActivity = GetTime()
-		target = 1
+		ChatUI:SetTarget("idle", 1)
 	end
 
-	function module:HookChatFrame(cf)
-		if not self:IsHooked(cf, "OnMouseWheel") then
-			self:SecureHookScript(cf, "OnMouseWheel", "Wake")
-		end
-		local editBox = cf.editBox or _G[cf:GetName() .. "EditBox"]
-		if editBox and not self:IsHooked(editBox, "OnEditFocusGained") then
-			self:SecureHookScript(editBox, "OnEditFocusGained", "Wake")
-			self:SecureHookScript(editBox, "OnTextChanged", "Wake")
-		end
-	end
-
-	function module:Collect()
+	function module:HookChatFrames()
 		for _, name in ipairs(CHAT_FRAMES or {}) do
 			local cf = _G[name]
 			if cf then
-				manage(cf)
-				manage(cf.buttonFrame or _G[name .. "ButtonFrame"])
-				manage(_G[name .. "Tab"])
-				self:HookChatFrame(cf)
+				if not self:IsHooked(cf, "OnMouseWheel") then
+					self:SecureHookScript(cf, "OnMouseWheel", "Wake")
+				end
+				local editBox = cf.editBox or _G[name .. "EditBox"]
+				if editBox and not self:IsHooked(editBox, "OnEditFocusGained") then
+					self:SecureHookScript(editBox, "OnEditFocusGained", "Wake")
+					self:SecureHookScript(editBox, "OnTextChanged", "Wake")
+				end
 			end
-		end
-		for _, name in ipairs(LOOSE_FRAMES) do
-			manage(_G[name])
 		end
 	end
 
-	local function isChatFrameFocus()
-		local focus = GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus()
-		if not focus then
-			return false
-		end
-		if focus.chatFrame or managed[focus] ~= nil then
-			return true
-		end
-		return hasManagedAncestor(focus)
-	end
-
-	local function isMouseOverChat()
-		for _, name in ipairs(CHAT_FRAMES or {}) do
-			local cf = _G[name]
-			-- the window plus its tabs above and the button bar to the left
-			if cf and cf:IsShown() and cf:IsMouseOver(32, -10, -40, 10) then
-				return true
-			end
-		end
-		for frame in pairs(managed) do
-			if frame:IsShown() and frame:IsMouseOver() then
-				return true
-			end
-		end
-		return false
-	end
-	module.IsMouseOverChat = isMouseOverChat
-
+	-- In use: typing in the chat, the mouse over it (if that option is on), or a
+	-- module holding it awake (an unread whisper).
 	function module:IsInUse()
-		return isChatFrameFocus() or (self.db.profile.mousewake and isMouseOverChat())
+		return ChatUI:IsChatFocus() or ChatUI:IsHeld() or (self.db.profile.mousewake and ChatUI:IsMouseOverChat())
 	end
 
-	local sinceTick, sinceCollect = 0, 0
+	local sinceTick = 0
 	local function onUpdate(_, elapsed)
 		sinceTick = sinceTick + elapsed
-		if sinceTick >= TICK then
-			sinceCollect = sinceCollect + sinceTick
-			sinceTick = 0
-			if sinceCollect >= 2 then
-				sinceCollect = 0
-				module:Collect()
-			end
-			local now = GetTime()
-			if module:IsInUse() then
-				lastActivity = now
-			end
-			target = (now - lastActivity >= module.db.profile.delay) and 0 or 1
+		if sinceTick < TICK then
+			return
 		end
-		if factor ~= target then
-			if target > factor then
-				factor = math.min(target, factor + elapsed / FADE_IN_TIME)
-			else
-				factor = math.max(target, factor - elapsed / FADE_OUT_TIME)
-			end
-			apply()
+		sinceTick = 0
+		local now = GetTime()
+		if module:IsInUse() then
+			lastActivity = now
 		end
+		ChatUI:SetTarget("idle", (now - lastActivity >= module.db.profile.delay) and 0 or 1)
 	end
 
 	local function onEvent(_, event, ...)
@@ -300,11 +173,11 @@ EverlookDBChat:AddModuleToLoad(function()
 			pcall(driver.RegisterEvent, driver, "CHAT_MSG_CHANNEL")
 		end
 		driver:SetScript("OnEvent", onEvent)
-		factor, target = 1, 1
 		lastActivity = GetTime()
-		self:Collect()
+		ChatUI:AddUser()
+		self:HookChatFrames()
 		if FCF_OpenTemporaryWindow and not self:IsHooked("FCF_OpenTemporaryWindow") then
-			self:SecureHook("FCF_OpenTemporaryWindow", "Collect")
+			self:SecureHook("FCF_OpenTemporaryWindow", "HookChatFrames")
 		end
 		driver:SetScript("OnUpdate", onUpdate)
 	end
@@ -314,10 +187,7 @@ EverlookDBChat:AddModuleToLoad(function()
 			driver:SetScript("OnUpdate", nil)
 			driver:SetScript("OnEvent", nil)
 		end
-		factor, target = 1, 1
-		apply()
-		wipe(managed)
-		wipe(applied)
+		ChatUI:RemoveUser("idle")
 		self:UnhookAll()
 	end
 

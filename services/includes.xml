@@ -9,5 +9,6 @@
 	<Script file="classcolor.lua"/>
 	<Script file="textcolor.lua"/>
 	<Script file="channelapi.lua"/>
+	<Script file="chatui.lua"/>
 	<Script file="bayesclassifier.lua"/>
 </Ui>
