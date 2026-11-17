@@ -70,6 +70,7 @@ do
 		["EverlookDBChat_ChannelSticky"] = "display",
 		["EverlookDBChat_ChatFrames"] = "display",
 		["EverlookDBChat_Fading"] = "display",
+		["EverlookDBChat_Background"] = "display",
 		["EverlookDBChat_IdleFade"] = "display",
 		["EverlookDBChat_History"] = "display",
 		["EverlookDBChat_Frames"] = "display",

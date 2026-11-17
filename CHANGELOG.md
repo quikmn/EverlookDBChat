@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- New module Chat background (on by default): the chat windows have no background at all, also when the mouse is over them and in new whisper windows. Tabs and text stay as they are. A slider sets how visible the background may get, from 0% (none) to 100% (the game decides, as before).
 - New module Idle fade (on by default): after a minute with nothing going on, the whole chat fades out to nothing: text, background, tabs and buttons. It comes back at once when someone talks to you or near you (say, yell, emotes, whispers, party, raid, instance, guild, officer, community channels), when you open the chat box or type, scroll, or move the mouse over the chat. General, Trade and the other numbered channels, loot, money, XP, system, combat and NPC lines don't wake it. Settings: the seconds before it fades (10 to 600) and whether the mouse wakes it.
 - Commands first: after a command (or Esc) the chat box stays in whisper mode with the same friend. It used to drop into Say when the whisper was started with R or a name click and nothing had been sent yet.
 - The module shows as "Commands first" in the settings (it read "CommandsFirst").

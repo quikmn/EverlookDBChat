@@ -6,6 +6,7 @@
 	<!--<Script file="AddonMessages.lua"/>-->
 	<Script file="Alias.lua"/>
 	<Script file="AltNames.lua"/>
+	<Script file="Background.lua"/>
 	<Script file="Buttons.lua"/>
 	<Script file="EventNames.lua"/>
 	<Script file="ChannelNames.lua"/>
