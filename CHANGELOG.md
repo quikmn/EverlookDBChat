@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- New module Calm (on by default), Fewer lines on screen: while you aren't using the chat (mouse elsewhere, chat box closed, not scrolled up) only the newest 6 lines show. Hover, scroll up or type and the whole window is back. Nothing is deleted; history and search still have every line. The number of lines can be set.
 - Search: Ctrl+F opens the chat's search box while you're typing in the chat or have the mouse over a chat window (out of combat for the mouse; anywhere else Ctrl+F works as before). Type and the chat jumps to the newest line with that text; Enter or Up goes to the next older match, Shift+Enter or Down to the newer one, and the box shows which match you're on (like 3/12). Esc closes it and scrolls back down. /find still works. Can be turned off in the Search settings.
 - Chat history: every chat window now keeps 3000 lines (it was about 128 unless you changed it), so you can scroll and search much further back. The setting goes up to 10000. If you set a number yourself, it is kept. The lines saved for your next session are capped at the newest 1000 per window (a new setting), so the saved file stays small. Turning history on or off for one window now takes effect at once.
 - New module Chat background (on by default): the chat windows have no background at all, also when the mouse is over them and in new whisper windows. Tabs and text stay as they are. A slider sets how visible the background may get, from 0% (none) to 100% (the game decides, as before).

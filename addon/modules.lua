@@ -72,6 +72,7 @@ do
 		["EverlookDBChat_Fading"] = "display",
 		["EverlookDBChat_Background"] = "display",
 		["EverlookDBChat_IdleFade"] = "display",
+		["EverlookDBChat_Calm"] = "display",
 		["EverlookDBChat_History"] = "display",
 		["EverlookDBChat_Frames"] = "display",
 		["EverlookDBChat_Editbox"] = "display",
