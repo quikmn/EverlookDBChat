@@ -14,9 +14,11 @@
 -- mode for that one line, so Blizzard's own parser runs the command exactly as
 -- it does in /say. Nothing is sent by this module and it never reads the
 -- whisper text or the friend's name:
---   * the whisper target (tellTarget) and the sticky chat type are never touched,
---     so after the command Blizzard's own ClearChat puts the box back in whisper
---     mode for the next line;
+--   * the whisper target (tellTarget) and the sticky chat type are never touched;
+--     after the command (or Esc) the box goes back to the whisper mode it was in,
+--     also when Blizzard's sticky type is still Say (a whisper started with R or a
+--     name click, with nothing sent yet, or whispers not sticky): Blizzard's own
+--     ClearChat would otherwise drop it into Say;
 --   * if the "/" is erased, or the line no longer starts with "/" when Enter is
 --     pressed, the whisper mode is put back before the text is sent, so a normal
 --     line still goes to the friend and never to /say;
@@ -64,6 +66,7 @@ EverlookDBChat:AddModuleToLoad(function()
 	}
 
 	local saved = {} -- [editBox] = the chat type this line was switched away from
+	local after = {} -- [editBox] = that chat type, to put back once Blizzard has cleared the line
 	local busy = false -- true while this module changes the edit box itself
 
 	local function yesno(b)
@@ -218,7 +221,38 @@ EverlookDBChat:AddModuleToLoad(function()
 	-- Blizzard reset the box to its sticky type (ClearChat, Deactivate): the line is
 	-- over, and the box is already back in whisper mode if that was sticky.
 	function module:OnResetChatTypeToSticky(editBox)
+		if saved[editBox] then
+			-- the command ran (or Esc): the box goes back to the whisper mode it was
+			-- in, which Blizzard's sticky type may not be. Put back in OnClearChat,
+			-- for every ClearChat of this Enter press (SendMessage clears twice).
+			if not after[editBox] then
+				after[editBox] = saved[editBox]
+				C_Timer.After(0, function()
+					after[editBox] = nil
+				end)
+			end
+		end
 		saved[editBox] = nil
+	end
+
+	function module:OnClearChat(editBox)
+		local chatType = after[editBox]
+		if not chatType or busy then
+			return
+		end
+		local current = getChatType(editBox)
+		if current == chatType or current == nil then
+			return
+		end
+		busy = true
+		editBox:SetAttribute("chatType", chatType)
+		if editBox:IsShown() then
+			updateHeader(editBox)
+		end
+		busy = false
+		if self.db.profile.report then
+			self:Output(PL["report_restore"]:format(chatType))
+		end
 	end
 
 	-- A chat-type command was typed on purpose (/s, /g, /r, /w name ...): it wins.
@@ -272,6 +306,9 @@ EverlookDBChat:AddModuleToLoad(function()
 		self:SecureHookScript(editBox, "OnChar", "OnChar")
 		self:SecureHookScript(editBox, "OnTextChanged", "OnTextChanged")
 		self:SecureHook(editBox, "ResetChatTypeToSticky", "OnResetChatTypeToSticky")
+		if editBox.ClearChat then
+			self:SecureHook(editBox, "ClearChat", "OnClearChat")
+		end
 		self:SecureHook(editBox, "ProcessChatType", "OnProcessChatType")
 	end
 
@@ -300,6 +337,7 @@ EverlookDBChat:AddModuleToLoad(function()
 			self:Restore(editBox, true)
 		end
 		wipe(saved)
+		wipe(after)
 		if EventRegistry then
 			EventRegistry:UnregisterCallback("ChatFrame.OnEditBoxPreSendText", self)
 		end
