@@ -32,7 +32,8 @@ EverlookDBChat:AddModuleToLoad(function()
 		profile = {
 			on = true,
 			textfade = { ["*"] = true },
-			duration = 120
+			duration = 30,
+			fadeduration = 5,
 		}
 	})
 
@@ -57,6 +58,15 @@ EverlookDBChat:AddModuleToLoad(function()
 				min = 1,
 				max = 240,
 				step = 1,
+			},
+			fadeduration = {
+				name = PL["fadeduration_name"],
+				desc = PL["fadeduration_desc"],
+				type = "range",
+				order = 191,
+				min = 0.5,
+				max = 15,
+				step = 0.5,
 			},
 		}
 	})
@@ -90,6 +100,9 @@ EverlookDBChat:AddModuleToLoad(function()
 		if textfade then
 			cf:SetFading(true)
 			cf:SetTimeVisible(module.db.profile.duration)
+			if cf.SetFadeDuration then
+				cf:SetFadeDuration(module.db.profile.fadeduration)
+			end
 		else
 			cf:SetFading(false)
 		end

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Calm, Gentle line fade: chat lines now fade out 30 seconds after they come in (it was 2 minutes), with a slower, softer fade of 5 seconds. Both are set in Fading, which has a new setting for the length of the fade; the Calm settings link to it.
 - Calm, Paced channel chat: lines from General, Trade, LookingForGroup and the other numbered channels come out at most one every 2 seconds instead of all at once, so each can be read. The same line repeated in a channel within a minute shows once, and when more than 10 are waiting the oldest are skipped. Whispers, party, guild, say and other conversations are never held back. Lines the game hides from addons go through as usual.
 - New module Calm (on by default), Fewer lines on screen: while you aren't using the chat (mouse elsewhere, chat box closed, not scrolled up) only the newest 6 lines show. Hover, scroll up or type and the whole window is back. Nothing is deleted; history and search still have every line. The number of lines can be set.
 - Search: Ctrl+F opens the chat's search box while you're typing in the chat or have the mouse over a chat window (out of combat for the mouse; anywhere else Ctrl+F works as before). Type and the chat jumps to the newest line with that text; Enter or Up goes to the next older match, Shift+Enter or Down to the newer one, and the box shows which match you're on (like 3/12). Esc closes it and scrolls back down. /find still works. Can be turned off in the Search settings.

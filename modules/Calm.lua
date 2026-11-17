@@ -86,6 +86,22 @@ EverlookDBChat:AddModuleToLoad(function()
 				step = 0.5,
 				disabled = isOff("pace"),
 			},
+			linefade = {
+				name = PL["linefade_info"],
+				type = "description",
+				order = 30,
+			},
+			linefadeopen = {
+				name = PL["linefade_open"],
+				type = "execute",
+				order = 31,
+				func = function()
+					local acd = LibStub("AceConfigDialog-3.0", true)
+					if acd then
+						acd:SelectGroup("EverlookDB Chat", "display", "EverlookDBChat_Fading")
+					end
+				end,
+			},
 		}
 	})
 
