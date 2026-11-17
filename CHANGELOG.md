@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Calm, Focus: in combat, General, Trade and the other numbered channels are hidden completely; whispers, party, raid, guild, say and the other conversations still show. When focus ends nothing is replayed. Optional: focus in dungeons and raids (off by default). Turn it on and off by hand with /chat focus (or /chatfocus) or a new key binding.
 - Calm, Gentle line fade: chat lines now fade out 30 seconds after they come in (it was 2 minutes), with a slower, softer fade of 5 seconds. Both are set in Fading, which has a new setting for the length of the fade; the Calm settings link to it.
 - Calm, Paced channel chat: lines from General, Trade, LookingForGroup and the other numbered channels come out at most one every 2 seconds instead of all at once, so each can be read. The same line repeated in a channel within a minute shows once, and when more than 10 are waiting the oldest are skipped. Whispers, party, guild, say and other conversations are never held back. Lines the game hides from addons go through as usual.
 - New module Calm (on by default), Fewer lines on screen: while you aren't using the chat (mouse elsewhere, chat box closed, not scrolled up) only the newest 6 lines show. Hover, scroll up or type and the whole window is back. Nothing is deleted; history and search still have every line. The number of lines can be set.

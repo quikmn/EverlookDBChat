@@ -14,6 +14,8 @@
 --     line is blocked (DONOTPROCESS) before it is added, and the finished line
 --     (links, colours, names) is added later with AddMessage, the same call the
 --     pipeline makes. Lines whose text is a secret value are never held back.
+--   * Focus: in combat (and optionally in dungeons and raids, or by hand with
+--     /chat focus or a key) numbered channels are not shown at all.
 --
 -- Only event types, channel base names and message text that is not a secret
 -- value are read. Nothing protected is touched, so all of it is combat-safe.
@@ -22,6 +24,8 @@
 local issecretvalue = issecretvalue or function()
 	return false
 end
+
+BINDING_NAME_EDBCHAT_FOCUS = "Toggle chat focus"
 
 EverlookDBChat:AddModuleToLoad(function()
 	local module = EverlookDBChat:NewModule("Calm", "AceHook-3.0")
@@ -35,6 +39,8 @@ EverlookDBChat:AddModuleToLoad(function()
 			fewlinescount = 6,
 			pace = true,
 			pacesecs = 2,
+			focuscombat = true,
+			focusinstance = false,
 		}
 	})
 
@@ -102,6 +108,28 @@ EverlookDBChat:AddModuleToLoad(function()
 					end
 				end,
 			},
+			focusheader = {
+				name = PL["focus_header"],
+				type = "header",
+				order = 40,
+			},
+			focusinfo = {
+				name = PL["focus_info"],
+				type = "description",
+				order = 41,
+			},
+			focuscombat = {
+				name = PL["focuscombat_name"],
+				desc = PL["focuscombat_desc"],
+				type = "toggle",
+				order = 42,
+			},
+			focusinstance = {
+				name = PL["focusinstance_name"],
+				desc = PL["focusinstance_desc"],
+				type = "toggle",
+				order = 43,
+			},
 		}
 	})
 
@@ -109,6 +137,10 @@ EverlookDBChat:AddModuleToLoad(function()
 	local driver
 	local enabled = false
 	local full = true -- show every line on screen
+	local focusActive = false
+	local manualFocus = false
+	local inCombat = false
+	local inInstance = false
 
 	local function chatInUse()
 		return ChatUI:IsChatFocus() or ChatUI:IsMouseOverChat()
@@ -276,6 +308,10 @@ EverlookDBChat:AddModuleToLoad(function()
 		if issecretvalue(text) or issecretvalue(body) or type(body) ~= "string" then
 			return -- hidden from addons: shown as usual
 		end
+		if focusActive then
+			message.DONOTPROCESS = true
+			return
+		end
 		if not self.db.profile.pace then
 			return
 		end
@@ -330,6 +366,63 @@ EverlookDBChat:AddModuleToLoad(function()
 	end
 
 	--[[------------------------------------------------
+		Focus
+	------------------------------------------------]] --
+
+	function module:UpdateFocus()
+		local p = self.db.profile
+		local active = manualFocus or (p.focuscombat and inCombat) or (p.focusinstance and inInstance)
+		active = active and true or false
+		if active ~= focusActive then
+			focusActive = active
+			if active then
+				wipe(queues) -- channel lines from before are skipped, not replayed
+			end
+		end
+	end
+
+	function module:ToggleFocus()
+		if not enabled then
+			return
+		end
+		manualFocus = not manualFocus
+		self:UpdateFocus()
+		self:Output(manualFocus and PL["focus_on"] or PL["focus_off"])
+	end
+
+	function EverlookDBChat_ToggleFocus()
+		module:ToggleFocus()
+	end
+
+	-- "/chat focus". /chat is the game's chat help: every other use of it is
+	-- passed on unchanged. /chatfocus works as well.
+	function module:SetupSlash()
+		if self.slashDone then
+			return
+		end
+		self.slashDone = true
+		SLASH_EDBCHAT_FOCUS1 = "/chatfocus"
+		SlashCmdList["EDBCHAT_FOCUS"] = function()
+			module:ToggleFocus()
+		end
+		local original = SlashCmdList["CHAT_HELP"]
+		if type(original) == "function" then
+			SlashCmdList["CHAT_HELP"] = function(msg, ...)
+				if enabled and type(msg) == "string" and not issecretvalue(msg) and strlower(strtrim(msg)) == "focus" then
+					module:ToggleFocus()
+					return
+				end
+				return original(msg, ...)
+			end
+		end
+	end
+
+	local function updateInstance()
+		local _, instanceType = IsInInstance()
+		inInstance = instanceType == "party" or instanceType == "raid"
+	end
+
+	--[[------------------------------------------------
 		Tick
 	------------------------------------------------]] --
 
@@ -353,18 +446,33 @@ EverlookDBChat:AddModuleToLoad(function()
 	end
 
 	local function onEvent(_, event)
+		if event == "PLAYER_REGEN_DISABLED" then
+			inCombat = true
+			module:UpdateFocus()
+		elseif event == "PLAYER_REGEN_ENABLED" then
+			inCombat = false
+			module:UpdateFocus()
+		elseif event == "PLAYER_ENTERING_WORLD" or event == "ZONE_CHANGED_NEW_AREA" then
+			updateInstance()
+			module:UpdateFocus()
+		end
 	end
 
 	function module:OnValueChanged()
 		if not self.db.profile.pace then
 			self:FlushQueues()
 		end
+		self:UpdateFocus()
 	end
 
 	function module:OnModuleEnable()
 		enabled = true
 		if not driver then
 			driver = CreateFrame("Frame")
+			driver:RegisterEvent("PLAYER_REGEN_DISABLED")
+			driver:RegisterEvent("PLAYER_REGEN_ENABLED")
+			driver:RegisterEvent("PLAYER_ENTERING_WORLD")
+			driver:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 		end
 		driver:SetScript("OnEvent", onEvent)
 		driver:SetScript("OnUpdate", onUpdate)
@@ -375,6 +483,10 @@ EverlookDBChat:AddModuleToLoad(function()
 		if FCF_OpenTemporaryWindow and not self:IsHooked("FCF_OpenTemporaryWindow") then
 			self:SecureHook("FCF_OpenTemporaryWindow", "HookChatFrames")
 		end
+		inCombat = InCombatLockdown() and true or false
+		updateInstance()
+		self:UpdateFocus()
+		self:SetupSlash()
 	end
 
 	function module:OnModuleDisable()
@@ -384,6 +496,8 @@ EverlookDBChat:AddModuleToLoad(function()
 			driver:SetScript("OnEvent", nil)
 		end
 		self:FlushQueues()
+		manualFocus = false
+		focusActive = false
 		full = true
 		for _, name in ipairs(CHAT_FRAMES or {}) do
 			local cf = _G[name]

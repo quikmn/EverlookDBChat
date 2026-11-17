@@ -102,4 +102,8 @@
 	<Binding name="EDBCHAT_SCROLLTOP">
 		SELECTED_CHAT_FRAME:ScrollToTop()
 	</Binding>
+	<!-- Calm -->
+	<Binding name="EDBCHAT_FOCUS">
+		if EverlookDBChat_ToggleFocus then EverlookDBChat_ToggleFocus() end
+	</Binding>
 </Bindings>
