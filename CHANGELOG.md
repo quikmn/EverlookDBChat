@@ -3,8 +3,10 @@
 ## Unreleased
 
 - New module Flat tabs (on by default): the chat tabs are plain text instead of the game's gold-edged parchment tabs. The selected tab is white with a thin blue line under it, the others grey, a little lighter under the mouse. A tab with something new (like a whisper) gets a small blue dot instead of the glow. The tabs fade in together while the mouse is over the chat or the chat box is open, and fade out together shortly after it leaves; Idle fade and Calm still hide them. Click, drag, right-click and new whisper tabs work as before. Setting: only with the mouse over the chat (on). Turn the module off for the game's own tabs.
+- Search: the box that kept showing at the top right of the chat was this addon's own search box, left faintly visible (and fully visible for a few seconds at login and in new whisper windows). It now only shows when Ctrl+F opens it and hides again on Esc or when you click elsewhere. It is flat and dark with a thin blue line. The two box transparency settings are gone.
+- The hidden scroll bar and jump-to-bottom button stay hidden in new whisper and chat windows too, and can no longer flicker into view.
 - Alt names on unit tooltips (Main and Alts, when turned on) now share one tidy layout with the other EverlookDB addons: "Main" left with the name right, "Alts" with the list, grouped with the other EverlookDB lines after a blank line, before a Player Notes note.
-- The scroll bar, its arrows, the jump-to-bottom button and the search box beside the chat are hidden for good (Buttons › Show Arrows brings them back). The mouse wheel still scrolls and Ctrl+F still searches.
+- The scroll bar, its arrows and the jump-to-bottom button beside the chat are hidden for good (Buttons › Show Arrows brings them back). The mouse wheel still scrolls and Ctrl+F still searches.
 
 - Calm, Tabs and buttons only on hover (on by default): the chat tabs and buttons are hidden unless the mouse is over the chat or the chat box is open. Works with or without Idle fade.
 - Calm, Your name always shows: a channel line with your character's name in it shows even in focus and is never held back by paced channel chat.

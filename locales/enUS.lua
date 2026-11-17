@@ -865,7 +865,7 @@ L["Search/err_notfound"] = "Not Found"
 L["Search/err_tooshort"] = "Search term is too short"
 L["Search/find_results"] = "Find Results:"
 L["Search/module_desc"] = "Adds the ability to search the chatframes."
-L["Search/module_info"] = [=[This module adds search boxes on the chat frames, and the /find commands to search the chat history
+L["Search/module_info"] = [=[This module adds a search box to each chat window, hidden until you press Ctrl+F, and the /find command to search the chat history.
 
 Ctrl+F opens the search box while you type in the chat, or while the mouse is over a chat window (not in combat; then use it from the chat box). Type to jump to the newest line that has the text. Enter or the up arrow goes to the next older match, Shift+Enter or the down arrow to the newer one. Esc closes the search and scrolls back down.
 
@@ -875,8 +875,6 @@ Usage:
 L["Search/ctrlf_name"] = "Ctrl+F searches the chat"
 L["Search/ctrlf_desc"] = "Ctrl+F opens the search box when you are typing in the chat or the mouse is over a chat window. Anywhere else Ctrl+F does what it always does."
 L["Search/module_name"] = "Search"
-L["Search/unused_alpha"] = "Unused search box alpha"
-L["Search/used_alpha"] = "Used search box alpha"
 L["ServerNames/autoabbreviate_desc"] = "Shorten the server name to 3 letters"
 L["ServerNames/autoabbreviate_name"] = "Auto-abbreviate"
 L["ServerNames/colon_desc"] = "Toggle adding colon after server replacement."

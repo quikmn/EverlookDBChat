@@ -6,6 +6,10 @@
 -- Enter, Shift+Enter and the arrow keys step through matches; Esc closes it.
 -- Lines whose text is hidden from addons (secret values) are skipped.
 --
+-- The box is hidden until Ctrl+F (or a call to OpenSearch) and hides again when
+-- it loses focus or Esc is pressed: there is never a box sitting on the chat.
+-- It is flat (dark slate, thin blue line) without the game's input box art.
+--
 -- Ctrl+F is only taken where it is meant for the chat:
 --   * in a chat edit box: a post-hook of its OnKeyDown, nothing else changes;
 --   * with the mouse over the chat: a keyboard frame that passes every key on
@@ -26,8 +30,6 @@ EverlookDBChat:AddModuleToLoad(function()
 	EverlookDBChat:SetModuleDefaults(module.name, {
 		profile = {
 			on = true,
-			searchactivealpha = 1.0,
-			searchinactivealpha = 0.1,
 			ctrlf = true,
 		}
 	})
@@ -48,63 +50,48 @@ EverlookDBChat:AddModuleToLoad(function()
 				type = "toggle",
 				order = 15,
 			},
-			searchinactivealpha = {
-				name = PL["unused_alpha"],
-				type = "range",
-				order = 20,
-				min = 0,
-				max = 1.0,
-				step = 0.1,
-			},
-			searchactivealpha = {
-				name = PL["used_alpha"],
-				type = "range",
-				order = 30,
-				min = 0,
-				max = 1.0,
-				step = 0.1,
-			},
 		}
 	})
 
-	function module:StashSearch(frame)
-		frame:SetAlpha(self.db.profile.searchinactivealpha)
-		frame:SetWidth(30)
+	-- Buttons hides scroll/search chrome by name; this box is ours, keep it usable.
+	local function release(f)
+		f.everlookHidden = false
 	end
 
-	function module:UnstashSearch(frame)
-		frame:SetAlpha(self.db.profile.searchactivealpha)
-		frame:SetWidth(130)
+	-- The game's input box art off, a flat dark box with a thin blue line instead.
+	local function flatten(f)
+		for _, key in ipairs({ "Left", "Middle", "Right", "Mid" }) do
+			local t = f[key]
+			if type(t) == "table" and t.SetTexture then
+				t:SetTexture(nil)
+			end
+		end
+		local bg = f:CreateTexture(nil, "BACKGROUND")
+		bg:SetColorTexture(0.07, 0.09, 0.12, 0.92)
+		bg:SetPoint("TOPLEFT", f, "TOPLEFT", -4, 2)
+		bg:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", 0, -2)
+		local line = f:CreateTexture(nil, "BORDER")
+		line:SetColorTexture(0.30, 0.62, 1.00, 1)
+		line:SetHeight(1)
+		line:SetPoint("BOTTOMLEFT", bg, "BOTTOMLEFT")
+		line:SetPoint("BOTTOMRIGHT", bg, "BOTTOMRIGHT")
+		f:SetTextColor(0.92, 0.94, 0.97)
 	end
 
 	function module:CreateSearchBox(chatFrame)
 		local name = chatFrame:GetName()
 		local f = CreateFrame("EditBox", name .. "ChatSearchEditBox", chatFrame, "SearchBoxTemplate")
+		f:Hide()
+		release(f)
+		flatten(f)
 
-		f:SetWidth(130)
-		f:SetHeight(16)
+		f:SetWidth(180)
+		f:SetHeight(18)
 		f:SetFrameStrata("HIGH")
-		f:SetPoint("TOPRIGHT", chatFrame, "TOPRIGHT")
-		f:SetScript("OnEnter", function()
-			local hoverAlpha = self.db.profile.searchinactivealpha + (self.db.profile.searchactivealpha - self.db.profile.searchinactivealpha) / 2
-			if f:HasFocus() then
-				self:UnstashSearch(f)
-			else
-				f:SetAlpha(hoverAlpha)
-			end
-		end)
-		f:SetScript("OnLeave", function()
-			if f:HasFocus() then
-				self:UnstashSearch(f)
-			else
-				self:StashSearch(f)
-			end
-		end)
-		f:SetScript("OnEditFocusLost", function()
-			self:StashSearch(f)
-		end)
-		f:SetScript("OnEditFocusGained", function()
-			self:UnstashSearch(f)
+		f:SetPoint("TOPRIGHT", chatFrame, "TOPRIGHT", -2, -2)
+		f:SetAutoFocus(false)
+		f:HookScript("OnEditFocusLost", function()
+			f:Hide()
 		end)
 		f.count = f:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
 		f.count:SetPoint("RIGHT", f, "RIGHT", -18, 0)
@@ -127,21 +114,6 @@ EverlookDBChat:AddModuleToLoad(function()
 				module:Step(f, 0)
 			end
 		end)
-		f.anim = f:CreateAnimationGroup()
-		f.anim.fade1 = f.anim:CreateAnimation("Alpha")
-		f.anim.fade1:SetFromAlpha(self.db.profile.searchactivealpha)
-		f.anim.fade1:SetDuration(3)
-		f.anim.fade1:SetToAlpha(self.db.profile.searchinactivealpha)
-		f.anim.fade1:SetSmoothing("IN")
-		f.anim:SetScript("OnFinished", function()
-			if f:HasFocus() then
-				self:UnstashSearch(f)
-			else
-				self:StashSearch(f)
-			end
-		end)
-
-		f.anim:Play()
 
 		return f
 	end
@@ -228,8 +200,8 @@ EverlookDBChat:AddModuleToLoad(function()
 		if not f then
 			return
 		end
+		release(f)
 		f:Show()
-		self:UnstashSearch(f)
 		f:SetFocus()
 		f:HighlightText()
 		f.matches = nil
@@ -240,6 +212,7 @@ EverlookDBChat:AddModuleToLoad(function()
 		f.count:SetText("")
 		f.matches = nil
 		f:ClearFocus()
+		f:Hide()
 		f:GetParent():ScrollToBottom()
 	end
 
@@ -340,9 +313,6 @@ EverlookDBChat:AddModuleToLoad(function()
 			end
 		end
 
-		for _, f in pairs(self.searchBoxes) do
-			f:Show()
-		end
 	end
 
 	function module:OnModuleDisable()

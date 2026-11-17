@@ -120,6 +120,39 @@ EverlookDBChat:AddModuleToLoad(function()
 		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.POST_ADDMESSAGE)
 
 		self:SecureHook("FCF_SetButtonSide")
+
+		-- New windows (whisper tabs, a new chat window) get the same treatment.
+		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.FRAMES_UPDATED)
+		for _, fn in ipairs({ "FCF_OpenTemporaryWindow", "FCF_OpenNewWindow" }) do
+			if _G[fn] and not self:IsHooked(fn) then
+				self:SecureHook(fn, "ReapplyChrome")
+			end
+		end
+		if not self.chromeEvents then
+			self.chromeEvents = CreateFrame("Frame")
+			self.chromeEvents:SetScript("OnEvent", function()
+				module:ReapplyChrome()
+			end)
+		end
+		self.chromeEvents:RegisterEvent("UPDATE_CHAT_WINDOWS")
+	end
+
+	function module:EverlookDBChat_FramesUpdated()
+		self:ReapplyChrome()
+	end
+
+	-- Hide the modern scroll bar and its buttons on every chat window, also ones
+	-- made after the first pass. Cheap and idempotent.
+	function module:ReapplyChrome()
+		if not (self:IsEnabled() and EverlookDBChat.IsModernAPI) or self.db.profile.showButtons then
+			return
+		end
+		for _, name in ipairs(CHAT_FRAMES or {}) do
+			local frame = _G[name]
+			if frame then
+				self:HideModernChrome(frame)
+			end
+		end
 	end
 
 	function module:APLyAllSettings()
@@ -221,26 +254,39 @@ EverlookDBChat:AddModuleToLoad(function()
 	end
 
 
-	-- The modern chat frame has a scroll bar (arrows, track, jump-to-bottom) and a
-	-- search box beside the text. Arrows off means all of that is gone for good:
-	-- the mouse wheel still scrolls, and Ctrl+F still searches.
+	-- The modern chat frame has a scroll bar (arrows, track) and a jump-to-bottom
+	-- button beside the text. Arrows off means all of that is gone for good: the
+	-- mouse wheel still scrolls, and Ctrl+F still searches (that box is ours, see
+	-- Search.lua, and is left alone here).
+	--
+	-- Hidden = moved under a frame that is never shown. Blizzard can Show or
+	-- SetShown them and fade their alpha as much as it likes, nothing ever draws,
+	-- so there is no one-frame flicker. Their anchors and methods are untouched.
 	local chromeKeys = { "ScrollBar", "ScrollToBottomButton", "SearchBox", "SearchButton", "Search" }
+	local holder = CreateFrame("Frame")
+	holder:Hide()
 	local function keepHidden(f)
 		if f.everlookHidden then return end
 		f.everlookHidden = true
-		hooksecurefunc(f, "Show", function(self) if self.everlookHidden then self:Hide() end end)
-		f:Hide()
+		f.everlookParent = f.everlookParent or f:GetParent()
+		f:SetParent(holder)
+	end
+	local function isOwn(n)
+		return n:find("chatsearcheditbox", 1, true) or n:find("everlook", 1, true)
 	end
 	local function isChrome(child)
 		local n = (child.GetName and child:GetName()) or ""
 		local key = (child.GetParentKey and child:GetParentKey()) or ""
 		local s = (n .. " " .. key):lower()
+		if isOwn(s) then
+			return false
+		end
 		return s:find("scroll") or s:find("search")
 	end
 	function module:HideModernChrome(frame)
 		for _, key in ipairs(chromeKeys) do
 			local f = frame[key]
-			if type(f) == "table" and f.Hide then keepHidden(f) end
+			if type(f) == "table" and f.SetParent and not isOwn(((f.GetName and f:GetName()) or ""):lower()) then keepHidden(f) end
 		end
 		local bf = _G[frame:GetName() .. "ButtonFrame"]
 		for _, parent in ipairs({ frame, bf }) do
@@ -253,17 +299,17 @@ EverlookDBChat:AddModuleToLoad(function()
 	end
 
 	function module:ShowModernChrome(frame)
-		local function undo(f) if f.everlookHidden then f.everlookHidden = false; f:Show() end end
-		for _, key in ipairs(chromeKeys) do
-			local f = frame[key]
-			if type(f) == "table" and f.everlookHidden ~= nil then undo(f) end
+		local function undo(f)
+			if f.everlookHidden then
+				f.everlookHidden = false
+				f:SetParent(f.everlookParent or frame)
+				f:Show()
+			end
 		end
 		local bf = _G[frame:GetName() .. "ButtonFrame"]
-		for _, parent in ipairs({ frame, bf }) do
-			if parent and parent.GetChildren then
-				for _, child in ipairs({ parent:GetChildren() }) do
-					if child.everlookHidden then undo(child) end
-				end
+		for _, child in ipairs({ holder:GetChildren() }) do
+			if child.everlookParent == frame or (bf and child.everlookParent == bf) then
+				undo(child)
 			end
 		end
 	end
