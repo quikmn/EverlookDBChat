@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Alt names on unit tooltips (Main and Alts, when turned on) now share one tidy layout with the other EverlookDB addons: "Main" left with the name right, "Alts" with the list, grouped with the other EverlookDB lines after a blank line, before a Player Notes note.
 - The scroll bar, its arrows, the jump-to-bottom button and the search box beside the chat are hidden for good (Buttons › Show Arrows brings them back). The mouse wheel still scrolls and Ctrl+F still searches.
 
 - Calm, Tabs and buttons only on hover (on by default): the chat tabs and buttons are hidden unless the mouse is over the chat or the chat box is open. Works with or without Idle fade.

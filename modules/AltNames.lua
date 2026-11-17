@@ -376,7 +376,19 @@ EverlookDBChat:AddModuleToLoad(function()
 
 	function module:HookTooltip()
 		if self.altertooltip then
-			if TooltipDataProcessor and TooltipDataProcessor.AddTooltipPostCall then
+			-- On the shared EverlookDB tooltip layout (Libs/EverlookUI/EverlookTooltip.lua): one hook for every
+			-- EverlookDB addon, our lines grouped in a fixed order, labels left.
+			local Tip = LibStub and LibStub("EverlookTooltip-1", true)
+			if Tip then
+				Tip:Register({ id = "EverlookDBChat.altnames", kind = "unit", order = Tip.ORDER.alts, add = function(t, ctx)
+					if ctx.tooltip ~= GameTooltip or not self.altertooltip or not ctx.guid or not UnitTokenFromGUID then return end
+					local unitid = UnitTokenFromGUID(ctx.guid)
+					if not unitid or (issecretvalue and issecretvalue(unitid)) then return end
+					local isPlayer = UnitIsPlayer(unitid)
+					if (issecretvalue and issecretvalue(isPlayer)) or not isPlayer then return end
+					self:UnitTooltipLines(t, unitid)
+				end })
+			elseif TooltipDataProcessor and TooltipDataProcessor.AddTooltipPostCall then
 				TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, function(tooltip, data)
 					if tooltip == GameTooltip and self.altertooltip then
 						local unitid = UnitTokenFromGUID(data.guid)
@@ -908,6 +920,27 @@ EverlookDBChat:AddModuleToLoad(function()
 
 		self:print(string.format(PL['%d alts found for %s: %s'], #alts, clrmain(mainname), clralt(self:nicejoin(alts))))
 		return #alts
+	end
+
+	-- Main and alts on the shared layout: "Main" left with the name right, "Alts" with the list wrapped.
+	function module:UnitTooltipLines(t, unitid)
+		local charname = UnitName(unitid)
+		if not charname or (issecretvalue and issecretvalue(charname)) then return end
+		local function label(key) return (PL[key]:gsub("%s*:%s*$", "")) end
+
+		local mainname
+		if self.db.profile.tooltip_showmain then
+			mainname = self:getMain(charname)
+			if mainname then t:Line(label('Main:'), clrmain(mainname)) end
+		end
+
+		if self.db.profile.tooltip_showalts then
+			local alts = self:getAlts(charname)
+			if not alts and mainname then
+				alts = self:getAlts(mainname)
+			end
+			if alts then t:Text(label('Alts:'), clralt(self:nicejoin(alts)), { color = { 1, 0.5, 0.5 } }) end
+		end
 	end
 
 	function module:ModifyUnitTooltip(unitid)
