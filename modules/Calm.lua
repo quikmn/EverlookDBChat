@@ -20,6 +20,8 @@
 --     screen until you have seen it, with a small marker to reply.
 --   * Mentions: a channel line with your character's name shows even in focus
 --     and is never held back.
+--   * Chrome on hover: tabs and chat buttons only show while the mouse is over
+--     the chat or the chat box is open (services/chatui.lua does the fading).
 --
 -- Only event types, channel base names and message text that is not a secret
 -- value are read. Nothing protected is touched, so all of it is combat-safe.
@@ -49,6 +51,7 @@ EverlookDBChat:AddModuleToLoad(function()
 			whispermarker = true,
 			whispersound = false,
 			mentions = true,
+			chromehover = true,
 		}
 	})
 
@@ -161,6 +164,12 @@ EverlookDBChat:AddModuleToLoad(function()
 				desc = PL["mentions_desc"],
 				type = "toggle",
 				order = 60,
+			},
+			chromehover = {
+				name = PL["chromehover_name"],
+				desc = PL["chromehover_desc"],
+				type = "toggle",
+				order = 70,
 			},
 		}
 	})
@@ -587,6 +596,7 @@ EverlookDBChat:AddModuleToLoad(function()
 		module:HoldLines(pinned)
 		full = inUse or ChatUI:IsScrolledUp()
 		full = full or pinned
+		ChatUI:SetTarget("chrome", (not p.chromehover or inUse) and 1 or 0)
 		module:ReleaseDue(now)
 		if sincePrune >= 30 then
 			sincePrune = 0

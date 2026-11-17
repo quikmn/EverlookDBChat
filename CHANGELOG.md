@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Calm, Tabs and buttons only on hover (on by default): the chat tabs and buttons are hidden unless the mouse is over the chat or the chat box is open. Works with or without Idle fade.
 - Calm, Your name always shows: a channel line with your character's name in it shows even in focus and is never held back by paced channel chat.
 - Calm, Whispers are never missed: an incoming whisper (character or Battle.net) keeps the chat visible with every line, not faded or cut down, until you've seen it (mouse over the chat or the chat box opened). A small "1 whisper" note above the chat shows meanwhile; click it to reply. An extra whisper sound can be turned on (off by default).
 - Calm, Focus: in combat, General, Trade and the other numbered channels are hidden completely; whispers, party, raid, guild, say and the other conversations still show. When focus ends nothing is replayed. Optional: focus in dungeons and raids (off by default). Turn it on and off by hand with /chat focus (or /chatfocus) or a new key binding.
