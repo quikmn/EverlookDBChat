@@ -33,7 +33,11 @@ local modules = {
 	CopyChat = module("CopyChat", true),
 	Calm = module("Calm", true),
 	Alias = module("Alias", true),
+	Placement = module("Placement", true),
 }
+-- placement mode with the real lock state (addon/placement.lua, loaded below)
+function modules.Placement:IsUnlocked() return self.state ~= nil and not self.state:IsLocked() end
+function modules.Placement:SetUnlocked(on) self.state:SetLocked(not on) end
 function modules.Search:Find(word, all) calls[#calls + 1] = "find " .. word .. (all and " all" or "") end
 function modules.CopyChat:DoCopyChat(f) calls[#calls + 1] = "copy " .. tostring(f and f:GetName()) end
 function modules.Calm:ToggleFocus() calls[#calls + 1] = "focus" end
@@ -75,6 +79,8 @@ end
 step("load LibStub, EverlookUI and addon/commands.lua", function()
 	load("Libs/LibStub/LibStub.lua")
 	load("Libs/EverlookUI/EverlookUI.lua")
+	load("addon/placement.lua", "EverlookDBChat", private)
+	modules.Placement.state = private.Placement.NewState({}, {})
 	load("addon/commands.lua", "EverlookDBChat", private)
 	for _, task in ipairs(private.EnableTasks) do task(private) end
 	check(private.app, "app made")
@@ -172,8 +178,139 @@ step("/echat fnd x suggests find; status", function()
 	check(logHas("Did you mean /echat find x?"), "suggestion: " .. lastLog())
 	MOCK.log = {}
 	slash("status")
-	check(logHas("5 of 6 modules on"), "status: " .. table.concat(MOCK.log, " / "))
+	check(logHas("6 of 7 modules on"), "status: " .. table.concat(MOCK.log, " / "))
 	check(logHas("/chatfocus"), "names the standalone commands")
+end)
+
+------------------------------------------------------------------------
+-- Chat placement (addon/placement.lua): edit box anchors, the Bottom-left preset, snapping, lock state
+------------------------------------------------------------------------
+local P = private.Placement
+
+local function near(a, b, what) if math.abs(a - b) > 0.01 then error((what or "value") .. ": expected " .. tostring(b) .. ", got " .. tostring(a), 2) end end
+local function rectEq(r, l, b, w, h, what)
+	near(r.l, l, what .. " left"); near(r.b, b, what .. " bottom"); near(r.w, w, what .. " width"); near(r.h, h, what .. " height")
+end
+local SCREEN = { w = 1365.33, h = 768 } -- 1920x1080, pixel-perfect UI scale
+local CHAT = { l = 8, b = 40, w = 430, h = 180 }
+local CFG = { height = 22 }
+
+step("edit box below the chat, same width; above when the chat is on the bottom edge", function()
+	local r, side, lift = P.EditBoxRect("BELOW", CHAT, SCREEN, CFG)
+	rectEq(r, 8, 16, 430, 22, "below"); eq(side, "below", "side"); eq(lift, 0, "no lift")
+	check(r.b + r.h <= CHAT.b, "never overlaps the chat")
+	local flush = { l = 0, b = 0, w = 658, h = 193 } -- the owner's Edit Mode placement
+	r, side = P.EditBoxRect("BELOW", flush, SCREEN, CFG)
+	eq(side, "above", "no room below")
+	near(r.b, 193 + P.TAB_HEIGHT + P.GAP, "above the tabs")
+	check(r.b >= flush.b + flush.h, "never overlaps the chat")
+	r, side = P.EditBoxRect("BELOW", { l = 0, b = 24, w = 400, h = 100 }, SCREEN, CFG)
+	eq(side, "below", "exactly fits"); near(r.b, 0, "on the bottom edge")
+end)
+
+step("edit box above, inside and free", function()
+	local r, side = P.EditBoxRect("ABOVE", CHAT, SCREEN, CFG)
+	rectEq(r, 8, 40 + 180 + P.TAB_HEIGHT + P.GAP, 430, 22, "above"); eq(side, "above", "side")
+	r, side = P.EditBoxRect("ABOVE", { l = 8, b = 560, w = 430, h = 190 }, SCREEN, CFG)
+	eq(side, "below", "no room above"); near(r.b, 560 - 2 - 22, "below instead")
+	local lift
+	r, side, lift = P.EditBoxRect("INSIDE", CHAT, SCREEN, CFG)
+	rectEq(r, 8, 40, 430, 22, "inside"); eq(side, "inside", "side"); eq(lift, 22 + P.GAP, "lines move up by the box")
+	r, side = P.EditBoxRect("FREE", CHAT, SCREEN, { height = 22, free = { l = 500, top = 300, w = 300 } })
+	rectEq(r, 500, 278, 300, 22, "free"); eq(side, "free", "side")
+	r = P.EditBoxRect("FREE", CHAT, SCREEN, { height = 22, free = { l = 1300, top = 5, w = 300 } })
+	rectEq(r, SCREEN.w - 300, 0, 300, 22, "free, kept on screen")
+	r = P.EditBoxRect("FREE", CHAT, SCREEN, CFG)
+	rectEq(r, 8, 16, 430, 22, "free without a saved place starts below")
+end)
+
+step("edit box always fully on screen; old Prat values", function()
+	local r = P.EditBoxRect("BELOW", { l = -50, b = 100, w = 400, h = 100 }, SCREEN, CFG)
+	near(r.l, 0, "pulled in from the left")
+	r = P.EditBoxRect("BELOW", { l = 1200, b = 100, w = 400, h = 100 }, SCREEN, CFG)
+	near(r.l + r.w, SCREEN.w, "pulled in from the right")
+	eq(P.NormalizeMode("BOTTOM"), "BELOW", "BOTTOM"); eq(P.NormalizeMode("TOP"), "ABOVE", "TOP")
+	eq(P.NormalizeMode("LOCK"), "FREE", "LOCK"); eq(P.NormalizeMode(nil), "BELOW", "default")
+	eq(P.NormalizeMode("INSIDE"), "INSIDE", "INSIDE")
+	local x, y = P.Offset({ l = 8, b = 16 }, CHAT)
+	eq(x, 0, "offset x"); eq(y, -24, "offset y")
+end)
+
+step("Bottom-left preset on a few screens: flush left, box below inside the screen", function()
+	for _, s in ipairs({ { w = 1365.33, h = 768 }, { w = 1024, h = 768 }, { w = 1834.67, h = 768 }, { w = 1280, h = 720 }, { w = 800, h = 600 } }) do
+		local name = s.w .. "x" .. s.h
+		local r = P.Preset(s, 22, 8)
+		eq(r.l, 8, name .. " left margin")
+		eq(r.b, 8 + 22 + P.GAP, name .. " room for the box")
+		check(r.w >= 340 and r.w <= 520, name .. " width " .. r.w)
+		check(r.h >= 120 and r.h <= 220, name .. " height " .. r.h)
+		check(r.b + r.h + P.TAB_HEIGHT <= s.h, name .. " fits")
+		local eb, side = P.EditBoxRect("BELOW", r, s, CFG)
+		eq(side, "below", name .. " box below")
+		near(eb.b, 8, name .. " box on the margin")
+	end
+	rectEq(P.Preset(SCREEN, 22, 8), 8, 32, 437, 184, "1920x1080")
+end)
+
+step("drag snaps to the edges and keeps room for the box; resize keeps the opposite corner", function()
+	local snap = { margin = 8, reserve = P.ReserveBelow("BELOW", 22), dist = 12 }
+	local r = P.Drag(CHAT, -5, -15, SCREEN, snap) -- to l=3, b=25: near the margin and the reserve line
+	rectEq(r, 8, 32, 430, 180, "snapped")
+	r = P.Drag(CHAT, -100, -100, SCREEN, nil)
+	rectEq(r, 0, 0, 430, 180, "no snap: kept on screen")
+	r = P.Drag(CHAT, 925, 0, SCREEN, snap) -- right edge at 1363, within 12 of 1357
+	near(r.l + r.w, SCREEN.w - 8, "snapped right")
+	eq(P.ReserveBelow("INSIDE", 22), 0, "no reserve inside")
+	r = P.Resize(CHAT, "TOPRIGHT", 50, 20, SCREEN, nil)
+	rectEq(r, 8, 40, 480, 200, "top-right")
+	r = P.Resize(CHAT, "BOTTOMLEFT", 30, -10, SCREEN, nil)
+	rectEq(r, 38, 30, 400, 190, "bottom-left")
+	r = P.Resize(CHAT, "TOPLEFT", 1000, -1000, SCREEN, nil)
+	eq(r.w, P.MIN_W, "min width"); eq(r.h, P.MIN_H, "min height"); eq(r.l + r.w, 438, "right edge stays")
+end)
+
+step("lock state: unlock shows, lock saves only a moved chat, release hands it back", function()
+	local db, shown, moved = {}, false, nil
+	local st = P.NewState(db, {
+		show = function() shown = true end,
+		hide = function() shown = false end,
+		read = function() return moved end,
+	})
+	check(st:IsLocked(), "starts locked")
+	eq(st:Wanted(), nil, "Edit Mode keeps the chat at first")
+	check(st:Unlock() and shown and not st:IsLocked(), "unlocked")
+	check(not st:Unlock(), "unlock twice does nothing")
+	check(st:Lock() and not shown, "locked")
+	check(not db.managed, "nothing moved: Edit Mode still has it")
+	st:Unlock()
+	moved = { l = 8.4, b = 31.6, w = 437, h = 184 }
+	eq(st:Toggle(), true, "toggle locks")
+	check(db.managed, "placed")
+	rectEq(st:Wanted(), 8, 32, 437, 184, "saved, rounded")
+	check(not st:Lock(), "lock twice does nothing")
+	st:Release()
+	eq(st:Wanted(), nil, "back to Edit Mode")
+	check(P.Same({ l = 1, b = 1, w = 2, h = 2 }, { l = 1.5, b = 1, w = 2, h = 2 }), "same within a pixel")
+end)
+
+step("/echat move, unlock and lock drive placement mode", function()
+	local m = modules.Placement
+	slash("unlock")
+	check(m:IsUnlocked(), "unlocked")
+	slash("lock")
+	check(not m:IsUnlocked(), "locked")
+	slash("move")
+	check(m:IsUnlocked(), "move flips it on")
+	slash("move")
+	check(not m:IsUnlocked(), "and off")
+	MOCK.log = {}
+	slash("help")
+	check(logHas("unlock") and logHas("move the chat and see where the chat box goes"), "help lists unlock and lock")
+	m.enabled = false
+	MOCK.log = {}
+	slash("unlock")
+	check(not m:IsUnlocked() and logHas("/echat placement on"), "module off says how: " .. lastLog())
+	m.enabled = true
 end)
 
 print(string.format("\n%d passed, %d failed", passes, #failures))
