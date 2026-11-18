@@ -4,6 +4,7 @@
 	<Script file="MessageEventHandler.lua"/>
 	<Script file="modules.lua"/>
 	<Script file="options.lua"/>
+	<Script file="placement.lua"/>
 	<Script file="commands.lua"/>
 	<Script file="profileAPI.lua"/>
 </Ui>
