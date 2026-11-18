@@ -35,6 +35,7 @@
 	<Script file="NewcomersChat.lua"/>
 	<Script file="Paragraph.lua"/>
 	<Script file="PlayerNames.lua"/>
+	<Script file="Placement.lua"/>
 	<Script file="PopupMessage.lua"/>
 	<Script file="ServerNames.lua"/>
 	<Script file="Scroll.lua"/>

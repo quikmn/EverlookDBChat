@@ -129,6 +129,19 @@ function private.DebugMessage()
 end
 app:Command("debugmsg", "debugmsg", "", function() private.DebugMessage() end).hidden = true
 
+-- Placement mode: /echat move (flips), /echat unlock, /echat lock.
+app:Movable({
+	what = "the chat and see where the chat box goes",
+	get = function()
+		local m = getModule("Placement")
+		return not (m and m:IsEnabled() and m:IsUnlocked())
+	end,
+	set = function(locked)
+		local m = needModule("Placement", "placement")
+		if m then m:SetUnlocked(not locked) end
+	end,
+})
+
 ------------------------------------------------------------------------
 -- Reset and status
 ------------------------------------------------------------------------
