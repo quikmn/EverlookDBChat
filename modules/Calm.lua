@@ -548,7 +548,9 @@ EverlookDBChat:AddModuleToLoad(function()
 		local b = self:GetMarker()
 		local anchor = DEFAULT_CHAT_FRAME or ChatFrame1
 		b:ClearAllPoints()
-		b:SetPoint("BOTTOMLEFT", anchor, "TOPLEFT", 0, 28)
+		-- Just above the chat frame's top edge, so it moves and resizes with the chat. The tabs that share
+		-- that strip only show with the mouse over the chat, and that marks the whisper as seen.
+		b:SetPoint("BOTTOMLEFT", anchor, "TOPLEFT", 0, 2)
 		b.text:SetText(unread == 1 and PL["marker_one"] or PL["marker_many"]:format(unread))
 		b:SetWidth(b.text:GetStringWidth() + 4)
 		b:Show()
