@@ -1,0 +1,7 @@
+package-as: EverlookDBChat
+
+ignore:
+  - tests
+  - .github
+  - .luacheckrc
+  - .editorconfig
