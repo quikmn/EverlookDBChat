@@ -1,6 +1,6 @@
 # EverlookDB Chat
 
-## Unreleased
+## v0.1.0 (2026-11-19)
 
 - Settings: `/echat ai` copies a description of every setting for an AI assistant, and `/echat apply` runs the commands it gives back.
 - New module Chat placement (on by default): `/echat move` (or `/echat unlock`, then `lock`, or Move the chat in the settings) outlines the chat with corner handles and shows a ghost of the chat box exactly where it will open. Drag the chat with the left mouse button, resize it from any corner; it snaps to the screen edges with a margin (can be turned off). "Bottom-left" puts the chat flush bottom-left at a sensible size with the chat box under it, inside the screen. Escape or right-click locks it, and the place is saved per profile. Once placed here, this placement replaces Edit Mode's for the chat; moving or resizing the chat in Edit Mode later becomes the new placement, and "Give the chat back to Edit Mode" undoes it. While Edit Mode is open the ghost chat box shows there too, following the chat as you drag it. The chat box: new setting Chat box position: Below, or above when there's no room (new default), Above the chat, Inside at the bottom (the chat lines move up while you type, so the box never covers them), or Free (drag it in placement mode). It always stays fully on screen. The chat box is now flat: a thin dark background, a 1 px border that turns blue while you type (Flat look; off brings back the texture settings; Color border by channel is now off by default). The "1 whisper" note from Calm sits just above the chat and moves with it.
