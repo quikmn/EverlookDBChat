@@ -27,6 +27,7 @@ Settings: type `/echat`, or open the game's Settings under AddOns.
 - `/echat find <words>` searches the current chat window; `/echat clear` (or `clear all`) clears it; `/echat copy` copies it; `/echat focus` hides the numbered channels (Calm). These work even when another addon (Prat-3.0) owns `/find` or `/clear`.
 - `/echat blacklist <word>` and `/echat unblacklist <word>` stop or start treating a word as a player name (after a reload).
 - `/echat aliases` lists your `/alias` commands.
+- `/echat move` (or `unlock`, then `lock`) is placement mode: drag and resize the chat and see exactly where the chat box will open. Escape or right-click locks it.
 - `/echat reset` puts every setting in this profile back (type it twice within 10 seconds).
 - `/echat status`, `/echat version`; `/echat help` (or `?`) lists every command, and a mistyped one suggests the nearest.
 
