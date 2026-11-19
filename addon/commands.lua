@@ -17,7 +17,6 @@ function app:Toggle() private:ToggleOptionsWindow() end
 function app:Open() if not private:IsOptionsWindowShown() then private:ToggleOptionsWindow() end end
 function app:Close() if private:IsOptionsWindowShown() then private:ToggleOptionsWindow() end end
 function app:IsShown() return private:IsOptionsWindowShown() end
-function app:OpenSearch() self:Open() end
 
 local BOOL = { on = true, off = true, toggle = true, enable = true, disable = true }
 
@@ -116,11 +115,99 @@ app:Command("aliases", "aliases [pattern]", "list your /alias commands", functio
 	if m then m:listAliases(trim(rest) ~= "" and trim(rest) or nil) end
 end)
 
--- "/echat search off" switches the Search module; anything else opens the window (it has no search box).
-app:Command("search", "search", "", function(rest)
-	if moduleSwitch("search", rest) then return end
+------------------------------------------------------------------------
+-- Settings search from chat. The window is AceConfig and has no search box, so "/echat search <words>" looks
+-- through every option's name and description (EverlookUI's matcher), opens the window on the best match's page
+-- and names the others in chat.
+------------------------------------------------------------------------
+local function optionText(v, info)
+	if type(v) == "function" then
+		local ok, r = pcall(v, info)
+		v = ok and r or nil
+	end
+	return type(v) == "string" and v or nil
+end
+
+-- Every option as a search entry; entry.path = the group keys to open, entry.where = "Calm > Focus".
+function private.OptionEntries()
+	local Search = UI.Search
+	local out = {}
+	local function walk(node, path, names)
+		local children = {}
+		for k, v in pairs(node.args or {}) do children[#children + 1] = { k, v } end
+		for _, plugin in pairs(node.plugins or {}) do
+			for k, v in pairs(plugin) do children[#children + 1] = { k, v } end
+		end
+		table.sort(children, function(a, b)
+			local oa, ob = tonumber(a[2].order) or 100, tonumber(b[2].order) or 100
+			if oa ~= ob then return oa < ob end
+			return tostring(a[1]) < tostring(b[1])
+		end)
+		for _, kv in ipairs(children) do
+			local key, opt = kv[1], kv[2]
+			if type(opt) == "table" and opt.hidden ~= true and opt.type ~= "header" and opt.type ~= "description" then
+				local info = { key }
+				local name = optionText(opt.name, info)
+				local desc = optionText(opt.desc, info)
+				if name and name ~= "" then
+					local isGroup = opt.type == "group"
+					local groupPath = {}
+					for i, p in ipairs(path) do groupPath[i] = p end
+					if isGroup then groupPath[#groupPath + 1] = key end
+					local e = Search.Entry({ label = name, desc = desc, section = table.concat(names, " "), keywords = tostring(key) })
+					e.path = groupPath
+					local where = {}
+					for i, n in ipairs(names) do where[i] = n end
+					if isGroup then where[#where + 1] = name end
+					e.where = table.concat(where, " > ")
+					e.name = name
+					out[#out + 1] = e
+					if isGroup then
+						local sub = {}
+						for i, n in ipairs(names) do sub[i] = n end
+						sub[#sub + 1] = name
+						walk(opt, groupPath, sub)
+					end
+				end
+			end
+		end
+	end
+	if type(private.Options) == "table" then walk(private.Options, {}, {}) end
+	return out
+end
+
+function private.SearchOptions(text)
+	text = trim(text)
 	app:Open()
-end).hidden = true
+	if text == "" then return end
+	local Search = UI.Search
+	local entries = private.OptionEntries()
+	local results = Search.Match(entries, text)
+	if #results == 0 then
+		local sug = Search.Suggest(entries, text)
+		app:Print("no setting matches '" .. text .. "'." .. (sug and (" Did you mean /echat search " .. sug .. "?") or ""))
+		return
+	end
+	local best = results[1].entry
+	local acd = LibStub("AceConfigDialog-3.0", true)
+	if acd and #best.path > 0 then
+		pcall(acd.SelectGroup, acd, "EverlookDB Chat", unpack(best.path))
+	end
+	local function show(e) return e.where ~= "" and e.where:find(e.name, 1, true) == nil and (e.where .. " > " .. e.name) or (e.where ~= "" and e.where or e.name) end
+	app:Print("'" .. text .. "': " .. show(best))
+	local more = {}
+	for i = 2, math.min(#results, 6) do more[#more + 1] = show(results[i].entry) end
+	if #more > 0 then
+		DEFAULT_CHAT_FRAME:AddMessage("  also: " .. table.concat(more, "; ") .. (#results > 6 and (" (+" .. (#results - 6) .. " more)") or ""))
+	end
+end
+
+-- "/echat search off" switches the Search module; "/echat search <words>" finds a setting.
+app:Command("search", "search <words>", "find a setting and open its page", function(rest)
+	if moduleSwitch("search", rest) then return end
+	private.SearchOptions(rest)
+end)
+function app:OpenSearch(text) private.SearchOptions(text) end
 
 function private.DebugMessage()
 	if private.LastMessage and private.PrintLiteral then private:PrintLiteral(private.LastMessage) end

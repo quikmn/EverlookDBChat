@@ -110,7 +110,9 @@ step("/echat help lists find, clear, copy, focus and blacklist", function()
 		check(logHas(want), "help lists " .. want)
 	end
 	check(not logHas("debugmsg"), "debugmsg is hidden")
-	check(not logHas("search <words>"), "no search box to offer")
+	local searchLines = 0
+	for _, l in ipairs(MOCK.log) do if l:find("search <words>", 1, true) then searchLines = searchLines + 1 end end
+	eq(searchLines, 1, "help offers /echat search <words> once")
 	check(logHas("Also works as /edbchat"), "names the old command")
 	check(MOCK.log[1]:find("EverlookDB Chat|r: ", 1, true), "prefix: " .. MOCK.log[1])
 end)
@@ -134,6 +136,41 @@ step("modules are on/off settings: /echat timestamps off, off timestamps, get", 
 	check(not modules.Search.enabled, "/echat search off")
 	slash("search on")
 	check(modules.Search.enabled, "/echat search on")
+end)
+
+step("/echat search <words> finds a setting, opens its page and keeps the words", function()
+	local selected
+	local acd = LibStub:NewLibrary("AceConfigDialog-3.0", 1) or LibStub("AceConfigDialog-3.0")
+	function acd:SelectGroup(app, ...) selected = app .. ":" .. table.concat({ ... }, "/") end
+	private.Options = { type = "group", args = {
+		modules = { type = "group", name = "Modules", order = 1, args = {
+			calm = { type = "group", name = "Calm", args = {
+				hdr = { type = "header", name = "Fewer lines" },
+				fewlines = { type = "toggle", name = "Fewer lines on screen", desc = "Show only the newest lines" },
+			}, plugins = { x = { whisperpin = { type = "toggle", name = function() return "Whispers are never missed" end } } } },
+			history = { type = "group", name = "History", args = {
+				scrollback = { type = "toggle", name = "Scrollback", desc = "Store the chat lines between sessions" },
+			} },
+		} },
+	} }
+	windowOpen = false
+	MOCK.log = {}
+	slash("search fewer lines")
+	check(windowOpen, "window opened")
+	eq(selected, "EverlookDB Chat:modules/calm", "page of the best match")
+	check(logHas("Modules > Calm > Fewer lines on screen"), "names the match: " .. lastLog())
+	selected = nil
+	slash("search whispers")
+	eq(selected, "EverlookDB Chat:modules/calm", "plugin options are searched")
+	slash("search between sessions")
+	eq(selected, "EverlookDB Chat:modules/history", "descriptions are searched")
+	MOCK.log = {}
+	slash("search zzqx")
+	check(logHas("no setting matches 'zzqx'"), "says nothing matched: " .. lastLog())
+	slash("search off")
+	check(not modules.Search.enabled, "/echat search off still switches the module")
+	slash("search on")
+	windowOpen = false
 end)
 
 step("find, clear, copy, focus, aliases, blacklist under /echat", function()
