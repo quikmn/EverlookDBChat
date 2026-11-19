@@ -404,21 +404,44 @@ EverlookDBChat:AddModuleToLoad(function()
 		e:HookScript("OnArrowPressed", OnArrowPressed)
 	end
 
+	-- The game's own chat box textures. Their names differ between clients (and a
+	-- new whisper window may not have them yet), so each one is looked up and
+	-- skipped when it isn't there.
+	local function showBlizzardTextures(f, i, show)
+		local prefix = "ChatFrame" .. i .. "EditBox"
+		for _, part in ipairs({ "Left", "Right", "Mid" }) do
+			local t = _G[prefix .. part] or (f and f[part])
+			if t and t.SetShown then
+				t:SetShown(show)
+			end
+		end
+		if f then
+			for _, key in ipairs({ "focusLeft", "focusRight", "focusMid" }) do
+				if f[key] and f[key].SetAlpha then
+					f[key]:SetAlpha(show and 1 or 0)
+				end
+			end
+		end
+	end
+
+	local function setHeaderFont(f, font)
+		local header = f and (_G[f:GetName() .. "Header"] or f.header)
+		if not (header and header.GetFont and font) then
+			return
+		end
+		local _, size, flags = header:GetFont()
+		if size then
+			header:SetFont(font, size, flags)
+		end
+	end
+
 	function module:EverlookDBChat_FramesUpdated(_, _, chatFrame)
 		local i = chatFrame:GetID()
 		local f = _G["ChatFrame" .. i .. "EditBox"]
-		_G["ChatFrame" .. i .. "EditBoxLeft"]:Hide()
-		_G["ChatFrame" .. i .. "EditBoxRight"]:Hide()
-		_G["ChatFrame" .. i .. "EditBoxMid"]:Hide()
-		if f.focusLeft then
-			f.focusLeft:SetAlpha(0)
+		if not f then
+			return
 		end
-		if f.focusRight then
-			f.focusRight:SetAlpha(0)
-		end
-		if f.focusMid then
-			f.focusMid:SetAlpha(0)
-		end
+		showBlizzardTextures(f, i, false)
 		f:Hide()
 		f:SetAlpha(0)
 		f:EnableMouse(false)
@@ -429,9 +452,7 @@ EverlookDBChat:AddModuleToLoad(function()
 		local _, s, m = f:GetFont()
 		f:SetFont(Media:Fetch("font", self.db.profile.font), s, m)
 
-		local header = _G[f:GetName() .. "Header"]
-		local _, s2, m2 = header:GetFont()
-		header:SetFont(Media:Fetch("font", self.db.profile.font), s2, m2)
+		setHeaderFont(f, Media:Fetch("font", self.db.profile.font))
 
 		f:SetAltArrowKeyMode(module.db.profile.useAltKey and 1 or nil)
 		if not module.db.profile.useAltKey then
@@ -447,18 +468,7 @@ EverlookDBChat:AddModuleToLoad(function()
 
 		for i = 1, #CHAT_FRAMES do
 			local f = _G["ChatFrame" .. i .. "EditBox"]
-			_G["ChatFrame" .. i .. "EditBoxLeft"]:Hide()
-			_G["ChatFrame" .. i .. "EditBoxRight"]:Hide()
-			_G["ChatFrame" .. i .. "EditBoxMid"]:Hide()
-			if f.focusLeft then
-				f.focusLeft:SetAlpha(0)
-			end
-			if f.focusRight then
-				f.focusRight:SetAlpha(0)
-			end
-			if f.focusMid then
-				f.focusMid:SetAlpha(0)
-			end
+			showBlizzardTextures(f, i, false)
 			f:Hide()
 			f:SetAlpha(0)
 			f:EnableMouse(false)
@@ -468,9 +478,7 @@ EverlookDBChat:AddModuleToLoad(function()
 			local _, s, m = f:GetFont()
 			f:SetFont(Media:Fetch("font", self.db.profile.font), s, m)
 
-			local header = _G[f:GetName() .. "Header"]
-			local _, s2, m2 = header:GetFont()
-			header:SetFont(Media:Fetch("font", self.db.profile.font), s2, m2)
+			setHeaderFont(f, Media:Fetch("font", self.db.profile.font))
 
 			f:SetAltArrowKeyMode(module.db.profile.useAltKey and 1 or nil)
 			if not module.db.profile.useAltKey then
@@ -522,18 +530,7 @@ EverlookDBChat:AddModuleToLoad(function()
 	function module:OnModuleDisable()
 		for i = 1, #CHAT_FRAMES do
 			local f = _G["ChatFrame" .. i .. "EditBox"]
-			_G["ChatFrame" .. i .. "EditBoxLeft"]:Show()
-			_G["ChatFrame" .. i .. "EditBoxRight"]:Show()
-			_G["ChatFrame" .. i .. "EditBoxMid"]:Show()
-			if f.focusLeft then
-				f.focusLeft:SetAlpha(1)
-			end
-			if f.focusRight then
-				f.focusRight:SetAlpha(1)
-			end
-			if f.focusMid then
-				f.focusMid:SetAlpha(1)
-			end
+			showBlizzardTextures(f, i, true)
 			f:SetAltArrowKeyMode(true)
 			f:EnableMouse(true)
 			f.edbchatFrame:Hide()
