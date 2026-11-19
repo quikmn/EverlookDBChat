@@ -227,15 +227,30 @@ EverlookDBChat:AddModuleToLoad(function()
 
 	-- Runs after the chat frame's own OnUpdate, so the frame's own line fading
 	-- has set its alphas for this frame already.
-	function module:CapLines(cf)
-		local lines = cf.visibleLines
-		if type(lines) ~= "table" then
+	-- Capping is on only while Calm is on, Fewer lines is on and the chat isn't
+	-- in use or scrolled up. The per-frame work below runs only then; when it
+	-- turns off, the hidden lines are given back once (UpdateCapping).
+	local capping = false
+
+	function module:UpdateCapping()
+		local want = enabled and not full and self.db.profile.fewlines and true or false
+		if want == capping then
 			return
 		end
-		if full or not enabled or not self.db.profile.fewlines then
-			if next(lineAlpha) then
-				restoreLines(lines)
+		capping = want
+		if not want and next(lineAlpha) then
+			for _, name in ipairs(CHAT_FRAMES or {}) do
+				local cf = _G[name]
+				if cf and type(cf.visibleLines) == "table" then
+					restoreLines(cf.visibleLines)
+				end
 			end
+		end
+	end
+
+	function module:CapLines(cf)
+		local lines = cf.visibleLines
+		if not capping or type(lines) ~= "table" then
 			return
 		end
 		local keep = self.db.profile.fewlinescount
@@ -265,7 +280,9 @@ EverlookDBChat:AddModuleToLoad(function()
 	end
 
 	function module:OnChatUpdate(cf)
-		self:CapLines(cf)
+		if capping then
+			self:CapLines(cf)
+		end
 	end
 
 	function module:HookChatFrames()
@@ -598,6 +615,7 @@ EverlookDBChat:AddModuleToLoad(function()
 		module:HoldLines(pinned)
 		full = inUse or ChatUI:IsScrolledUp()
 		full = full or pinned
+		module:UpdateCapping()
 		ChatUI:SetTarget("chrome", (not p.chromehover or inUse) and 1 or 0)
 		module:ReleaseDue(now)
 		if sincePrune >= 30 then
@@ -628,6 +646,7 @@ EverlookDBChat:AddModuleToLoad(function()
 		end
 		self:UpdateFocus()
 		self:UpdateMarker()
+		self:UpdateCapping()
 	end
 
 	function module:OnModuleEnable()
@@ -670,6 +689,7 @@ EverlookDBChat:AddModuleToLoad(function()
 		self:HoldLines(false)
 		ChatUI:Hold("calm-whisper", false)
 		full = true
+		capping = false
 		for _, name in ipairs(CHAT_FRAMES or {}) do
 			local cf = _G[name]
 			if cf and type(cf.visibleLines) == "table" then
