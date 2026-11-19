@@ -17,7 +17,14 @@ def main() -> int:
     with open(f"{ROOT}/tests/run.lua", encoding="utf-8") as f:
         runner = lua.execute("return function(...) " + "local f = assert(loadstring(...)); return f end")(f.read())
     failures = runner(ROOT)
-    return 1 if failures else 0
+    # the saved chat history tests (tests/scrollback.py) in a fresh Lua state
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    sys.dont_write_bytecode = True
+    import scrollback
+
+    print("saved chat history:")
+    sys.argv = sys.argv[:1]
+    return 1 if (failures or scrollback.main()) else 0
 
 
 if __name__ == "__main__":

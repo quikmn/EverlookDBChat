@@ -100,121 +100,188 @@ EverlookDBChat:AddModuleExtension(function()
 		},
 	}
 
+	-- What is saved between sessions: a plain copy, built at logout, of the newest
+	-- lines of each real chat window (never the combat log, never a whisper
+	-- window). Each line keeps only its text, colour, time and the "this was real
+	-- chat" count (extraData.n, which Remove Spam reads). The window's live history
+	-- (3000 lines, with all its functions) is never stored: that made the saved
+	-- file grow to megabytes per character.
+	local function isSavedWindowName(name)
+		local id = type(name) == "string" and tonumber(name:match("^ChatFrame(%d+)$"))
+		return id ~= nil and id ~= 2 and id <= (NUM_CHAT_WINDOWS or 10)
+	end
+	module.IsSavedWindowName = isSavedWindowName
+
+	local function plainLine(line)
+		if type(line) ~= "table" or type(line.message) ~= "string" or issecretvalue(line.message) then
+			return nil
+		end
+		local copy = {
+			message = line.message,
+			r = tonumber(line.r),
+			g = tonumber(line.g),
+			b = tonumber(line.b),
+			serverTime = tonumber(line.serverTime),
+		}
+		if type(line.extraData) == "table" and tonumber(line.extraData.n) then
+			copy.extraData = { n = tonumber(line.extraData.n) }
+		end
+		return copy
+	end
+
+	-- getEntry(i) gives the i-th newest line (1 = newest), or nil past the end.
+	-- Returns { elements = oldest..newest, headIndex = count, maxElements = count },
+	-- the layout RestoreLastSession reads.
+	function module.CopyNewest(getEntry, keep)
+		local lines, i = {}, 1
+		while #lines < keep do
+			local ok, line = pcall(getEntry, i)
+			if not ok or line == nil then
+				break
+			end
+			lines[#lines + 1] = plainLine(line)
+			i = i + 1
+		end
+		local count = #lines
+		local elements = {}
+		for n = 1, count do
+			elements[count - n + 1] = lines[n]
+		end
+		return { elements = elements, headIndex = count, maxElements = math.max(count, 1) }
+	end
+
+	function module:KeepLines()
+		return math.max(0, math.floor(tonumber(self.db and self.db.profile.scrollbacklines) or 1000))
+	end
+
+	-- Saved data from older versions held each window's whole live history (and
+	-- the combat log). Shrink it to the same plain copy the logout builds.
+	function module:ShrinkSaved(saved, keep)
+		if type(saved) ~= "table" then
+			return {}
+		end
+		local out = {}
+		for name, buffer in pairs(saved) do
+			if isSavedWindowName(name) and type(buffer) == "table" and type(buffer.elements) == "table"
+				and buffer.headIndex and buffer.maxElements then
+				local copy = module.CopyNewest(function(i)
+					return self:GetEntryAtIndex(buffer, i)
+				end, keep)
+				if #copy.elements > 0 then
+					out[name] = copy
+				end
+			end
+		end
+		return out
+	end
+
+	local function isOpenChatWindow(frame, id)
+		if not frame or frame.isTemporary or (IsCombatLog and IsCombatLog(frame)) then
+			return false
+		end
+		if not GetChatWindowInfo then
+			return true
+		end
+		local _, _, _, _, _, _, shown, _, docked = GetChatWindowInfo(id)
+		return (shown and shown ~= 0) or (docked and docked ~= 0) or false
+	end
+
+	-- Built at PLAYER_LOGOUT, just before the game writes the saved file.
+	function module:BuildSavedScrollback()
+		if not (self.db and self.db.profile.on and self.db.profile.scrollback and self:IsEnabled()) then
+			return {}
+		end
+		local keep = self:KeepLines()
+		local out = {}
+		for id = 1, NUM_CHAT_WINDOWS or 10 do
+			local name = "ChatFrame" .. id
+			local frame = _G[name]
+			local buffer = frame and frame.historyBuffer
+			if isSavedWindowName(name) and buffer and isOpenChatWindow(frame, id) then
+				local copy = module.CopyNewest(function(i)
+					if buffer.GetEntryAtIndex then
+						return buffer:GetEntryAtIndex(i)
+					end
+					return self:GetEntryAtIndex(buffer, i)
+				end, keep)
+				if #copy.elements > 0 then
+					out[name] = copy
+				end
+			end
+		end
+		return out
+	end
+
+	local logoutFrame = CreateFrame("Frame")
+	logoutFrame:RegisterEvent("PLAYER_LOGOUT")
+	logoutFrame:SetScript("OnEvent", function()
+		local ok, saved = pcall(module.BuildSavedScrollback, module)
+		EverlookDBChatHighCPUCharDB = EverlookDBChatHighCPUCharDB or {}
+		if ok then
+			EverlookDBChatHighCPUCharDB.scrollback = saved
+		else
+			-- never leave the live history in the file; keep the last good copy
+			EverlookDBChatHighCPUCharDB.scrollback = module:ShrinkSaved(module.scrollback, module:KeepLines())
+		end
+	end)
+
 	local orgOME = module.OnModuleEnable
 	function module:OnModuleEnable(...)
 		orgOME(self, ...)
 
-		EverlookDBChatHighCPUCharDB = EverlookDBChatHighCPUCharDB
 		EverlookDBChatHighCPUCharDB = EverlookDBChatHighCPUCharDB or {}
+		-- older versions saved the whole live history: shrink it now
+		local saved = self.db.profile.scrollback and self:ShrinkSaved(EverlookDBChatHighCPUCharDB.scrollback, self:KeepLines()) or {}
+		EverlookDBChatHighCPUCharDB.scrollback = saved
+		self.scrollback = saved
 
-		EverlookDBChatHighCPUCharDB.scrollback = EverlookDBChatHighCPUCharDB.scrollback or {}
-
-		self.scrollback = EverlookDBChatHighCPUCharDB.scrollback
-
-		if self.db.profile.scrollback then
+		if self.db.profile.scrollback and not self.restored then
+			self.restored = true
 			self:RestoreLastSession()
+		end
 
-			for k, v in pairs(EverlookDBChat.HookedFrames) do
-				self.scrollback[k] = v.historyBuffer
-				if not self:IsHooked(v, "AddMessage") then
-					self:SecureHook(v, "AddMessage")
-				end
+		for _, v in pairs(EverlookDBChat.HookedFrames) do
+			if not self:IsHooked(v, "AddMessage") then
+				self:SecureHook(v, "AddMessage")
 			end
 		end
 
 		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.FRAMES_UPDATED)
 		EverlookDBChat.RegisterChatEvent(self, EverlookDBChat.Events.FRAMES_REMOVED)
-
-		if not self.logoutFrame then
-			self.logoutFrame = CreateFrame("Frame")
-			self.logoutFrame:RegisterEvent("PLAYER_LOGOUT")
-			self.logoutFrame:SetScript("OnEvent", function()
-				module:TrimScrollback()
-			end)
-		end
-	end
-
-	-- The windows keep thousands of lines now; only the newest few are worth
-	-- saving between sessions. At logout each saved window is replaced by a copy
-	-- holding its newest lines (in the same layout RestoreLastSession reads), so
-	-- the saved file stays small. Lines whose text is hidden from addons are left out.
-	function module:TrimScrollback()
-		if not (self.scrollback and self.db.profile.on and self.db.profile.scrollback) then
-			return
-		end
-		local keep = self.db.profile.scrollbacklines or 1000
-		for name, buffer in pairs(self.scrollback) do
-			if type(buffer) == "table" and buffer.elements and buffer.headIndex and buffer.maxElements then
-				local lines = {}
-				for i = 1, #buffer.elements do
-					if #lines >= keep then
-						break
-					end
-					local line = self:GetEntryAtIndex(buffer, i)
-					if line and type(line.message) == "string" and not issecretvalue(line.message) then
-						lines[#lines + 1] = line
-					end
-				end
-				local count = #lines
-				local elements = {}
-				for i = 1, count do
-					elements[count - i + 1] = lines[i]
-				end
-				self.scrollback[name] = {
-					elements = elements,
-					headIndex = count,
-					maxElements = math.max(count, 1),
-				}
-			end
-		end
 	end
 
 	local orgOMD = module.OnModuleDisable
 	function module:OnModuleDisable(...)
 		orgOMD(self, ...)
 
-		for name, v in pairs(EverlookDBChat.HookedFrames) do
+		for _, v in pairs(EverlookDBChat.HookedFrames) do
 			if self:IsHooked(v, "AddMessage") then
 				self:Unhook(v, "AddMessage")
 			end
-			self.scrollback[name] = nil
 		end
 	end
 
 	function module:OnValueChanged()
-		for k, v in pairs(EverlookDBChat.HookedFrames) do
-			if self.db.profile.scrollback then
-				if not v.isTemporary then
-					self.scrollback[k] = v.historyBuffer
-				else
-					self.scrollback[k] = nil
-				end
-			else
-				self.scrollback[k] = nil
-			end
-		end
 	end
 
-	function module:EverlookDBChat_FramesUpdated(_, name, chatFrame)
-		if self.db.profile.scrollback and not chatFrame.isTemporary then
-			self.scrollback[name] = chatFrame.historyBuffer
-		end
+	function module:EverlookDBChat_FramesUpdated(_, _, chatFrame)
 		if not self:IsHooked(chatFrame, "AddMessage") then
 			self:SecureHook(chatFrame, "AddMessage")
 		end
 	end
 
-	function module:EverlookDBChat_FramesRemoved(_, name, chatFrame)
-		self.scrollback[name] = nil
+	function module:EverlookDBChat_FramesRemoved(_, _, chatFrame)
 		if self:IsHooked(chatFrame, "AddMessage") then
 			self:Unhook(chatFrame, "AddMessage")
 		end
 	end
 
+	-- Stamp each new line with the server time, so a restored line knows its age.
 	function module:AddMessage(frame)
-		if self.db.profile.on and self.scrollback and self.scrollback[frame:GetName()] then
-			if frame.historyBuffer:GetEntryAtIndex(1) then
-				frame.historyBuffer:GetEntryAtIndex(1).serverTime = GetServerTime()
+		if self.db.profile.on and self.db.profile.scrollback and isSavedWindowName(frame:GetName()) and frame.historyBuffer then
+			local entry = frame.historyBuffer:GetEntryAtIndex(1)
+			if entry and not entry.serverTime then
+				entry.serverTime = GetServerTime()
 			end
 		end
 	end
@@ -326,7 +393,7 @@ EverlookDBChat:AddModuleExtension(function()
 		local now, uptime, maxTime = GetServerTime(), GetTime(), self.db.profile.scrollbackduration * 60 * 60
 		for frame, scrollback in pairs(self.scrollback) do
 			local f = _G[frame]
-			if scrollback.elements and scrollback.headIndex and scrollback.maxElements and frame ~= "ChatFrame2" then
+			if type(scrollback) == "table" and scrollback.elements and scrollback.headIndex and scrollback.maxElements and isSavedWindowName(frame) then
 				if f and #scrollback.elements then
 					local timeShown = false
 					for i = 1, #scrollback.elements do

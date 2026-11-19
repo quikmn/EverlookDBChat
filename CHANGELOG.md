@@ -1,5 +1,9 @@
 # EverlookDB Chat
 
+## Unreleased
+
+- Chat history is much smaller on disk: at logout only the newest lines (1000 by default) of your open chat windows are saved, as plain text, never the combat log. Your existing saved history (up to 2 MB per character) is cut down the first time you log in.
+
 ## v0.1.0 (2026-11-19)
 
 - Settings: `/echat ai` copies a description of every setting for an AI assistant, and `/echat apply` runs the commands it gives back.
