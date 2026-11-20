@@ -1,6 +1,7 @@
 # EverlookDB Chat
 
 ## Unreleased
+- Settings window: switches, buttons and sliders use a softer shade of the accent colour, an on switch has a dark knob so it stands out, and boxes have cleaner rounded edges.
 
 - Chat history is much smaller on disk: at logout only the newest lines (1000 by default) of your open chat windows are saved, as plain text, never the combat log. Your existing saved history (up to 2 MB per character) is cut down the first time you log in.
 - Calm: Fewer lines on screen no longer does work every frame while you use the chat, scroll up, or have the setting off.
