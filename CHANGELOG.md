@@ -1,5 +1,8 @@
 # EverlookDB Chat
 
+## Unreleased
+- Alt names on unit tooltips use the shared EverlookDB tooltip look, including its solid background (set in any EverlookDB addon's settings).
+
 ## v0.2.1 (2026-11-21)
 - Importing a profile string sets it for the character you are on again (after today's WoW Forever client update it was saved for a nameless character instead). Importing alt names from LOKWhoIsWho or GuildGreet no longer errors or pulls in other realms' alts when the game doesn't say the realm.
 
