@@ -29,7 +29,8 @@ function private:ImportProfile(dataString, profileKey)
 	end
 
 	private.db.sv.profiles[profileKey] = data.profile
-	private.db.sv.profileKeys[UnitName("player") .. " - " .. GetRealmName()] = profileKey
+	-- AceDB's own key for this character ("Name Surname" with WoW Forever's regional names; GetRealmName() is "" there)
+	private.db.sv.profileKeys[private.db.keys.char] = profileKey
 	for namespaceKey, namespaceData in pairs(data.namespaces) do
 		if not private.db.sv.namespaces[namespaceKey] then
 			private.db.sv.namespaces[namespaceKey] = { profiles = {} }

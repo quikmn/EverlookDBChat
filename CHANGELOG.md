@@ -1,5 +1,8 @@
 # EverlookDB Chat
 
+## Unreleased
+- Importing a profile string sets it for the character you are on again (after today's WoW Forever client update it was saved for a nameless character instead). Importing alt names from LOKWhoIsWho or GuildGreet no longer errors or pulls in other realms' alts when the game doesn't say the realm.
+
 ## v0.2.0 (2026-11-20)
 - Settings window: switches, buttons and sliders use a softer shade of the accent colour, an on switch has a dark knob so it stands out, and boxes have cleaner rounded edges.
 

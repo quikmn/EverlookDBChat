@@ -88,6 +88,20 @@ step("load LibStub, EverlookUI and addon/commands.lua", function()
 	eq(SLASH_EDBCHAT2, "/edbchat", "old name kept")
 end)
 
+step("profile import on client build 71037 (GetRealmName \"\"): set for AceDB's own character key, not \"Name - \"", function()
+	local p = {}
+	load("addon/profileAPI.lua", "EverlookDBChat", p)
+	local realName, realEnc = GetRealmName, C_EncodingUtil
+	GetRealmName = function() return "" end
+	C_EncodingUtil = { DecodeBase64 = function(s) return s end,
+		DeserializeCBOR = function() return { profile = { a = 1 }, namespaces = {} } end }
+	p.db = { keys = { char = "Miy Sake" }, sv = { profiles = {}, profileKeys = {}, namespaces = {} } }
+	p:ImportProfile("x", "Imported")
+	eq(p.db.sv.profileKeys["Miy Sake"], "Imported", "this character's profile")
+	eq(next(p.db.sv.profileKeys), "Miy Sake", "a second, nameless key")
+	GetRealmName, C_EncodingUtil = realName, realEnc
+end)
+
 local function slash(msg) SlashCmdList.EDBCHAT(msg) end
 
 step("/echat and /edbchat open the window", function()

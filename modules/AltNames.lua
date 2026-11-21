@@ -692,8 +692,10 @@ EverlookDBChat:AddModuleToLoad(function()
 			return false
 		end
 
+		-- GetRealmName() is "" on WoW Forever since client build 71037: no realm to import for
 		local server = GetRealmName()
-		local lokalts = LOKWhoIsWho_Config[server]['players']
+		local lokrealm = server and server ~= "" and LOKWhoIsWho_Config[server]
+		local lokalts = type(lokrealm) == "table" and lokrealm['players'] or nil
 
 		if lokalts == nil then
 			self:print(PL["LOKWhoIsWho data not found"])
@@ -717,6 +719,11 @@ EverlookDBChat:AddModuleToLoad(function()
 		end
 
 		local servername = GetRealmName()
+		-- "" (WoW Forever since build 71037) would match every realm's characters: import none
+		if not servername or servername == "" then
+			self:print(PL['No Guild Greet database found'])
+			return
+		end
 		for k, v in pairs(GLDG_Data) do
 			if string.match(k, servername .. ' - %S+') then
 				for name, player in pairs(v) do
