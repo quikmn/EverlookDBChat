@@ -565,9 +565,11 @@ EverlookDBChat:AddModuleToLoad(function()
 		end
 	end
 
-	-- The box closes only when you send or press Escape (both clear it) or click a chat tab. Losing focus any other
-	-- way (clicking a character, the world, another window) leaves it open, dimmed: click it or press Enter to go on
-	-- typing. Decided one frame later, once we know whether the box was cleared.
+	-- Losing focus by a click (a character, the world, another window) while you have typed something keeps the box:
+	-- it takes the keyboard back at once, so you go on typing (the click still did its own thing, like targeting).
+	-- With nothing typed it closes, and your keys work again. Never a box on screen that doesn't take your keys.
+	-- Sending, Escape and a chat tab close it as always. Decided one frame later, once we know whether it was cleared.
+	local issecretvalue_ = issecretvalue or function() return false end
 	local function closeBox(frame)
 		frame.edbOpen = nil
 		frame:SetAlpha(0)
@@ -592,11 +594,20 @@ EverlookDBChat:AddModuleToLoad(function()
 				closeBox(frame)
 				return
 			end
-			if not frame:IsShown() and not (InCombatLockdown() and frame:IsProtected()) then
-				frame:Show()
+			local okT, text = pcall(frame.GetText, frame)
+			local typed = okT and type(text) == "string" and not issecretvalue_(text) and text:find("%S") ~= nil
+			if not typed then
+				closeBox(frame)
+				return
 			end
-			frame:SetAlpha(0.6)
-			frame:EnableMouse(true)
+			local activate = _G.ChatEdit_ActivateChat or (_G.ChatFrameUtil and _G.ChatFrameUtil.ActivateChat)
+			if activate and not (InCombatLockdown() and frame:IsProtected()) then
+				pcall(activate, frame)
+			end
+			if not frame:HasFocus() then
+				pcall(frame.SetFocus, frame)
+			end
+			if not frame:HasFocus() then closeBox(frame) end
 		end)
 	end
 
