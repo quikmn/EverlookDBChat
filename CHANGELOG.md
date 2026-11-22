@@ -1,6 +1,6 @@
 # EverlookDB Chat
 
-## Unreleased
+## v0.3.0 (2026-11-22)
 - Alt names on unit tooltips use the shared EverlookDB tooltip look, including its solid background (set in any EverlookDB addon's settings).
 
 ## v0.2.1 (2026-11-21)
