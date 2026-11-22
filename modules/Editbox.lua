@@ -351,6 +351,7 @@ EverlookDBChat:AddModuleToLoad(function()
 	local function ChatFrameTab_OnClick(i)
 		if GetCVar("chatStyle") ~= "classic" then
 			local chatFrame = _G["ChatFrame" .. i];
+			chatFrame.editBox.edbOpen = nil
 			ChatEdit_DeactivateChat(chatFrame.editBox)
 			chatFrame.editBox:Hide()
 		end
@@ -448,6 +449,7 @@ EverlookDBChat:AddModuleToLoad(function()
 
 		MakeEverlookDBChatEditbox(self, i)
 		self.frames[i]:Show()
+		self:HookClearChat(f)
 
 		local _, s, m = f:GetFont()
 		f:SetFont(Media:Fetch("font", self.db.profile.font), s, m)
@@ -475,6 +477,7 @@ EverlookDBChat:AddModuleToLoad(function()
 
 			MakeEverlookDBChatEditbox(self, i) -- For new temporary chat frames created between init and now
 			self.frames[i]:Show()
+			self:HookClearChat(f)
 			local _, s, m = f:GetFont()
 			f:SetFont(Media:Fetch("font", self.db.profile.font), s, m)
 
@@ -552,6 +555,8 @@ EverlookDBChat:AddModuleToLoad(function()
 	end
 
 	function module:ChatEdit_ActivateChat(frame)
+		frame.edbOpen = true
+		frame.edbCleared = nil
 		frame:SetAlpha(1)
 		frame:EnableMouse(true)
 		local i = frame.chatFrame and frame.chatFrame:GetID()
@@ -560,13 +565,54 @@ EverlookDBChat:AddModuleToLoad(function()
 		end
 	end
 
-	function module:ChatEdit_DeactivateChat(frame)
+	-- The box closes only when you send or press Escape (both clear it) or click a chat tab. Losing focus any other
+	-- way (clicking a character, the world, another window) leaves it open, dimmed: click it or press Enter to go on
+	-- typing. Decided one frame later, once we know whether the box was cleared.
+	local function closeBox(frame)
+		frame.edbOpen = nil
 		frame:SetAlpha(0)
 		frame:EnableMouse(false)
 		local i = frame.chatFrame and frame.chatFrame:GetID()
 		if i then
-			self:SetLift(i, false)
+			module:SetLift(i, false)
 		end
+	end
+	module.CloseBox = closeBox
+
+	function module:ChatEdit_DeactivateChat(frame)
+		if not frame.edbOpen or frame.edbCleared or not C_Timer then
+			frame.edbCleared = nil
+			closeBox(frame)
+			return
+		end
+		C_Timer.After(0, function()
+			if frame:HasFocus() then return end
+			if frame.edbCleared or not frame.edbOpen then
+				frame.edbCleared = nil
+				closeBox(frame)
+				return
+			end
+			if not frame:IsShown() and not (InCombatLockdown() and frame:IsProtected()) then
+				frame:Show()
+			end
+			frame:SetAlpha(0.6)
+			frame:EnableMouse(true)
+		end)
+	end
+
+	-- Sending and Escape clear the box: then it closes.
+	function module:HookClearChat(editbox)
+		if not editbox or editbox.edbClearHooked then return end
+		editbox.edbClearHooked = true
+		local function done(e)
+			if e:HasFocus() then return end
+			e.edbCleared = true
+			e.edbOpen = nil
+			closeBox(e)
+		end
+		if editbox.ClearChat then hooksecurefunc(editbox, "ClearChat", done) end
+		editbox:HookScript("OnEnterPressed", done)
+		editbox:HookScript("OnEscapePressed", done)
 	end
 
 	local issecret = issecretvalue or function()
