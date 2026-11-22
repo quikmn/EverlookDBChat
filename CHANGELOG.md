@@ -1,6 +1,6 @@
 # EverlookDB Chat
 
-## Unreleased
+## v0.3.1 (2026-11-22)
 - Clicking a character or the world while you're typing keeps the chat box and its keyboard, so you go on typing. With nothing typed it closes, and your keys work again. No more half-open box that ignores your typing.
 
 ## v0.3.0 (2026-11-22)

@@ -3,7 +3,7 @@
 ## Notes: Chat improvements: timestamps, short channel names, class-coloured names, copy chat, chat history, URL copy and more, each one a module you can turn on or off. /echat
 ## Author: quikmn
 ## X-Credits: A modified version of Prat-3.0 by QartemisT and Sylvanaar (GPL-3.0). See README.md.
-## Version: 0.3.0
+## Version: 0.3.1
 ## X-License: GPL-3.0
 
 ## Category-enUS: Chat
