@@ -19,9 +19,48 @@ local windows = {}
 function GetChatWindowInfo(id) local w = windows[id] or {}; return "w", 14, 1, 1, 1, 1, w.shown, false, w.docked end
 function IsCombatLog(f) return f == _G.ChatFrame2 end
 
+-- Every frame that listens for PLAYER_LOGOUT, in the order they were made (the
+-- game calls them in that order). The settings library loads first, as in game.
+local logoutFrames = {}
+local realCreateFrame = CreateFrame
+CreateFrame = function(...)
+	local f = realCreateFrame(...)
+	local reg = f.RegisterEvent
+	f.RegisterEvent = function(self, e, ...)
+		if e == "PLAYER_LOGOUT" then logoutFrames[#logoutFrames + 1] = self end
+		return reg(self, e, ...)
+	end
+	return f
+end
+local function firePlayerLogout()
+	for _, f in ipairs(logoutFrames) do
+		local fn = f:GetScript("OnEvent")
+		if fn then fn(f, "PLAYER_LOGOUT") end
+	end
+end
+geterrorhandler = geterrorhandler or function() return error end
+strmatch = strmatch or string.match
+UnitFactionGroup = UnitFactionGroup or function() return "Alliance" end
+GetLocale = GetLocale or function() return "enUS" end
+UnitClass = UnitClass or function() return "Mage", "MAGE" end
+UnitRace = UnitRace or function() return "Human", "Human" end
+GetRealmName = GetRealmName or function() return "Realm" end
+UnitNameUnmodified = UnitNameUnmodified or function() return "Tester" end
+GetCurrentRegionName = GetCurrentRegionName or function() return "EU" end
+GetCurrentRegion = GetCurrentRegion or function() return 3 end
+wipe = wipe or function(t) for k in pairs(t) do t[k] = nil end return t end
+for _, lib in ipairs({ "LibStub/LibStub.lua", "CallbackHandler-1.0/CallbackHandler-1.0.lua", "AceDB-3.0/AceDB-3.0.lua" }) do
+	assert(loadfile(ROOT .. "/Libs/" .. lib))()
+end
+
+-- the module's settings the way the addon makes them: a real AceDB namespace with the History defaults
+local historyDefaults = { profile = { on = true, scrollback = true, scrollbacklines = 1000, scrollbackduration = 24, removespam = true, divider = "line" } }
+EverlookDBChatDB = {}
+local rootDB = LibStub("AceDB-3.0"):New("EverlookDBChatDB", { profile = { modules = {} } }, true)
+
 local enabled = true
 local module = { PL = setmetatable({}, { __index = function(_, k) return k end }), pluginopts = {},
-	db = { profile = { on = true, scrollback = true, scrollbacklines = 1000, scrollbackduration = 24, removespam = true, divider = "line" } } }
+	db = rootDB:RegisterNamespace("History", historyDefaults) }
 function module:IsEnabled() return enabled end
 function module.OnModuleEnable() end
 function module.OnModuleDisable() end
@@ -29,17 +68,11 @@ EverlookDBChat = { HookedFrames = {} }
 function EverlookDBChat:AddModuleExtension(fn) fn() end
 function EverlookDBChat:GetModule() return module end
 
-local logoutScript
-local realCreateFrame = CreateFrame
-CreateFrame = function(...)
-	local f = realCreateFrame(...)
-	local set = f.SetScript
-	f.SetScript = function(self, what, fn) if what == "OnEvent" then logoutScript = fn end; if set then return set(self, what, fn) end end
-	return f
-end
 local chunk = assert(loadfile(ROOT .. "/modules/Scrollback.lua"))
 chunk()
 CreateFrame = realCreateFrame
+local ourFrame = logoutFrames[#logoutFrames]
+local function logoutScript() ourFrame:GetScript("OnEvent")(ourFrame, "PLAYER_LOGOUT") end
 
 -- a window's live history the way the game keeps it: ring buffer, index 1 = newest
 local function liveBuffer(n, max)
@@ -124,6 +157,108 @@ step("module enable shrinks old saved data in place", function()
 	check(s.ChatFrame2 == nil, "combat log gone")
 	eq(#s.ChatFrame1.elements, 1000)
 	check(module.scrollback == s, "module uses the shrunk copy")
+end)
+
+-- The game's own chat window storage (Blizzard_SharedXML CircularBuffer +
+-- ScrollingMessageFrame on this client): the head index is a SecureNumber object
+-- read through GetValue, lines are pushed by AddMessage as
+-- { message, r, g, b, extraData = { ..., n }, timestamp }.
+local function secureNumber(v)
+	local n = { value = v or 0 }
+	function n:GetValue() return self.value end
+	function n:SetValue(x) self.value = x end
+	function n:Increment() self.value = self.value + 1 end
+	return n
+end
+local function circularBuffer(max)
+	local b = { headIndex = secureNumber(0), maxElements = secureNumber(max), elements = {} }
+	function b:GetNumElements() return #self.elements end
+	function b:GetMaxNumElements() return self.maxElements:GetValue() end
+	function b:PushFront(e)
+		self.headIndex:Increment()
+		local at = self.headIndex:GetValue()
+		self.elements[at] = e
+		self.headIndex:SetValue(at % self.maxElements:GetValue())
+		return at
+	end
+	function b:CalculateElementIndex(index)
+		local g = self.headIndex:GetValue() - index + 1
+		if g == 0 then return self:GetMaxNumElements() end
+		return (g - 1) % self:GetMaxNumElements() + 1
+	end
+	function b:GetEntryAtIndex(index)
+		if index > 0 and index <= self:GetNumElements() then
+			return self.elements[self:CalculateElementIndex(index)]
+		end
+	end
+	return b
+end
+local function chatFrame(name, maxLines)
+	local f = { historyBuffer = circularBuffer(maxLines) }
+	function f:GetName() return name end
+	function f:AddMessage(message, r, g, b, ...)
+		local extra
+		if select("#", ...) > 0 then extra = { ... }; extra.n = select("#", ...) end
+		self.historyBuffer:PushFront({ message = message, r = r, g = g, b = b, extraData = extra, timestamp = 12.5 })
+		module:AddMessage(self) -- the module's hook stamps the server time
+	end
+	function f:GetNumMessages() return self.historyBuffer:GetNumElements() end
+	function f:GetMessageInfo(i)
+		local e = self.historyBuffer:GetEntryAtIndex(self.historyBuffer:GetNumElements() - i + 1)
+		if e then return e.message, e.r, e.g, e.b end
+	end
+	_G[name] = f
+	return f
+end
+
+local function freshChat(lines, maxLines)
+	for i = 1, 10 do _G["ChatFrame" .. i] = nil end
+	windows = { [1] = { shown = true, docked = 1 }, [2] = { docked = 1 } }
+	local f = chatFrame("ChatFrame1", maxLines or 3000)
+	chatFrame("ChatFrame2", 3000):AddMessage("combat line", 1, 1, 1)
+	for i = 1, lines do
+		if i % 7 == 0 then
+			f:AddMessage(MOCK.Secret("secret " .. i), 1, 1, 1, 0, 0, 0, 0, 1) -- arrived during a chat lockdown
+		else
+			f:AddMessage("|cffffffff[Trade] Someone: line " .. i .. "|r", 1, 0.75, 0.75, 0, 3, 4, 5, 6)
+		end
+	end
+	return f
+end
+
+step("logout in game order (settings library first) saves the newest real lines", function()
+	module.db:RegisterDefaults(historyDefaults)
+	local f = freshChat(1400, 1200)
+	eq(f:GetNumMessages(), 1200, "live lines (ring buffer wrapped)")
+	EverlookDBChatHighCPUCharDB = { scrollback = {} }
+	firePlayerLogout()
+	local saved = EverlookDBChatHighCPUCharDB.scrollback
+	check(saved.ChatFrame1, "chat window saved (was empty: defaults gone before the copy)")
+	check(saved.ChatFrame2 == nil, "combat log not saved")
+	local c = saved.ChatFrame1
+	check(#c.elements > 800, "most lines kept, got " .. #c.elements)
+	eq(module:GetEntryAtIndex(c, 1).message, "|cffffffff[Trade] Someone: line 1399|r", "newest real line first (1400 was secret)")
+	for _, l in ipairs(c.elements) do
+		check(type(l.message) == "string", "only plain text saved")
+		check(l.serverTime, "line has its time")
+		eq(l.extraData.n, 5, "real chat count")
+	end
+end)
+
+step("a setting changed from its default still counts at logout", function()
+	module.db:RegisterDefaults(historyDefaults)
+	freshChat(300)
+	module.db.profile.scrollbacklines = 100
+	EverlookDBChatHighCPUCharDB = { scrollback = {} }
+	firePlayerLogout()
+	eq(#EverlookDBChatHighCPUCharDB.scrollback.ChatFrame1.elements, 100, "lines kept")
+	module.db:RegisterDefaults(historyDefaults)
+	module.db.profile.scrollbacklines = 1000
+	module.db.profile.scrollback = false
+	firePlayerLogout()
+	eq(next(EverlookDBChatHighCPUCharDB.scrollback), nil, "scrollback turned off: nothing saved")
+	module.db:RegisterDefaults(historyDefaults)
+	module.db.profile.scrollback = true
 end)
 
 if REAL_SV and REAL_SV ~= "" then

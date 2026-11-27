@@ -70,14 +70,41 @@ local holds = {}
 local applying = false
 local users = 0
 local driver
+local managedGeneration = 0 -- goes up when a frame is added to managed
+
+-- A frame of a protected game window is "forbidden": calling any of its methods
+-- from an addon is an error. Such a frame can still turn up here (the keyboard
+-- focus, a parent), so ask before touching it.
+local function isForbidden(frame)
+	if type(frame) ~= "table" then
+		return true
+	end
+	local ok, forbidden = pcall(function()
+		return frame.IsForbidden and frame:IsForbidden()
+	end)
+	return not ok or forbidden and true or false
+end
+
+local function parentOf(frame)
+	if isForbidden(frame) then
+		return nil
+	end
+	local ok, parent = pcall(frame.GetParent, frame)
+	if ok and type(parent) == "table" then
+		return parent
+	end
+	return nil
+end
 
 local function hasAncestor(frame, set)
-	local parent = frame:GetParent()
-	while parent do
+	local parent = parentOf(frame)
+	local depth = 0
+	while parent and depth < 50 do
 		if set[parent] then
 			return true
 		end
-		parent = parent:GetParent()
+		parent = parentOf(parent)
+		depth = depth + 1
 	end
 	return false
 end
@@ -127,6 +154,7 @@ local function manage(frame, isChrome)
 	end
 	if managed[frame] == nil then
 		managed[frame] = frame:GetAlpha()
+		managedGeneration = managedGeneration + 1
 	end
 	if isChrome then
 		chrome[frame] = true
@@ -221,15 +249,28 @@ function ChatUI:IsMouseOverChat()
 end
 
 -- Keyboard focus is in a chat edit box, or in a box inside the chat.
+-- Asked several times a second: the answer for a focused box is kept until the
+-- focus moves or the set of chat frames changes.
+local focusSeen, focusAnswer, focusGeneration = nil, false, -1
+
 function ChatUI:IsChatFocus()
 	local focus = GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus()
 	if not focus then
 		return false
 	end
-	if focus.chatFrame or managed[focus] ~= nil then
-		return true
+	if focus == focusSeen and focusGeneration == managedGeneration then
+		return focusAnswer
 	end
-	return hasAncestor(focus, managed)
+	local answer
+	if isForbidden(focus) then
+		answer = false -- a protected window's box, never ours
+	elseif managed[focus] ~= nil or rawget(focus, "chatFrame") then
+		answer = true
+	else
+		answer = hasAncestor(focus, managed)
+	end
+	focusSeen, focusAnswer, focusGeneration = focus, answer, managedGeneration
+	return answer
 end
 
 function ChatUI:IsScrolledUp()

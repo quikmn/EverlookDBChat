@@ -1,5 +1,9 @@
 # EverlookDB Chat
 
+## Unreleased
+- Your chat is kept between sessions again: after a logout or /reload the newest lines of your chat windows come back.
+- No more error messages while you type in a box of one of the game's own windows with flat tabs on.
+
 ## v0.3.2 (2026-11-27)
 - Small fixes to tooltips and the settings window: whichever window you click now comes to the front, and the settings list follows your search.
 

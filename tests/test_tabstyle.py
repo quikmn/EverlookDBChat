@@ -81,6 +81,66 @@ check(T.FindOlderCopy(entries(("[00:01] " + HELP, 100), ("hello", 99), ("[00:00]
 check(T.FindOlderCopy(entries((HELP, 300), (HELP, 100)), HELP, 300) is None, "too old help line kept")
 check(T.FindOlderCopy(entries((HELP, 100), ("a", 1)), HELP, 100) is None, "single help line kept")
 
+# 4. Chat focus check (services/chatui.lua) with a protected window's box focused:
+# every method on a forbidden frame errors except IsForbidden.
+focus_test = lua.eval(r"""function(src)
+  local calls = { parent = 0 }
+  local function frame(parent)
+    local f = { __alpha = 1, __parent = parent }
+    function f:GetParent() calls.parent = calls.parent + 1; return self.__parent end
+    function f:GetAlpha() return self.__alpha end
+    function f:SetAlpha(a) self.__alpha = a end
+    function f:IsShown() return true end
+    function f:IsMouseOver() return false end
+    function f:IsForbidden() return false end
+    return f
+  end
+  local forbidden = setmetatable({}, { __index = function(_, k)
+    if k == "IsForbidden" then return function() return true end end
+    return function() error("calling '" .. k .. "' on bad self (Attempt to access forbidden object)") end
+  end })
+  local env = setmetatable({}, { __index = _G })
+  env._G = env
+  env.CHAT_FRAMES = { "ChatFrame1" }
+  env.ChatFrame1 = frame(nil)
+  env.ChatFrame1EditBox = frame(env.ChatFrame1)
+  env.Inner = frame(env.ChatFrame1)
+  env.InnerBox = frame(env.Inner)
+  env.Loose = frame(nil)
+  env.hooksecurefunc = function() end
+  env.CreateFrame = function() return { SetScript = function() end } end
+  env.wipe = function(t) for k in pairs(t) do t[k] = nil end return t end
+  local focus = forbidden
+  env.GetCurrentKeyBoardFocus = function() return focus end
+  local private = {}
+  local chunk = assert(loadstring(src, "@chatui.lua"))
+  setfenv(chunk, env)
+  chunk("EverlookDBChat", private)
+  local UI = private.ChatUI
+  UI:Collect()
+  local out = {}
+  local ok, res = pcall(UI.IsChatFocus, UI)
+  out.forbiddenOk, out.forbiddenRes = ok, res
+  focus = env.InnerBox
+  out.inner = UI:IsChatFocus()
+  local before = calls.parent
+  for i = 1, 20 do UI:IsChatFocus() end
+  out.repeatCalls = calls.parent - before
+  focus = env.Loose
+  out.loose = UI:IsChatFocus()
+  -- a parent that is forbidden ends the walk quietly
+  focus = frame(forbidden)
+  local ok2, res2 = pcall(UI.IsChatFocus, UI)
+  out.forbiddenParentOk, out.forbiddenParentRes = ok2, res2
+  return out
+end""")
+r = focus_test((ROOT / "services" / "chatui.lua").read_text(encoding="utf-8"))
+check(r.forbiddenOk is True and r.forbiddenRes is False, f"protected window's focused box: no error, not chat ({r.forbiddenRes})")
+check(r.inner is True, "a box inside a chat window counts as chat focus")
+check(r.repeatCalls == 0, f"same focus is not walked again every tick ({r.repeatCalls} GetParent calls)")
+check(r.loose is False, "a box outside the chat is not chat focus")
+check(r.forbiddenParentOk is True and r.forbiddenParentRes is False, "forbidden parent: no error")
+
 if failures:
     print(f"{len(failures)} failed")
     sys.exit(1)

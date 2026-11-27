@@ -150,8 +150,31 @@ EverlookDBChat:AddModuleExtension(function()
 		return { elements = elements, headIndex = count, maxElements = math.max(count, 1) }
 	end
 
+	-- A setting that still reads right at logout. The settings library takes the
+	-- default values out of the settings at PLAYER_LOGOUT (so they are not written
+	-- to the saved file), and its logout handler runs before ours: a setting left
+	-- at its default reads nil by the time the chat is copied. Fall back to the
+	-- defaults, kept from when the module was set up.
+	local profileDefaults
+	local function rememberDefaults(db)
+		local d = db and rawget(db, "defaults")
+		if type(d) == "table" and type(d.profile) == "table" then
+			profileDefaults = d.profile
+		end
+	end
+	rememberDefaults(module.db)
+
+	function module:Setting(key)
+		local profile = self.db and self.db.profile
+		local value = profile and profile[key]
+		if value == nil and profileDefaults then
+			value = profileDefaults[key]
+		end
+		return value
+	end
+
 	function module:KeepLines()
-		return math.max(0, math.floor(tonumber(self.db and self.db.profile.scrollbacklines) or 1000))
+		return math.max(0, math.floor(tonumber(self:Setting("scrollbacklines")) or 1000))
 	end
 
 	-- Saved data from older versions held each window's whole live history (and
@@ -188,7 +211,7 @@ EverlookDBChat:AddModuleExtension(function()
 
 	-- Built at PLAYER_LOGOUT, just before the game writes the saved file.
 	function module:BuildSavedScrollback()
-		if not (self.db and self.db.profile.on and self.db.profile.scrollback and self:IsEnabled()) then
+		if not (self:Setting("on") and self:Setting("scrollback") and self:IsEnabled()) then
 			return {}
 		end
 		local keep = self:KeepLines()
@@ -228,6 +251,7 @@ EverlookDBChat:AddModuleExtension(function()
 	local orgOME = module.OnModuleEnable
 	function module:OnModuleEnable(...)
 		orgOME(self, ...)
+		rememberDefaults(self.db)
 
 		EverlookDBChatHighCPUCharDB = EverlookDBChatHighCPUCharDB or {}
 		-- older versions saved the whole live history: shrink it now
