@@ -1,5 +1,8 @@
 # EverlookDB Chat
 
+## Unreleased
+- Small fixes to tooltips and the settings window: whichever window you click now comes to the front, and the settings list follows your search.
+
 ## v0.3.1 (2026-11-22)
 - Clicking a character or the world while you're typing keeps the chat box and its keyboard, so you go on typing. With nothing typed it closes, and your keys work again. No more half-open box that ignores your typing.
 
